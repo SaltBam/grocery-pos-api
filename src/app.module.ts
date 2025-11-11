@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TypedConfigModule } from './typed-config/typed-config.module';
+import { TypedConfigModule } from './common/typed-config/typed-config.module';
 import { CookieModule } from './common/utils/cookie/cookie.module';
 
 @Module({

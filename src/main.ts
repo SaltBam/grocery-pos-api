@@ -1,11 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
-import { TypedConfigService } from './typed-config/typed-config.service';
+import { TypedConfigService } from './common/typed-config/typed-config.service';
+import { TimingInterceptor } from './common/interceptors/timing.interceptor';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = app.get(TypedConfigService);
+
+  app.useGlobalInterceptors(
+    new TimingInterceptor(),
+    new ResponseInterceptor()
+  );
 
   app.use(cookieParser(config.get('COOKIE_SECRET')));
 
