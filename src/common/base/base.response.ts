@@ -3,9 +3,9 @@ export class BaseResponse<T> {
     message: string | null;
 
     constructor(
-        data: T | null, message: string | null
+        data?: T, message?: string
     ) {
-        this.data = data;
-        this.message = message;
+        this.data = data ?? null;
+        this.message = message ?? null;
     }
 }

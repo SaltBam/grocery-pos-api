@@ -3,12 +3,12 @@ import { BaseResponse } from './base.response';
 
 @Controller()
 export abstract class BaseController {
-    protected FormatResponse<T>(
+    protected formatResponse<T>(
         response: BaseResponse<T>
     ): BaseResponse<T> {
         return new BaseResponse(
-            response.data ?? null,
-            response.message ?? 'Success'
+            response.data ?? undefined,
+            response.message ?? undefined
         );
     }
 }

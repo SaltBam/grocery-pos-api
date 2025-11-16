@@ -5,6 +5,8 @@ export const envSchema = zod.object({
     PORT: zod.coerce.number(),
     DOMAIN: zod.string(),
     COOKIE_SECRET: zod.string(),
+    JWT_SECRET: zod.string(),
+    JWT_EXPIRY: zod.coerce.number().positive(),
 });
 
 export type EnvTypes = zod.infer<typeof envSchema>;

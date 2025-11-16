@@ -29,7 +29,7 @@ export class CookieService {
             sameSite: options.sameSite ?? 'strict',
             signed: options.signed ?? true,
             path: options.path ?? '/',
-            domain: options.domain ?? `.${this.config.get('DOMAIN')}`,
+            // domain: options.domain ?? `.${this.config.get('DOMAIN')}`,
             maxAge: options.maxAge,
         });
     }
@@ -58,7 +58,7 @@ export class CookieService {
             //Note: check if this should be strict default
             sameSite: sameSite ?? 'strict',
             signed: true,
-            domain: domain ?? `.${this.config.get('DOMAIN')}`,
+            // domain: domain ?? `.${this.config.get('DOMAIN')}`,
             path: path ?? '/',
         });
     }
