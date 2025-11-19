@@ -3,7 +3,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
 import { Strategy } from "passport-jwt";
 import { TypedConfigService } from "src/common/typed-config/typed-config.service";
-import { JWTPayload } from "./types/auth.enum";
+import { JWTPayload } from "./types/auth.types";
 
 @Injectable()
 export class JWTStrategy extends PassportStrategy(Strategy, 'jwt') {

@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as argon from 'argon2'
-import { JWTPayload } from 'src/auth/types/auth.enum';
+import { JWTPayload, Role } from 'src/auth/types/auth.types';
+
+class UserInfo {
+    name: string;
+    roles: Role[];
+    id: Types.ObjectId;
+}
 @Injectable()
 export class UserService {
     constructor(
@@ -11,7 +17,7 @@ export class UserService {
     ) {}
 
     async checkCredentials(username: string, password :string)
-    : Promise<JWTPayload | null> {
+    : Promise<UserInfo | null> {
         const user = await this.model
             .findOne({ name: username })
             .lean();
@@ -25,6 +31,6 @@ export class UserService {
             return null;
         }
 
-        return { username: user.name, roles: user.roles }
+        return { name: user.name, roles: user.roles, id: user._id };
     }
 }

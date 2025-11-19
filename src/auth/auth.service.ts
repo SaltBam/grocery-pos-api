@@ -2,8 +2,9 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { LoginReq } from './types';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
-import { JWTPayload } from './types/auth.enum';
+import { JWTPayload } from './types/auth.types';
 import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
+import { RefreshTokenService } from './refresh-token/refresh-token.service';
 
 @Injectable()
 export class AuthService {
@@ -11,25 +12,35 @@ export class AuthService {
         private config: TypedConfigService,
         private userService: UserService,
         private jwtService: JwtService,
+        private refreshTokenService: RefreshTokenService,
     ) {}
 
     async login(loginReq: LoginReq)
-    : Promise<string> {
+    : Promise<{
+        refreshPayload: string,
+        jwtPayload: string
+    }> {
         const { username, password } = loginReq;
 
-        const jwtPayload = 
+        const userInfo = 
             await this.userService.checkCredentials(username, password);
         
-        if (!jwtPayload) {
+        if (!userInfo) {
             throw new BadRequestException(
                 `Username and Password do not match`
             );
         }
 
-        return this.signJWT(jwtPayload);
+        const refreshPayload = await this.refreshTokenService.create(userInfo.id);
+        const jwtPayload = { username: userInfo.name, roles: userInfo.roles };
+        
+        return {
+            refreshPayload: JSON.stringify(refreshPayload),
+            jwtPayload: this.signJWT(jwtPayload)
+        }            
     }
 
-    private signJWT(payload: JWTPayload)
+    signJWT(payload: JWTPayload)
     : string {
         return this.jwtService.sign(
             payload, {

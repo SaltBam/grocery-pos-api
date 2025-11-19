@@ -6,7 +6,7 @@ import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth/auth.controller';
 import { APP_GUARD } from '@nestjs/core';
-import { JWTAuthGuard } from './auth/jwt-auth.guard';
+import { JWTAuthGuard } from './auth/jwt.guard';
 import { RoleGuard } from './auth/role.guard';
 
 @Module({

@@ -8,32 +8,6 @@ export class CookieService {
         private config: TypedConfigService    
     ) {}
 
-    create(
-        res: Response,
-        name: string, 
-        payload: string, 
-        options: {
-            httpOnly?: boolean;
-            secure?: boolean;
-            sameSite?: 'strict' | 'lax';
-            signed?: boolean;
-            path?: string;
-            domain?: string;
-            maxAge: number;
-        }
-    ) {
-        res.cookie(name, payload, {
-            httpOnly: options.httpOnly ?? true,
-            secure: options.secure ?? true,
-            //Note: check if should default to strict
-            sameSite: options.sameSite ?? 'strict',
-            signed: options.signed ?? true,
-            path: options.path ?? '/',
-            // domain: options.domain ?? `.${this.config.get('DOMAIN')}`,
-            maxAge: options.maxAge,
-        });
-    }
-
     createSecure(
         res: Response,
         name: string, 
@@ -42,24 +16,52 @@ export class CookieService {
         domain?: string,
         path?: string,
     ) {
-        this.create(res, name, payload, { maxAge, domain, path });
+        res.cookie(name, payload, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            signed: true,
+            maxAge,
+            path: path ?? '/',
+            // domain: domain
+        })
     }
 
     removeSecure(
         res: Response,
         name: string, 
-        sameSite?: 'strict' | 'lax',
         domain?: string,
         path?: string
     ) {
         res.clearCookie(name, {
             httpOnly: true,
             secure: true,
-            //Note: check if this should be strict default
-            sameSite: sameSite ?? 'strict',
+            sameSite: 'strict',
             signed: true,
             // domain: domain ?? `.${this.config.get('DOMAIN')}`,
             path: path ?? '/',
         });
+    }
+
+    createRefresh(res: Response, payload: string) {
+        this.createSecure(
+            res, 'refresh', payload, 
+            this.config.get('REFRESH_EXPIRY')
+        );
+    }
+
+    removeRefresh(res: Response) {
+        this.removeSecure(res, 'refresh');
+    }
+
+    createJwt(res: Response, payload: string) {
+        this.createSecure(
+            res, 'jwt', payload, 
+            this.config.get('JWT_EXPIRY')
+        );
+    }
+
+    removeJwt(res: Response) {
+        this.removeSecure(res, 'jwt');
     }
 }

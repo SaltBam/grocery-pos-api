@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { Role } from "src/auth/types/auth.enum";
+import { Role } from "src/auth/types/auth.types";
 import { User, UserSchema } from "src/user/user.schema";
 import * as argon from 'argon2';
 

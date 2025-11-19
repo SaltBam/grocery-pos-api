@@ -7,6 +7,7 @@ export const envSchema = zod.object({
     COOKIE_SECRET: zod.string(),
     JWT_SECRET: zod.string(),
     JWT_EXPIRY: zod.coerce.number().positive(),
+    REFRESH_EXPIRY: zod.coerce.number().positive(),
 });
 
 export type EnvTypes = zod.infer<typeof envSchema>;

@@ -4,16 +4,14 @@ import { LoginReq, Role } from './types';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { CookieService } from 'src/common/utils/cookie/cookie.service';
-import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
 import { BaseResponse } from 'src/common/base/base.response';
-import { Public, Roles, ROLES_KEY } from './auth.decorator';
+import { Public, Roles } from './auth.decorator';
 
 @Public()
 @Controller('auth')
 export class AuthController extends BaseController {
     constructor(
         private service: AuthService,
-        private config: TypedConfigService,
         private cookieService: CookieService,
     ) { super() }
     
@@ -23,11 +21,10 @@ export class AuthController extends BaseController {
         @Body() loginReq: LoginReq,
         @Res({ passthrough: true }) res: Response
     ) {
-        const payload = await this.service.login(loginReq);
+        const { refreshPayload, jwtPayload } = await this.service.login(loginReq);
         
-        this.cookieService.createSecure(
-            res, 'jwt', payload, this.config.get('JWT_EXPIRY'),
-        );
+        this.cookieService.createRefresh(res, refreshPayload);
+        this.cookieService.createJwt(res, jwtPayload);
         
         return new BaseResponse();
     }
