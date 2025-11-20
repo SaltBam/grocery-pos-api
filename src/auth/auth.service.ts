@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginReq } from './types';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -28,6 +28,13 @@ export class AuthService {
         if (!userInfo) {
             throw new BadRequestException(
                 `Username and Password do not match`
+            );
+        }
+
+        const isActivated = await this.userService.checkActivated(username);
+        if (!isActivated) {
+            throw new UnauthorizedException(
+                `Account is deactivated. Kindly contact the owner.`
             );
         }
 

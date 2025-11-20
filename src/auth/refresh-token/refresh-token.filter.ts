@@ -5,7 +5,7 @@ import { CookieService } from 'src/common/utils/cookie/cookie.service';
 import { RefreshTokenService } from './refresh-token.service';
 import { Request, Response } from 'express';
 
-@Catch()
+@Catch(JWTInvalidError)
 export class RefreshTokenFilter<T> implements ExceptionFilter {
   constructor(
     private cookieService: CookieService,
