@@ -3,9 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import { Model, Types } from 'mongoose';
 import * as argon from 'argon2'
-import { JWTPayload, Role } from 'src/auth/types/auth.types';
-import { throws } from 'assert';
-import { GetAllReq } from './types/user.dto';
+import { Role } from 'src/auth/types/auth.types';
+import { UpdateManyReq } from './types';
 
 class UserInfo {
     name: string;
@@ -25,6 +24,20 @@ export class UserService {
             .find()
             .select('-passwordHash -__v')
             .lean();
+    }
+
+    async updateMany(dto: UpdateManyReq[]): Promise<UserInfo[]> {
+        //Note: catch error where name is taken
+        const updates = dto.map(({ _id, update }) => ({
+            updateOne: {
+                filter: { _id },
+                update: { $set: update }
+            }
+        }));
+
+        await this.model.bulkWrite(updates);
+
+        return this.getAll();
     }
 
     async checkCredentials(username: string, password :string)
