@@ -5,17 +5,27 @@ import { Model, Types } from 'mongoose';
 import * as argon from 'argon2'
 import { JWTPayload, Role } from 'src/auth/types/auth.types';
 import { throws } from 'assert';
+import { GetAllReq } from './types/user.dto';
 
 class UserInfo {
     name: string;
     roles: Role[];
-    id: Types.ObjectId;
+    _id: Types.ObjectId;
+    isActive: boolean;
 }
+
 @Injectable()
 export class UserService {
     constructor(
         @InjectModel(User.name) private model: Model<User>,
     ) {}
+
+    async getAll(): Promise<UserInfo[]> {
+        return this.model
+            .find()
+            .select('-passwordHash -__v')
+            .lean();
+    }
 
     async checkCredentials(username: string, password :string)
     : Promise<UserInfo | null> {
@@ -32,7 +42,10 @@ export class UserService {
             return null;
         }
 
-        return { name: user.name, roles: user.roles, id: user._id };
+        return { 
+            name: user.name, roles: user.roles, 
+            _id: user._id, isActive: user.isActive 
+        };
     }
 
     async checkActivated(username: string): Promise<boolean> {

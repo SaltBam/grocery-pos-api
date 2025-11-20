@@ -45,13 +45,13 @@ export class AuthController extends BaseController {
     ) {
         const refreshPayload = req.signedCookies['refresh'];
 
-        let id: Types.ObjectId;
+        let _id: Types.ObjectId;
         try {
-            ({ id } = JSON.parse(refreshPayload));
-            if (!id)    throw new Error();
+            ({ _id } = JSON.parse(refreshPayload));
+            if (!_id)    throw new Error();
 
             //Note: this can throw a db error
-            await this.service.logout(id);
+            await this.service.logout(_id);
         } catch (err) {
             Logger.warn('refreshPayload does not have valid content');
         }

@@ -39,7 +39,7 @@ export class AuthService {
             );
         }
 
-        const refreshPayload = await this.refreshTokenService.create(userInfo.id);
+        const refreshPayload = await this.refreshTokenService.create(userInfo._id);
         const jwtPayload = { username: userInfo.name, roles: userInfo.roles };
         
         return {

@@ -39,7 +39,7 @@ export class RefreshTokenService {
             expiry: newExpiry
         });
 
-        return { id: created._id, token, userId };
+        return { _id: created._id, token, userId };
     }
 
     async rotate(
@@ -70,10 +70,10 @@ export class RefreshTokenService {
         }
     }
 
-    async invalidate(id: Types.ObjectId): Promise<void> {
+    async invalidate(_id: Types.ObjectId): Promise<void> {
         await this.model
             .findByIdAndUpdate(
-                id,
+                _id,
                 { isValid: false }
             );
     }

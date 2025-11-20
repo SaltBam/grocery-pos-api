@@ -64,12 +64,12 @@ export class GlobalFilter implements ExceptionFilter {
           );
         }
         
-        let id: Types.ObjectId, token: string;
+        let _id: Types.ObjectId, token: string;
         
         try {
-          ({ id, token } = JSON.parse(refreshCookie));
+          ({ _id, token } = JSON.parse(refreshCookie));
           
-          if (!id || !token) {
+          if (!_id || !token) {
             throw new Error();
           }
         } catch (err) {
@@ -79,7 +79,7 @@ export class GlobalFilter implements ExceptionFilter {
         }
         
         const { jwtPayload, refreshPayload } = 
-        await this.refreshTokenService.rotate(id, token);
+        await this.refreshTokenService.rotate(_id, token);
         
         this.cookieService.createRefresh(res, refreshPayload);
         this.cookieService.createJwt(res, jwtPayload);
