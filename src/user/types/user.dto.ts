@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsBoolean, IsMongoId, IsNotEmpty, IsOptional, IsString, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 import { Role } from "src/auth/types";
 
@@ -11,15 +11,17 @@ export class GetAllReq {
     ids: Types.ObjectId[]
 }
 
+export class CreateReq {
+    @IsString()
+    @IsNotEmpty()
+    name: string
 
-export class UpdateManyReq {
-    @IsMongoId()
-    @Transform(({ value }) => new Types.ObjectId(value))
-    _id: Types.ObjectId;
-    
-    @ValidateNested()
-    @Type(() => UpdateManyFields)
-    update: UpdateManyFields;
+    @IsString()
+    password: string
+
+    @IsEnum(Role, { each: true })
+    @ArrayNotEmpty()
+    roles: Role[]
 }
 
 class UpdateManyFields {
@@ -39,3 +41,14 @@ class UpdateManyFields {
     @IsBoolean()
     isActive?: boolean;
 }
+
+export class UpdateManyReq {
+    @IsMongoId()
+    @Transform(({ value }) => new Types.ObjectId(value))
+    _id: Types.ObjectId;
+    
+    @ValidateNested()
+    @Type(() => UpdateManyFields)
+    update: UpdateManyFields;
+}
+

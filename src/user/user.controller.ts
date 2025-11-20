@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Logger, Patch, Req } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Patch, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
-import { GetAllReq, UpdateManyReq } from './types/user.dto';
+import { CreateReq, GetAllReq, UpdateManyReq } from './types/user.dto';
 import { Roles } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';
@@ -28,5 +28,13 @@ export class UserController {
         const data = await this.service.updateMany(updateManyReq);
 
         return new BaseResponse(data);
+    }
+
+    @Roles(Role.Owner)
+    @Post()
+    async create( @Body() createReq: CreateReq) {
+        await this.service.create(createReq);
+
+        return new BaseResponse();
     }
 }

@@ -4,6 +4,8 @@ import { Types } from 'mongoose';
 import { RefreshTokenService } from 'src/auth/refresh-token/refresh-token.service';
 import { JWTInvalidError } from 'src/auth/types';
 import { CookieService } from '../utils/cookie/cookie.service';
+import { toLowerCase } from 'zod';
+import { MongoFilter } from './mongo.filter';
 
 @Catch()
 export class GlobalFilter implements ExceptionFilter {
@@ -12,41 +14,39 @@ export class GlobalFilter implements ExceptionFilter {
     private cookieService: CookieService
   ) {}
 
-  async catch(exception: unknown, host: ArgumentsHost) {
-    Logger.log('GLOBAL FILTER')
+  async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
+    Logger.log('GLOBAL FILTER');
+    Logger.log({exception});
+
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
     const req = ctx.getRequest<Request>();
     
-    let status: any;
-    let message: any;
-    
     try {
       if (exception instanceof JWTInvalidError) {
-        await this.handleJWT(exception, res, req);
-        return;
+        Logger.log('JWT FILTER')
+        return await this.handleJWT(exception, res, req);
+      } else if ((exception as any)?.name?.toLowerCase().includes('mongo')) {
+        Logger.log('MONGO FILTER')
+        return MongoFilter.catch(exception);
       }
-    } catch (err) {
+    } catch (err: any) {
       Logger.log('RECAUGHT GLOBAL FILTER')
-      status = (err as any)?.status ?? HttpStatus.INTERNAL_SERVER_ERROR;
-      message = (err as any)?.message ?? 'Internal Server Error';
+      return this.sendResponse(res, req, err);
     }
 
-    status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : status ?? HttpStatus.INTERNAL_SERVER_ERROR;
+    return this.sendResponse(res, req, exception);
+  }
 
-    message =
-      exception instanceof HttpException
-        ? exception.getResponse()
-        : message ?? (exception as any)?.message ?? 'Internal server error';
+  private sendResponse(res: Response, req: Request, err: any) {
+    const status = err?.getStatus?.() ?? err?.status ??
+      HttpStatus.INTERNAL_SERVER_ERROR;
 
-    Logger.error(exception);
+    const message = err?.getResponse?.().message ?? 
+      err.message ?? 'Internal Server Error';
 
     res.status(status).json({
       statusCode: status,
-      timestamp: new Date().toISOString(),
       method: req.method,
       path: req.url,
       message,
@@ -55,8 +55,6 @@ export class GlobalFilter implements ExceptionFilter {
 
   private async handleJWT(exception: JWTInvalidError, res: Response, req: Request) {
       try {
-        Logger.log('REFRESH FILTER');
-
         const refreshCookie = req.signedCookies['refresh'];
         if (!refreshCookie) {
           throw new UnauthorizedException(

@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import { Model, Types } from 'mongoose';
 import * as argon from 'argon2'
 import { Role } from 'src/auth/types/auth.types';
-import { UpdateManyReq } from './types';
+import { CreateReq, UpdateManyReq } from './types';
 
 class UserInfo {
     name: string;
@@ -26,18 +26,39 @@ export class UserService {
             .lean();
     }
 
-    async updateMany(dto: UpdateManyReq[]): Promise<UserInfo[]> {
-        //Note: catch error where name is taken
-        const updates = dto.map(({ _id, update }) => ({
+    async updateMany(dto: UpdateManyReq[]): Promise<void> {
+        const newDto = await Promise.all(
+            dto.map(async ({_id, update}) => {
+                const newUpdate: any = {...update};
+
+                if (newUpdate.password) {
+                    let passwordHash = await argon.hash(newUpdate.password);
+                    newUpdate.passwordHash = passwordHash
+                    delete newUpdate.password;
+                }
+
+                return {_id, newUpdate}
+            })
+        );
+
+        const updates = newDto.map(({_id, newUpdate}) => ({
             updateOne: {
-                filter: { _id },
-                update: { $set: update }
+                filter: { _id},
+                update: { $set: newUpdate }
             }
         }));
 
         await this.model.bulkWrite(updates);
+    }
 
-        return this.getAll();
+    async create(dto: CreateReq): Promise<void> {
+        const { name, password, roles } = dto;
+
+        const passwordHash = await argon.hash(password);
+
+        await this.model.create({
+            name, passwordHash, roles
+        });
     }
 
     async checkCredentials(username: string, password :string)
