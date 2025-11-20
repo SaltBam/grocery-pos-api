@@ -4,6 +4,7 @@ import { User } from './user.schema';
 import { Model, Types } from 'mongoose';
 import * as argon from 'argon2'
 import { JWTPayload, Role } from 'src/auth/types/auth.types';
+import { throws } from 'assert';
 
 class UserInfo {
     name: string;
@@ -32,5 +33,13 @@ export class UserService {
         }
 
         return { name: user.name, roles: user.roles, id: user._id };
+    }
+
+    async checkActivated(username: string): Promise<boolean> {
+        const user = await this.model
+            .findOne({ name: username, isActive: true })
+            .lean();
+        
+        return !!user
     }
 }

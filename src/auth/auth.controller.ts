@@ -6,6 +6,7 @@ import { AuthService } from './auth.service';
 import { CookieService } from 'src/common/utils/cookie/cookie.service';
 import { BaseResponse } from 'src/common/base/base.response';
 import { Public, Roles } from './auth.decorator';
+import { Types } from 'mongoose';
 
 @Controller('auth')
 export class AuthController extends BaseController {
@@ -38,14 +39,27 @@ export class AuthController extends BaseController {
     
     @Roles(Role.Clerk, Role.Owner)
     @Post('logout')
-    logout(
-        @Res({ passthrough: true }) res: Response
+    async logout(
+        @Res({ passthrough: true }) res: Response,
+        @Req() req: Request,
     ) {
-        this.cookieService.removeSecure(
-            res, 'jwt'
-        );
+        const refreshPayload = req.signedCookies['refresh'];
+
+        let id: Types.ObjectId;
+        try {
+            ({ id } = JSON.parse(refreshPayload));
+            if (!id)    throw new Error();
+
+            //Note: this can throw a db error
+            await this.service.logout(id);
+        } catch (err) {
+            Logger.warn('refreshPayload does not have valid content');
+        }
+
+        this.cookieService.removeJwt(res);
+        this.cookieService.removeRefresh(res);
         
-        return new BaseResponse
+        return new BaseResponse();
     }
     
     @Roles(Role.Owner)

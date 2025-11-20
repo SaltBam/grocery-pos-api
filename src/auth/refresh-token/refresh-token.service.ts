@@ -70,6 +70,14 @@ export class RefreshTokenService {
         }
     }
 
+    async invalidate(id: Types.ObjectId): Promise<void> {
+        await this.model
+            .findByIdAndUpdate(
+                id,
+                { isValid: false }
+            );
+    }
+
     private async checkValid(
         refreshToken: FoundRefresh, token: string
     ): Promise<boolean> {

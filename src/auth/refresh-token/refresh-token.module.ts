@@ -4,7 +4,7 @@ import { AuthModule } from '../auth.module';
 import { CookieModule } from 'src/common/utils/cookie/cookie.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { RefreshToken, RefreshTokenSchema } from './refresh-token.schema';
-import { RefreshTokenFilter } from './refresh-token.filter';
+import { APP_FILTER } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -16,7 +16,6 @@ import { RefreshTokenFilter } from './refresh-token.filter';
   ],
   providers: [
     RefreshTokenService,
-    RefreshTokenFilter,
   ],
   exports: [RefreshTokenService]
 })

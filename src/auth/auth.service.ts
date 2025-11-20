@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { JWTPayload } from './types/auth.types';
 import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
 import { RefreshTokenService } from './refresh-token/refresh-token.service';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class AuthService {
@@ -45,6 +46,10 @@ export class AuthService {
             refreshPayload: JSON.stringify(refreshPayload),
             jwtPayload: this.signJWT(jwtPayload)
         }            
+    }
+
+    async logout(refreshTokenId: Types.ObjectId): Promise<void> {
+        await this.refreshTokenService.invalidate(refreshTokenId);
     }
 
     signJWT(payload: JWTPayload)

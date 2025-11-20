@@ -4,7 +4,6 @@ import cookieParser from 'cookie-parser';
 import { TypedConfigService } from './common/typed-config/typed-config.service';
 import { TimingInterceptor } from './common/interceptors/timing.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { RefreshTokenFilter } from './auth/refresh-token/refresh-token.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,10 +13,6 @@ async function bootstrap() {
     new TimingInterceptor(),
     new ResponseInterceptor()
   );
-
-  app.useGlobalFilters(
-    app.get(RefreshTokenFilter)
-  )
   
   app.use(cookieParser(config.get('COOKIE_SECRET')));
 
