@@ -14,6 +14,7 @@ export class GetAllReq {
 export class CreateReq {
     @IsString()
     @IsNotEmpty()
+    @Transform(({ value }) => value.trim())
     name: string
 
     @IsString()
