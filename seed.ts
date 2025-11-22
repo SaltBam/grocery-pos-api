@@ -2,8 +2,13 @@ import mongoose from "mongoose";
 import { Role } from "./src/auth/types/auth.types";
 import { User, UserSchema } from "./src/user/user.schema";
 import * as argon from 'argon2';
+import { randomInt } from "crypto";
+import { Product, ProductSchema } from "./src/product/product.schema";
+import { Inventory, InventorySchema } from "src/inventory-man/inventory/inventory.schema";
 
 const user = mongoose.model(User.name, UserSchema);
+const product = mongoose.model(Product.name, ProductSchema);
+const inventory = mongoose.model(Inventory.name, InventorySchema);
 
 seedAll()
     .then(() => {
@@ -17,7 +22,12 @@ seedAll()
 async function seedAll() {
     await mongoose.connect('mongodb://127.0.0.1/grocery');
 
-    await seedUser();
+    await Promise.all([
+        seedUser(), seedProduct(),
+    ]);
+    //must run after seedProduct()
+    await seedInventory(),
+
     await mongoose.disconnect();
 }
 
@@ -42,4 +52,42 @@ async function seedUser() {
     console.log(users);
     await user.collection.drop();
     return await user.insertMany(users);
+}
+
+async function seedProduct() {
+    const names = [
+        'BREAD', 'COFFEE', 'WATER', 'BIBLE', 'SWORD'
+    ];
+
+    let EAN = 10000000
+    const products = await Promise.all(
+        names.map(async (name) => ({
+            EAN: EAN++,
+            name,
+            price: randomInt(0, 1000)
+        }))
+    );
+
+    console.log(products);
+    await product.collection.drop();
+    return await product.insertMany(products);
+}
+
+async function seedInventory() {
+    const [users, products] = await Promise.all([
+        user.find({ roles: Role.Owner }).lean(),
+        product.find().lean()
+    ]);
+
+    const usersLen = users.length;
+
+    const inventories = products.map((prod, idx) => ({
+        product: prod._id,
+        stock: randomInt(0, 500),
+        updatedBy: users[idx % usersLen]._id,
+    }))    
+
+    console.log(inventories);
+    await inventory.collection.drop();
+    await inventory.insertMany(inventories);
 }

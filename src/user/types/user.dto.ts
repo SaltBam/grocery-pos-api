@@ -14,11 +14,13 @@ export class GetAllReq {
 export class CreateReq {
     @IsString()
     @IsNotEmpty()
+    @Transform(({value}) => value.trim())
     name: string
-
+    
     @IsString()
+    @IsNotEmpty()
     password: string
-
+    
     @IsEnum(Role, { each: true })
     @ArrayNotEmpty()
     roles: Role[]
@@ -27,6 +29,7 @@ export class CreateReq {
 class UpdateManyFields {
     @IsOptional()
     @IsString()
+    @Transform(({value}) => value.trim())
     name?: string;
     
     @IsOptional()

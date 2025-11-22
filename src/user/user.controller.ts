@@ -25,9 +25,9 @@ export class UserController {
     async updateMany(
         @Body() updateManyReq: UpdateManyReq[]
     ) {
-        const data = await this.service.updateMany(updateManyReq);
+        await this.service.updateMany(updateManyReq);
 
-        return new BaseResponse(data);
+        return new BaseResponse();
     }
 
     @Roles(Role.Owner)
