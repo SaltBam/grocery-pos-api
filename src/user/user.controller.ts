@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Logger, Patch, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateReq, GetAllReq, UpdateManyReq } from './types/user.dto';
+import { CreateReq, UpdateManyReq } from './types/user.dto';
 import { Roles } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';

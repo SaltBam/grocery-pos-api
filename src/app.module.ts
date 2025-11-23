@@ -12,6 +12,7 @@ import { RefreshTokenModule } from './auth/refresh-token/refresh-token.module';
 import { GlobalFilter } from './common/global/global.filter';
 import { ProductModule } from './product/product.module';
 import { InventoryModule } from './inventory-man/inventory/inventory.module';
+import { RestockModule } from './inventory-man/restock/restock.module';
 
 @Module({
   imports: [
@@ -24,7 +25,8 @@ import { InventoryModule } from './inventory-man/inventory/inventory.module';
       'mongodb://127.0.0.1/grocery'
     ),
     ProductModule,
-    InventoryModule
+    InventoryModule,
+    RestockModule
   ],
   controllers: [],
   providers: [

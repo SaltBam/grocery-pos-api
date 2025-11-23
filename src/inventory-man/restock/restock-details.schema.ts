@@ -1,0 +1,35 @@
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { Types } from "mongoose";
+import { Product } from "src/product/product.schema";
+import { Restock } from "./restock.schema";
+
+@Schema()
+export class RestockDetails {
+    @Prop({
+        required: true,
+        type: mongoose.Schema.ObjectId,
+        ref: Restock.name,
+    })
+    restock: Types.ObjectId
+
+    @Prop({
+        required: true,
+        type: mongoose.Schema.ObjectId,
+        ref: Product.name,
+    })
+    product: Product | Types.ObjectId
+
+    @Prop({
+        required: true,
+        min: 0
+    })
+    quantity: number
+
+    @Prop({
+        required: true,
+        min: 0
+    })
+    unitCost: number
+}
+
+export const RestockDetailsSchema = SchemaFactory.createForClass(RestockDetails);

@@ -3,13 +3,6 @@ import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsOpt
 import { Types } from "mongoose";
 import { Role } from "src/auth/types";
 
-export class GetAllReq {
-    @IsArray()
-    @ArrayNotEmpty()
-    @IsMongoId({ each: true })
-    @Transform(({ value }) => value.map((_id: string) => new Types.ObjectId(_id)))
-    ids: Types.ObjectId[]
-}
 
 export class CreateReq {
     @IsString()
