@@ -10,6 +10,8 @@ import { JWTAuthGuard } from './auth/guards/jwt.guard';
 import { RoleGuard } from './auth/guards/role.guard';
 import { RefreshTokenModule } from './auth/refresh-token/refresh-token.module';
 import { GlobalFilter } from './common/global/global.filter';
+import { ProductModule } from './product/product.module';
+import { InventoryModule } from './inventory-man/inventory/inventory.module';
 
 @Module({
   imports: [
@@ -20,7 +22,9 @@ import { GlobalFilter } from './common/global/global.filter';
     UserModule,
     MongooseModule.forRoot(
       'mongodb://127.0.0.1/grocery'
-    )
+    ),
+    ProductModule,
+    InventoryModule
   ],
   controllers: [],
   providers: [

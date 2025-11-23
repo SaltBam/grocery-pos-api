@@ -43,7 +43,7 @@ export class UserService {
 
         const updates = newDto.map(({_id, newUpdate}) => ({
             updateOne: {
-                filter: { _id},
+                filter: { _id },
                 update: { $set: newUpdate }
             }
         }));

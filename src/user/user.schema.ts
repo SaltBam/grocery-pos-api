@@ -8,7 +8,8 @@ export class User {
         unique: true,
         required: true,
         lowercase: true,
-        index: true
+        index: true,
+        maxlength: 30,
     })
     name: string
 
