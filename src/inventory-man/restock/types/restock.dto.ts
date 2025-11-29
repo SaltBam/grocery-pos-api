@@ -2,13 +2,28 @@ import { Transform, Type } from "class-transformer";
 import { ArrayNotEmpty, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 
-export class GetDetailReq {
+export class GetDetailDto {
     @IsNotEmpty()
     @Transform(({value}) => new Types.ObjectId(value))
-    restock: Types.ObjectId
+    restock_id: Types.ObjectId
 }
-
-export class RestockReq {
+class RestockFields {
+    @IsNotEmpty()
+    @Transform(({value}) => new Types.ObjectId(value))
+    product: Types.ObjectId;
+    
+    @IsNumber()
+    @IsNotEmpty()
+    @Min(1)
+    @IsInt()
+    quantity: number;
+    
+    @IsNumber()
+    @IsNotEmpty()
+    @Min(0)
+    unitCost: number;
+}
+export class RestockDto {
     @ValidateNested({ each: true })
     @ArrayNotEmpty()
     @Type(() => RestockFields)
@@ -22,21 +37,4 @@ export class RestockReq {
     @IsNotEmpty()
     @Transform(({value}) => new Types.ObjectId(value))
     restockedBy: Types.ObjectId
-}
-
-class RestockFields {
-    @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    product: Types.ObjectId;
-
-    @IsNumber()
-    @IsNotEmpty()
-    @Min(1)
-    @IsInt()
-    quantity: number;
-    
-    @IsNumber()
-    @IsNotEmpty()
-    @Min(0)
-    unitCost: number;
 }

@@ -1,9 +1,9 @@
-import { Controller, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Patch, Post } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Roles } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/types';
-import { UpdateManyReq } from './types';
 import { BaseResponse } from 'src/common/base/base.response';
+import { UpdateBulkDto } from './types';
 
 @Roles(Role.Owner)
 @Controller('product')
@@ -12,9 +12,9 @@ export class ProductController {
         private service: ProductService,
     ) {}
 
-    @Patch('many')
-    async updateMany(dto: UpdateManyReq[]) {
-        await this.service.updateMany(dto);
+    @Patch()
+    async update(@Body() dto: UpdateBulkDto) {
+        await this.service.update(dto);
 
         return new BaseResponse();
     }

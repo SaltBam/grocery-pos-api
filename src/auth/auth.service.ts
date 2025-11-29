@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { LoginReq } from './types';
+import { LoginDto } from './types';
 import { UserService } from 'src/user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { JWTPayload } from './types/auth.types';
@@ -16,12 +16,12 @@ export class AuthService {
         private refreshTokenService: RefreshTokenService,
     ) {}
 
-    async login(loginReq: LoginReq)
+    async login(dto: LoginDto)
     : Promise<{
         refreshPayload: string,
         jwtPayload: string
     }> {
-        const { username, password } = loginReq;
+        const { username, password } = dto;
 
         const userInfo = 
             await this.userService.checkCredentials(username, password);

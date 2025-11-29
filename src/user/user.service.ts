@@ -4,7 +4,7 @@ import { User } from './user.schema';
 import { Model, Types } from 'mongoose';
 import * as argon from 'argon2'
 import { Role } from 'src/auth/types/auth.types';
-import { CreateReq, UpdateManyReq } from './types';
+import { CreateBulkDto, UpdateBulkDto } from './types';
 
 class UserInfo {
     name: string;
@@ -19,16 +19,16 @@ export class UserService {
         @InjectModel(User.name) private model: Model<User>,
     ) {}
 
-    async getAll(): Promise<UserInfo[]> {
+    async get(): Promise<UserInfo[]> {
         return this.model
             .find()
             .select('-passwordHash -__v')
             .lean();
     }
 
-    async updateMany(dto: UpdateManyReq[]): Promise<void> {
+    async update(dto: UpdateBulkDto): Promise<void> {
         const newDto = await Promise.all(
-            dto.map(async ({_id, update}) => {
+            dto.updates.map(async ({_id, update}) => {
                 const newUpdate: any = {...update};
 
                 if (newUpdate.password) {
@@ -51,14 +51,16 @@ export class UserService {
         await this.model.bulkWrite(updates);
     }
 
-    async create(dto: CreateReq): Promise<void> {
-        const { name, password, roles } = dto;
+    async create(dto: CreateBulkDto): Promise<void> {
+        const inserts = await Promise.all(
+            dto.users.map(async (user) => ({
+                name: user.name,
+                passwordHash: await argon.hash(user.password),
+                roles: user.roles
+            })
+        ));
 
-        const passwordHash = await argon.hash(password);
-
-        await this.model.create({
-            name, passwordHash, roles
-        });
+        await this.model.insertMany(inserts);
     }
 
     async checkCredentials(username: string, password :string)

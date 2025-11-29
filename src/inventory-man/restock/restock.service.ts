@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Restock } from './restock.schema';
 import { Model, Types } from 'mongoose';
 import { RestockDetails } from './restock-details.schema';
-import { GetDetailReq, RestockReq } from './types';
+import { GetDetailDto, RestockDto } from './types';
 
 @Injectable()
 export class RestockService {
@@ -12,7 +12,7 @@ export class RestockService {
         @InjectModel(RestockDetails.name) private modelDetails: Model<RestockDetails>,
     ) {}
 
-    async restock(dto: RestockReq): Promise<void> {
+    async restock(dto: RestockDto): Promise<void> {
         const { restockedBy, description, restockDetails } = dto; 
 
         const totalCost = restockDetails.reduce((sum, detail) => {
@@ -45,12 +45,12 @@ export class RestockService {
             .lean();
     }
 
-    async getDetail(dto: GetDetailReq)
+    async getDetail(dto: GetDetailDto)
     : Promise<RestockDetails[]> {
-        const { restock } = dto;
-        console.log({restock})
+        const { restock_id } = dto;
+        console.log({restock_id})
         return await this.modelDetails
-            .find({restock})
+            .find({restock: restock_id})
             .lean();
     }
 }

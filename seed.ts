@@ -5,10 +5,14 @@ import * as argon from 'argon2';
 import { randomInt } from "crypto";
 import { Product, ProductSchema } from "./src/product/product.schema";
 import { Inventory, InventorySchema } from "src/inventory-man/inventory/inventory.schema";
+import { Restock, RestockSchema } from "src/inventory-man/restock/restock.schema";
+import { RestockDetails, RestockDetailsSchema } from "src/inventory-man/restock/restock-details.schema";
 
 const user = mongoose.model(User.name, UserSchema);
 const product = mongoose.model(Product.name, ProductSchema);
 const inventory = mongoose.model(Inventory.name, InventorySchema);
+const restock = mongoose.model(Restock.name, RestockSchema);
+const restockDetails = mongoose.model(RestockDetails.name, RestockDetailsSchema);
 
 seedAll()
     .then(() => {
@@ -24,6 +28,8 @@ async function seedAll() {
 
     await Promise.all([
         seedUser(), seedProduct(),
+        restock.collection.drop(),
+        restockDetails.collection.drop(),
     ]);
     //must run after seedProduct()
     await seedInventory(),

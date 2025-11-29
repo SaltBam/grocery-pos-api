@@ -3,8 +3,7 @@ import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsOpt
 import { Types } from "mongoose";
 import { Role } from "src/auth/types";
 
-
-export class CreateReq {
+class CreateFields {
     @IsString()
     @IsNotEmpty()
     @Transform(({ value }) => value.trim())
@@ -18,8 +17,14 @@ export class CreateReq {
     @ArrayNotEmpty()
     roles: Role[]
 }
-
-class UpdateManyFields {
+export class CreateBulkDto {
+    @ValidateNested({each: true})
+    @IsArray()
+    @ArrayNotEmpty()
+    @Type(() => CreateFields)
+    users: CreateFields[]
+}
+class UpdateFields {
     @IsOptional()
     @IsString()
     @Transform(({value}) => value.trim())
@@ -37,14 +42,20 @@ class UpdateManyFields {
     @IsBoolean()
     isActive?: boolean;
 }
-
-export class UpdateManyReq {
-    @IsMongoId()
+class UpdateBulkFields {
+    @IsNotEmpty()
     @Transform(({ value }) => new Types.ObjectId(value))
     _id: Types.ObjectId;
     
     @ValidateNested()
-    @Type(() => UpdateManyFields)
-    update: UpdateManyFields;
+    @IsNotEmpty()
+    @Type(() => UpdateFields)
+    update: UpdateFields;
 }
-
+export class UpdateBulkDto {
+    @ValidateNested({each: true})
+    @Type(() => UpdateBulkFields)
+    @IsArray()
+    @ArrayNotEmpty()
+    updates: UpdateBulkFields[]
+}

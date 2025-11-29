@@ -1,7 +1,7 @@
 import { Transform } from "class-transformer"
 import { IsNotEmpty, IsString, MaxLength } from "class-validator"
 
-export class LoginReq {
+export class LoginDto {
     @IsString()
     @IsNotEmpty()
     @MaxLength(30)

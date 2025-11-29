@@ -1,8 +1,8 @@
 import { Transform, Type } from "class-transformer"
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator"
+import { ArrayNotEmpty, IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator"
 import { Types } from "mongoose"
 
-class UpdateManyFields {
+class UpdateFields {
     @IsOptional()
     @IsString()
     @MaxLength(50)
@@ -15,14 +15,19 @@ class UpdateManyFields {
     @Min(0)
     price?: number
 }
-
-export class UpdateManyReq {
-    @IsMongoId()
+class UpdateBulkFields {
+    @IsNotEmpty()
     @Transform(({value}) => new Types.ObjectId(value))
     _id: Types.ObjectId
-
+    
     @ValidateNested()
-    @Type(() => UpdateManyFields)
-    update: UpdateManyFields
+    @Type(() => UpdateFields)
+    update: UpdateFields
 }
-
+export class UpdateBulkDto {
+    @ValidateNested({each: true})
+    @Type(() => UpdateBulkFields)
+    @IsArray()
+    @ArrayNotEmpty()
+    updates: UpdateBulkFields[]
+}

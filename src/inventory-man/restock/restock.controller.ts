@@ -1,9 +1,9 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { RestockService } from './restock.service';
-import { GetDetailReq, RestockReq } from './types';
+import { GetDetailDto, RestockDto } from './types';
 import { BaseResponse } from 'src/common/base/base.response';
 
-@Controller('restock')
+@Controller('restocks')
 export class RestockController {
     constructor(
         private service: RestockService,
@@ -11,7 +11,7 @@ export class RestockController {
 
     @Post()
     async restock(
-        @Body() dto: RestockReq
+        @Body() dto: RestockDto
     ) {
         console.log({dto})
         await this.service.restock(dto);
@@ -19,16 +19,16 @@ export class RestockController {
         return new BaseResponse();
     }
 
-    @Get('all')
+    @Get()
     async getAll() {
         const data = await this.service.getAll();
 
         return new BaseResponse(data);
     }
 
-    @Get('details/:restock')
+    @Get('details/:restock_id')
     async getDetail(
-        @Param() dto: GetDetailReq
+        @Param() dto: GetDetailDto
     ) {
         const data = await this.service.getDetail(dto);
 

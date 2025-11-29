@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Logger, Post, Req, Res } from '@nestjs/common';
 import { BaseController } from 'src/common/base/base.controller';
-import { LoginReq, Role } from './types';
+import { LoginDto, Role } from './types';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CookieService } from 'src/common/utils/cookie/cookie.service';
@@ -19,17 +19,15 @@ export class AuthController extends BaseController {
     @Roles(Role.Unauthenticated)
     @Post('login')
     async login(
-        @Body() loginReq: LoginReq,
+        @Body() dto: LoginDto,
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request,
     ) {
         if (req.signedCookies['refresh']) {
-            Logger.log('already have')
             return new BaseResponse();
         }
-        Logger.log('new have')
 
-        const { refreshPayload, jwtPayload } = await this.service.login(loginReq);
+        const { refreshPayload, jwtPayload } = await this.service.login(dto);
         
         this.cookieService.createRefresh(res, refreshPayload);
         this.cookieService.createJwt(res, jwtPayload);
@@ -60,13 +58,5 @@ export class AuthController extends BaseController {
         this.cookieService.removeRefresh(res);
         
         return new BaseResponse();
-    }
-    
-    @Roles(Role.Owner)
-    @Get('test')
-    test() {
-        return new BaseResponse({
-            message: 'Welcome'
-        });
     }
 }

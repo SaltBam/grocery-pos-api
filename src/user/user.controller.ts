@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Logger, Patch, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateReq, UpdateManyReq } from './types/user.dto';
+import { CreateBulkDto, UpdateBulkDto } from './types/user.dto';
 import { Roles } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
     constructor(
         private service: UserService,
@@ -13,27 +13,27 @@ export class UserController {
     {}
 
     @Roles(Role.Owner)
-    @Get('all')
-    async getAll() {
-        const data = await this.service.getAll();
+    @Get()
+    async get() {
+        const data = await this.service.get();
 
         return new BaseResponse(data);
     }
 
     @Roles(Role.Owner)
-    @Patch('many')
-    async updateMany(
-        @Body() updateManyReq: UpdateManyReq[]
+    @Patch()
+    async update(
+        @Body() dto: UpdateBulkDto
     ) {
-        await this.service.updateMany(updateManyReq);
+        await this.service.update(dto);
 
         return new BaseResponse();
     }
 
     @Roles(Role.Owner)
     @Post()
-    async create( @Body() createReq: CreateReq) {
-        await this.service.create(createReq);
+    async create(@Body() dto: CreateBulkDto) {
+        await this.service.create(dto);
 
         return new BaseResponse();
     }
