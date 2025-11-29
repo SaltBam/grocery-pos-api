@@ -4,12 +4,14 @@ import { Restock } from './restock.schema';
 import { Model, Types } from 'mongoose';
 import { RestockDetails } from './restock-details.schema';
 import { GetDetailDto, RestockDto } from './types';
+import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
 export class RestockService {
     constructor(
         @InjectModel(Restock.name) private model: Model<Restock>,
         @InjectModel(RestockDetails.name) private modelDetails: Model<RestockDetails>,
+        private inventoryService: InventoryService,
     ) {}
 
     async restock(dto: RestockDto): Promise<void> {
@@ -36,7 +38,10 @@ export class RestockService {
                 }
             }));
 
-        await this.modelDetails.bulkWrite(inserts);
+        await Promise.all([
+            this.modelDetails.bulkWrite(inserts),
+            this.inventoryService.restock(dto)
+        ]);
     }
 
     async getAll(): Promise<Restock[]> {
@@ -47,10 +52,10 @@ export class RestockService {
 
     async getDetail(dto: GetDetailDto)
     : Promise<RestockDetails[]> {
-        const { restock_id } = dto;
-        console.log({restock_id})
+        const { restock } = dto;
+        console.log({restock})
         return await this.modelDetails
-            .find({restock: restock_id})
+            .find({restock: restock})
             .lean();
     }
 }

@@ -5,7 +5,7 @@ import { Types } from "mongoose";
 export class GetDetailDto {
     @IsNotEmpty()
     @Transform(({value}) => new Types.ObjectId(value))
-    restock_id: Types.ObjectId
+    restock: Types.ObjectId
 }
 class RestockFields {
     @IsNotEmpty()

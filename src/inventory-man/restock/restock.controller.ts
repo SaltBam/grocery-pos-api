@@ -26,7 +26,7 @@ export class RestockController {
         return new BaseResponse(data);
     }
 
-    @Get('details/:restock_id')
+    @Get('details/:restock')
     async getDetail(
         @Param() dto: GetDetailDto
     ) {
