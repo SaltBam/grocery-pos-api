@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Restock } from './restock.schema';
 import { Model, Types } from 'mongoose';
 import { RestockDetails } from './restock-details.schema';
-import { GetDetailDto, RestockDto } from './types';
+import { GetDetailsDto, RestockDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
 
 @Injectable()
@@ -50,7 +50,7 @@ export class RestockService {
             .lean();
     }
 
-    async getDetail(dto: GetDetailDto)
+    async getDetails(dto: GetDetailsDto)
     : Promise<RestockDetails[]> {
         const { restock } = dto;
 

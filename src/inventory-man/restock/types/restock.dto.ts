@@ -2,7 +2,7 @@ import { Transform, Type } from "class-transformer";
 import { ArrayNotEmpty, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 
-export class GetDetailDto {
+export class GetDetailsDto {
     @IsNotEmpty()
     @Transform(({value}) => new Types.ObjectId(value))
     restock: Types.ObjectId

@@ -21,7 +21,7 @@ export class InventoryService {
             .lean();
     }
 
-    async restock(dto: RestockDto) {
+    async restock(dto: RestockDto): Promise<void> {
         const { restockDetails } = dto;
 
         const updates = restockDetails
@@ -35,7 +35,7 @@ export class InventoryService {
         await this.model.bulkWrite(updates);
     }
 
-    async adjust(dto: AdjustDto) {
+    async adjust(dto: AdjustDto): Promise<void> {
         const { adjustDetails } = dto;
 
         const updates = adjustDetails

@@ -14,13 +14,13 @@ export class AdjustmentService {
        private inventoryService: InventoryService,
     ) {}
 
-    async getAll() {
+    async getAll(): Promise<Adjustment[]> {
         return await this.model
             .find()
             .lean();
     }
 
-    async adjust(dto: AdjustDto) {
+    async adjust(dto: AdjustDto): Promise<void> {
         const { description, adjustDetails, adjustedBy } = dto;
 
         const adjustment = (await this.model
@@ -45,7 +45,7 @@ export class AdjustmentService {
         ]);
     }
 
-    async getDetails(dto: GetDetailsDto) {
+    async getDetails(dto: GetDetailsDto): Promise<AdjustmentDetails[]> {
         const { adjustment } = dto;
 
         return await this.modelDetails
