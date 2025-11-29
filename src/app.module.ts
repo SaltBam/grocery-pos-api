@@ -13,6 +13,7 @@ import { GlobalFilter } from './common/global/global.filter';
 import { ProductModule } from './product/product.module';
 import { InventoryModule } from './inventory-man/inventory/inventory.module';
 import { RestockModule } from './inventory-man/restock/restock.module';
+import { AdjustmentModule } from './inventory-man/adjustment/adjustment.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { RestockModule } from './inventory-man/restock/restock.module';
     ),
     ProductModule,
     InventoryModule,
-    RestockModule
+    RestockModule,
+    AdjustmentModule
   ],
   controllers: [],
   providers: [

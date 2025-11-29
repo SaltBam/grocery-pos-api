@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Inventory } from './inventory.schema';
 import { Model, Types } from 'mongoose';
 import { RestockDto } from '../restock/types';
+import { AdjustDto } from '../adjustment/types';
 
 @Injectable()
 export class InventoryService {
@@ -23,12 +24,27 @@ export class InventoryService {
     async restock(dto: RestockDto) {
         const { restockDetails } = dto;
 
-        const updates = restockDetails.map(({product, quantity}) => ({
-            updateOne: {
-                filter: { product },
-                update: { $inc: { stock: quantity }}
-            }
-        }));
+        const updates = restockDetails
+            .map(({product, quantity}) => ({
+                updateOne: {
+                    filter: { product },
+                    update: { $inc: { stock: quantity }}
+                }
+            }));
+
+        await this.model.bulkWrite(updates);
+    }
+
+    async adjust(dto: AdjustDto) {
+        const { adjustDetails } = dto;
+
+        const updates = adjustDetails
+            .map(({product, change}) => ({
+                updateOne: {
+                    filter: { product },
+                    update: { $inc: { stock: change } }
+                }
+            }));
 
         await this.model.bulkWrite(updates);
     }

@@ -10,6 +10,7 @@ export class User {
         lowercase: true,
         index: true,
         maxlength: 30,
+        trim: true,
     })
     name: string
 

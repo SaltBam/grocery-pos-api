@@ -53,7 +53,7 @@ export class RestockService {
     async getDetail(dto: GetDetailDto)
     : Promise<RestockDetails[]> {
         const { restock } = dto;
-        console.log({restock})
+
         return await this.modelDetails
             .find({restock: restock})
             .lean();

@@ -7,12 +7,16 @@ import { Product, ProductSchema } from "./src/product/product.schema";
 import { Inventory, InventorySchema } from "src/inventory-man/inventory/inventory.schema";
 import { Restock, RestockSchema } from "src/inventory-man/restock/restock.schema";
 import { RestockDetails, RestockDetailsSchema } from "src/inventory-man/restock/restock-details.schema";
+import { Adjustment, AdjustmentSchema } from "src/inventory-man/adjustment/adjustment.schema";
+import { AdjustmentDetails, AdjustmentDetailsSchema } from "src/inventory-man/adjustment/adjustment-details.schema";
 
 const user = mongoose.model(User.name, UserSchema);
 const product = mongoose.model(Product.name, ProductSchema);
 const inventory = mongoose.model(Inventory.name, InventorySchema);
 const restock = mongoose.model(Restock.name, RestockSchema);
 const restockDetails = mongoose.model(RestockDetails.name, RestockDetailsSchema);
+const adjustment = mongoose.model(Adjustment.name, AdjustmentSchema);
+const adjustmentDetails = mongoose.model(AdjustmentDetails.name, AdjustmentDetailsSchema);
 
 seedAll()
     .then(() => {
@@ -30,7 +34,10 @@ async function seedAll() {
         seedUser(), seedProduct(),
         restock.collection.drop(),
         restockDetails.collection.drop(),
+        adjustment.collection.drop(),
+        adjustmentDetails.collection.drop(),
     ]);
+    
     //must run after seedProduct()
     await seedInventory(),
 

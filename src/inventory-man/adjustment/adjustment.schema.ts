@@ -3,7 +3,7 @@ import mongoose, { Types } from "mongoose";
 import { User } from "src/user/user.schema";
 
 @Schema({ timestamps: true })
-export class Restock {
+export class Adjustment {
     @Prop({
         required: false,
         maxLength: 300,
@@ -12,17 +12,11 @@ export class Restock {
     description?: string
 
     @Prop({
+        required: true,
         type: mongoose.Schema.ObjectId,
-        ref: User.name,
-        required: true,
+        ref: User.name
     })
-    restockedBy: User | Types.ObjectId
-
-    @Prop({
-        required: true,
-        min: 0
-    })
-    totalCost: number
+    adjustedBy: User | Types.ObjectId
 }
 
-export const RestockSchema = SchemaFactory.createForClass(Restock);
+export const AdjustmentSchema = SchemaFactory.createForClass(Adjustment);
