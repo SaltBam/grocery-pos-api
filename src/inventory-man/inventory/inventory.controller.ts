@@ -2,13 +2,13 @@ import { Controller, Get } from '@nestjs/common';
 import { InventoryService } from './inventory.service';
 import { BaseResponse } from 'src/common/base/base.response';
 
-@Controller('inventory')
+@Controller('inventories')
 export class InventoryController {
     constructor(
         private service: InventoryService,
     ) {}
 
-    @Get('all')
+    @Get()
     async getAll() {
         const data = await this.service.getAll();
 
