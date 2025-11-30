@@ -39,11 +39,16 @@ export class GlobalFilter implements ExceptionFilter {
   }
 
   private sendResponse(res: Response, req: Request, err: any) {
+    Logger.log('FINAL ERROR: ', {err});
+
     const status = err?.getStatus?.() ?? err?.status ??
       HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message = err?.getResponse?.().message ?? 
+    let message = err?.getResponse?.().message ?? 
       err.message ?? 'Internal Server Error';
+
+    message = status === HttpStatus.INTERNAL_SERVER_ERROR ?
+      'Internal Server Error' : message;
 
     res.status(status).json({
       statusCode: status,

@@ -1,5 +1,4 @@
 import { BadRequestException, Logger } from "@nestjs/common";
-import de from "zod/v4/locales/de.js";
 
 export class MongoFilter {
     static catch(err) {
@@ -24,7 +23,7 @@ export class MongoFilter {
             const details = err.writeErrors.map(
                 ({err}) => ({
                     msg: baseErrMsg,
-                    _id: err.op.q._id,
+                    _id: err?.op?.q?._id ?? err?.op?._id,
                     property: getKey(err.errmsg)
                 })
             );

@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
-import { Model, Types } from 'mongoose';
+import { ClientSession, Connection, Model, Types } from 'mongoose';
 import * as argon from 'argon2'
 import { Role } from 'src/auth/types/auth.types';
 import { CreateBulkDto, UpdateBulkDto } from './types';
+import { runInTransaction } from 'src/common/utils/db';
 
 class UserInfo {
     name: string;
@@ -16,6 +17,7 @@ class UserInfo {
 @Injectable()
 export class UserService {
     constructor(
+        @InjectConnection() private connection: Connection,
         @InjectModel(User.name) private model: Model<User>,
     ) {}
 
@@ -26,7 +28,15 @@ export class UserService {
             .lean();
     }
 
-    async update(dto: UpdateBulkDto): Promise<void> {
+    async update(dto: UpdateBulkDto, session?: ClientSession): Promise<void> {
+        const updates = await this.prepareUpdates(dto);
+        
+        return await runInTransaction(async (session) => {
+            await this.model.bulkWrite(updates, { session });
+        }, this.connection, session);
+    }
+
+    private async prepareUpdates(dto: UpdateBulkDto) {
         const newDto = await Promise.all(
             dto.updates.map(async ({_id, update}) => {
                 const newUpdate: any = {...update};
@@ -41,17 +51,15 @@ export class UserService {
             })
         );
 
-        const updates = newDto.map(({_id, newUpdate}) => ({
+        return newDto.map(({_id, newUpdate}) => ({
             updateOne: {
                 filter: { _id },
                 update: { $set: newUpdate }
             }
         }));
-
-        await this.model.bulkWrite(updates);
     }
 
-    async create(dto: CreateBulkDto): Promise<void> {
+    async create(dto: CreateBulkDto, session?: ClientSession): Promise<void> {
         const inserts = await Promise.all(
             dto.users.map(async (user) => ({
                 name: user.name,
@@ -60,7 +68,9 @@ export class UserService {
             })
         ));
 
-        await this.model.insertMany(inserts);
+        await runInTransaction(async(session) => {
+            await this.model.insertMany(inserts, { session });
+        }, this.connection, session);
     }
 
     async checkCredentials(username: string, password :string)

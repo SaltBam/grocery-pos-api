@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Adjustment } from './adjustment.schema';
-import { Model } from 'mongoose';
+import { ClientSession, Connection, Model } from 'mongoose';
 import { AdjustmentDetails } from './adjustment-details.schema';
 import { AdjustDto, GetDetailsDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
+import { runInTransaction } from 'src/common/utils/db';
 
 @Injectable()
 export class AdjustmentService {
     constructor(
-       @InjectModel(Adjustment.name) private model: Model<Adjustment>,
-       @InjectModel(AdjustmentDetails.name) private modelDetails: Model<AdjustmentDetails>,
-       private inventoryService: InventoryService,
+        @InjectConnection() private connection: Connection, 
+        @InjectModel(Adjustment.name) private model: Model<Adjustment>,
+        @InjectModel(AdjustmentDetails.name) private modelDetails: Model<AdjustmentDetails>,
+        private inventoryService: InventoryService,
     ) {}
 
     async getAll(): Promise<Adjustment[]> {
@@ -20,29 +22,31 @@ export class AdjustmentService {
             .lean();
     }
 
-    async adjust(dto: AdjustDto): Promise<void> {
+    async adjust(dto: AdjustDto, session?: ClientSession): Promise<void> {
         const { description, adjustDetails, adjustedBy } = dto;
 
-        const adjustment = (await this.model
-            .create({
+        await runInTransaction(async (session) => {
+            const [adjustment] = await this.model
+                .create([{
                 description,
-                adjustedBy,
-            })).toObject();
-        
-        const inserts = adjustDetails
-            .map((detail) => ({
-                insertOne: {
-                    document: {
-                        adjustment: adjustment._id,
-                        ...detail
-                    }
-                }     
-        }));
-
-        await Promise.all([
-            this.modelDetails.bulkWrite(inserts),
-            this.inventoryService.adjust(dto),
-        ]);
+                    adjustedBy,
+                }], {session});
+            
+            const inserts = adjustDetails
+                .map((detail) => ({
+                    insertOne: {
+                        document: {
+                            adjustment: adjustment._id,
+                            ...detail
+                        }
+                    }     
+            }));
+    
+            await Promise.all([
+                this.modelDetails.bulkWrite(inserts, { session }),
+                this.inventoryService.adjust(dto, session),
+            ]);
+        }, this.connection, session);
     }
 
     async getDetails(dto: GetDetailsDto): Promise<AdjustmentDetails[]> {

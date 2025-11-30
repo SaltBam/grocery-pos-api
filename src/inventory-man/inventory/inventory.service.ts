@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Inventory } from './inventory.schema';
-import { Model, Types } from 'mongoose';
+import { ClientSession, Model, Types } from 'mongoose';
 import { RestockDto } from '../restock/types';
 import { AdjustDto } from '../adjustment/types';
 
@@ -21,7 +21,7 @@ export class InventoryService {
             .lean();
     }
 
-    async restock(dto: RestockDto): Promise<void> {
+    async restock(dto: RestockDto, session: ClientSession): Promise<void> {
         const { restockDetails } = dto;
 
         const updates = restockDetails
@@ -32,10 +32,10 @@ export class InventoryService {
                 }
             }));
 
-        await this.model.bulkWrite(updates);
+        await this.model.bulkWrite(updates, { session });
     }
 
-    async adjust(dto: AdjustDto): Promise<void> {
+    async adjust(dto: AdjustDto, session: ClientSession): Promise<void> {
         const { adjustDetails } = dto;
 
         const updates = adjustDetails
@@ -46,6 +46,6 @@ export class InventoryService {
                 }
             }));
 
-        await this.model.bulkWrite(updates);
+        await this.model.bulkWrite(updates, { session });
     }
 }

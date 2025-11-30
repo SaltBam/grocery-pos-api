@@ -5,11 +5,13 @@ import { JwtService } from '@nestjs/jwt';
 import { JWTPayload } from './types/auth.types';
 import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
 import { RefreshTokenService } from './refresh-token/refresh-token.service';
-import { Types } from 'mongoose';
+import { Connection, Types } from 'mongoose';
+import { InjectConnection } from '@nestjs/mongoose';
 
 @Injectable()
 export class AuthService {
     constructor(
+        @InjectConnection() private connection: Connection,
         private config: TypedConfigService,
         private userService: UserService,
         private jwtService: JwtService,

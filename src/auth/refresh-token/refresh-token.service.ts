@@ -1,7 +1,7 @@
 import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { RefreshToken } from './refresh-token.schema';
-import { Model, Types } from 'mongoose';
+import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { randomBytes } from 'crypto';
 import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
 import { RefreshPayload } from './types';
@@ -20,24 +20,26 @@ type FoundRefresh =
 @Injectable()
 export class RefreshTokenService {
     constructor(
+        @InjectConnection() private connection: Connection,
         @InjectModel(RefreshToken.name) private model: Model<RefreshToken>,
         @Inject(forwardRef(() => AuthService))
         private authService: AuthService,
         private config: TypedConfigService,
     ) {}
 
-    async create(userId: Types.ObjectId, expiry?: Date)
+    async create(userId: Types.ObjectId, expiry?: Date, session?: ClientSession)
     : Promise<RefreshPayload> {
         const token = randomBytes(32).toString('hex');
         const newExpiry = expiry ?? new Date(
             Date.now() + this.config.get('REFRESH_EXPIRY')
         );
 
-        const created = await this.model.create({
-            token: await argon.hash(token),
-            user: userId,
-            expiry: newExpiry
-        });
+        const [created] = await this.model.create([{
+                token: await argon.hash(token),
+                user: userId,
+                expiry: newExpiry
+            }], { session }
+        );
 
         return { _id: created._id, token, userId };
     }
@@ -46,11 +48,9 @@ export class RefreshTokenService {
         refreshTokenId: Types.ObjectId, token: string
     ): Promise<{refreshPayload: string, jwtPayload: string}> {
         const found = await this.model
-            .findByIdAndDelete(
-                refreshTokenId
-            ).populate(
-                'user'
-            ).lean<FoundRefresh>();
+            .findByIdAndDelete(refreshTokenId)
+            .populate('user')
+            .lean<FoundRefresh>();
         
         if (!found || !await this.checkValid(found, token)) {
             throw new UnauthorizedException(
@@ -70,11 +70,12 @@ export class RefreshTokenService {
         }
     }
 
-    async invalidate(_id: Types.ObjectId): Promise<void> {
+    async invalidate(_id: Types.ObjectId, session?: ClientSession): Promise<void> {
         await this.model
             .findByIdAndUpdate(
                 _id,
-                { isValid: false }
+                { isValid: false },
+                { session }
             );
     }
 
