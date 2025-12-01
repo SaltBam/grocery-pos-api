@@ -4,13 +4,13 @@ import { Types } from "mongoose";
 
 export class GetDetailsDto {
     @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    restock: Types.ObjectId
+    @IsMongoId()
+    restock: string
 }
 class RestockFields {
     @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    product: Types.ObjectId;
+    @IsMongoId()
+    product: string;
     
     @IsNumber()
     @IsNotEmpty()

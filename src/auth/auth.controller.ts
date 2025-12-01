@@ -43,7 +43,7 @@ export class AuthController extends BaseController {
     ) {
         const refreshPayload = req.signedCookies['refresh'];
 
-        let _id: Types.ObjectId;
+        let _id: string;
         try {
             ({ _id } = JSON.parse(refreshPayload));
             if (!_id)    throw new Error();

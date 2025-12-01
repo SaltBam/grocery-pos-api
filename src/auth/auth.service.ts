@@ -41,8 +41,13 @@ export class AuthService {
             );
         }
 
-        const refreshPayload = await this.refreshTokenService.create(userInfo._id);
-        const jwtPayload = { _id: userInfo._id, username: userInfo.name, roles: userInfo.roles };
+        const refreshPayload = await this.refreshTokenService
+            .create(userInfo._id.toString());
+
+        const jwtPayload = { 
+            userId: userInfo._id.toString(), username: userInfo.name, 
+            roles: userInfo.roles 
+        };
         
         return {
             refreshPayload: JSON.stringify(refreshPayload),
@@ -50,7 +55,7 @@ export class AuthService {
         }            
     }
 
-    async logout(refreshTokenId: Types.ObjectId): Promise<void> {
+    async logout(refreshTokenId: string): Promise<void> {
         await this.refreshTokenService.invalidate(refreshTokenId);
     }
 

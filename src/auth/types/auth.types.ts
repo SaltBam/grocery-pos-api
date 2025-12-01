@@ -9,7 +9,7 @@ export enum Role {
 }
 
 export class JWTPayload {
-    _id: Types.ObjectId
+    userId: string
     username: string
     roles: Role[]
 }

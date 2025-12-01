@@ -1,17 +1,17 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, NotEquals, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, NotEquals, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 
 export class GetDetailsDto {
     @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    adjustment: Types.ObjectId;
+    @IsMongoId()
+    adjustment: string;
 }
 
 class AdjustFields {
     @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    product: Types.ObjectId;
+    @IsMongoId()
+    product: string;
 
     @IsNotEmpty()
     @IsNumber()

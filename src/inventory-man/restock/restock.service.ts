@@ -30,7 +30,7 @@ export class RestockService {
             const [created] = await this.model
                 .create([{
                     description,
-                    restockedBy: user._id,
+                    restockedBy: user.userId,
                     totalCost
                 }], {session});
     

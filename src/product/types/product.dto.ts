@@ -24,8 +24,8 @@ class UpdateFields {
 }
 class UpdateBulkFields {
     @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    _id: Types.ObjectId
+    @IsMongoId()
+    product: string
     
     @ValidateNested()
     @Type(() => UpdateFields)

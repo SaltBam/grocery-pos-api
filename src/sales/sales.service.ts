@@ -44,7 +44,7 @@ export class SalesService {
         await runInTransaction(async (session) => {
             const [created] = await this.model.create([{
                 amount: totalAmount,
-                cashier: user._id,
+                cashier: user.userId,
                 paymentType,
                 referenceNumber,
             }], { session });

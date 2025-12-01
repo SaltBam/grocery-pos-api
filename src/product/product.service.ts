@@ -27,9 +27,9 @@ export class ProductService {
     }
 
     async update(dto: UpdateBulkDto, session?: ClientSession): Promise<void> {
-        const updates = dto.updates.map(({_id, update}) => ({
+        const updates = dto.updates.map(({product, update}) => ({
             updateOne: {
-                filter: {_id },
+                filter: { _id: product },
                 update: { $set: update }
             }
         }));
@@ -39,8 +39,8 @@ export class ProductService {
         }, this.connection, session)
     }
 
-    async getMany(products: Types.ObjectId[]) {
-        const unique_ids = [...new Set(products.map(p => p.toString()))];
+    async getMany(products: string[]) {
+        const unique_ids = [...new Set(products)];
 
         const found = await this.model
             .find({_id: {$in: unique_ids}})

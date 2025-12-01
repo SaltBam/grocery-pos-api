@@ -67,7 +67,7 @@ export class GlobalFilter implements ExceptionFilter {
           );
         }
         
-        let _id: Types.ObjectId, token: string;
+        let _id: string, token: string;
         
         try {
           ({ _id, token } = JSON.parse(refreshCookie));

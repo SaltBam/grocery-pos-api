@@ -27,7 +27,7 @@ export class RefreshTokenService {
         private config: TypedConfigService,
     ) {}
 
-    async create(userId: Types.ObjectId, expiry?: Date, session?: ClientSession)
+    async create(userId: string, expiry?: Date, session?: ClientSession)
     : Promise<RefreshPayload> {
         const token = randomBytes(32).toString('hex');
         const newExpiry = expiry ?? new Date(
@@ -41,11 +41,11 @@ export class RefreshTokenService {
             }], { session }
         );
 
-        return { _id: created._id, token, userId };
+        return { _id: created._id.toString(), token, userId };
     }
 
     async rotate(
-        refreshTokenId: Types.ObjectId, token: string
+        refreshTokenId: string, token: string
     ): Promise<{refreshPayload: string, jwtPayload: string}> {
         const found = await this.model
             .findByIdAndDelete(refreshTokenId)
@@ -58,9 +58,9 @@ export class RefreshTokenService {
             );
         }
 
-        const refreshPayload = await this.create(found.user._id, found.expiry);
+        const refreshPayload = await this.create(found.user._id.toString(), found.expiry);
         const jwtPayload = {
-            _id: found.user._id,
+            userId: found.user._id.toString(),
             username: found.user.name,
             roles: found.user.roles
         };
@@ -71,7 +71,7 @@ export class RefreshTokenService {
         }
     }
 
-    async invalidate(_id: Types.ObjectId, session?: ClientSession): Promise<void> {
+    async invalidate(_id: string, session?: ClientSession): Promise<void> {
         await this.model
             .findByIdAndUpdate(
                 _id,

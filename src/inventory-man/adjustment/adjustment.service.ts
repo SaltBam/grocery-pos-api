@@ -32,7 +32,7 @@ export class AdjustmentService {
             const [adjustment] = await this.model
                 .create([{
                 description,
-                    adjustedBy: user._id,
+                    adjustedBy: user.userId,
                 }], {session});
             
             const inserts = adjustDetails

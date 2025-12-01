@@ -1,16 +1,17 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotContains, ArrayNotEmpty, IsEnum, IsInt, IsNotEmpty, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator";
+import { ArrayNotContains, ArrayNotEmpty, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 import { PaymentType } from "./sales.types";
 
 export class GetDetailsDto {
     @IsNotEmpty()
-    sales: Types.ObjectId
+    @IsMongoId()
+    sales: string
 }
 class SellDetailsFields {
     @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    product: Types.ObjectId;
+    @IsMongoId()
+    product: string;
     
     @IsNotEmpty()
     @IsInt()

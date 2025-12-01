@@ -1,7 +1,5 @@
-import { Types } from "mongoose";
-
 export class RefreshPayload {
-    _id: Types.ObjectId;
+    _id: string;
     token: string;
-    userId: Types.ObjectId;
+    userId: string;
 }
