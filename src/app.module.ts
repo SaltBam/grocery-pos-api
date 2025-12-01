@@ -24,7 +24,7 @@ import { SalesModule } from './sales/sales.module';
     RefreshTokenModule,
     UserModule,
     MongooseModule.forRoot(
-      'mongodb://127.0.0.1/grocery'
+      'mongodb://127.0.0.1/grocery?replicaSet=rs0'
     ),
     ProductModule,
     InventoryModule,

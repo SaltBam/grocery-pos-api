@@ -101,4 +101,13 @@ export class UserService {
         
         return !!user
     }
+
+    async getName(user: Types.ObjectId) {
+        const found = await this.model
+            .findById({ _id: user })
+            .select('name')
+            .lean()
+
+        return found?.name ?? 'N/A';
+    }
 }

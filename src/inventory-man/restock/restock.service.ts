@@ -41,10 +41,8 @@ export class RestockService {
                     }
                 }));
     
-            await Promise.all([
-                this.modelDetails.bulkWrite(inserts, {session}),
-                this.inventoryService.restock(dto, session)
-            ]);
+                await this.modelDetails.bulkWrite(inserts, {session});
+                await this.inventoryService.restock(dto, session);
         }, this.connection, session);
     }
 

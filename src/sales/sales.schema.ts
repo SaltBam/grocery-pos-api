@@ -1,11 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { Types } from "mongoose";
 import { User } from "src/user/user.schema";
-
-enum PaymentType {
-    GCASH = 'GCASH',
-    CASH = 'CASH'
-}
+import { PaymentType } from "./types";
 
 @Schema({ timestamps: true })
 export class Sales {
@@ -29,7 +25,9 @@ export class Sales {
     })
     paymentType: PaymentType;
 
-    @Prop()
+    @Prop({
+        maxLength: 50
+    })
     referenceNumber?: string;
 }
 

@@ -2,6 +2,13 @@ import { Transform, Type } from "class-transformer"
 import { ArrayNotEmpty, IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator"
 import { Types } from "mongoose"
 
+export class GetDto {
+    @IsNotEmpty()
+    @IsString()
+    @MaxLength(50)
+    @Transform(({value}) => typeof value === 'string' ? value.trim() : value)
+    EAN: string
+}
 class UpdateFields {
     @IsOptional()
     @IsString()

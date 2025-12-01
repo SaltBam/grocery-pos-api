@@ -1,9 +1,9 @@
-import { Body, Controller, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Roles } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';
-import { UpdateBulkDto } from './types';
+import { GetDto, UpdateBulkDto } from './types';
 
 @Roles(Role.Owner)
 @Controller('product')
@@ -11,6 +11,13 @@ export class ProductController {
     constructor(
         private service: ProductService,
     ) {}
+
+    @Get(':EAN')
+    async getByBarcode(@Param() dto: GetDto) {
+        const data = await this.service.getByBarcode(dto);
+
+        return new BaseResponse(data);
+    }
 
     @Patch()
     async update(@Body() dto: UpdateBulkDto) {

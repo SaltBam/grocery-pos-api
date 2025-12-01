@@ -42,10 +42,8 @@ export class AdjustmentService {
                     }     
             }));
     
-            await Promise.all([
-                this.modelDetails.bulkWrite(inserts, { session }),
-                this.inventoryService.adjust(dto, session),
-            ]);
+            await this.modelDetails.bulkWrite(inserts, { session });
+            await this.inventoryService.adjust(dto, session);
         }, this.connection, session);
     }
 

@@ -4,6 +4,7 @@ import { Inventory } from './inventory.schema';
 import { ClientSession, Model, Types } from 'mongoose';
 import { RestockDto } from '../restock/types';
 import { AdjustDto } from '../adjustment/types';
+import { SellDto } from 'src/sales/types';
 
 @Injectable()
 export class InventoryService {
@@ -46,6 +47,20 @@ export class InventoryService {
                 }
             }));
 
+        await this.model.bulkWrite(updates, { session });
+    }
+
+    async sell(dto: SellDto, session: ClientSession): Promise<void> {
+        const { sellDetails } = dto;
+
+        const updates = sellDetails
+            .map(({product, quantity}) => ({
+                updateOne: {
+                    filter: { product },
+                    update: { $inc: { stock: -quantity} }
+                }
+            }));
+        
         await this.model.bulkWrite(updates, { session });
     }
 }
