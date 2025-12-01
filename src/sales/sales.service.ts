@@ -24,6 +24,10 @@ export class SalesService {
     async getAll(): Promise<Sales[]> {
         return await this.model
             .find()
+            .populate({
+                path: 'cashier',
+                select: 'name'
+            })
             .lean();
     }
     
@@ -33,6 +37,10 @@ export class SalesService {
 
         return await this.modelDetails
             .find({ sales })
+            .populate({
+                path: 'product',
+                select: 'name'
+            })
             .lean();
     }
 

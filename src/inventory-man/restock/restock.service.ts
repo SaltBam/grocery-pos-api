@@ -54,6 +54,10 @@ export class RestockService {
     async getAll(): Promise<Restock[]> {
         return await this.model
             .find()
+            .populate({
+                path: 'restockedBy',
+                select: 'name'
+            })
             .lean();
     }
 
@@ -63,6 +67,10 @@ export class RestockService {
 
         return await this.modelDetails
             .find({restock: restock})
+            .populate({
+                path: 'product',
+                select: 'name'
+            })
             .lean();
     }
 }

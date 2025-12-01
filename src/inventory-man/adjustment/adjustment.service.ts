@@ -20,6 +20,10 @@ export class AdjustmentService {
     async getAll(): Promise<Adjustment[]> {
         return await this.model
             .find()
+            .populate({
+                path: 'adjustedBy',
+                select: 'name'
+            })
             .lean();
     }
 
@@ -55,6 +59,10 @@ export class AdjustmentService {
 
         return await this.modelDetails
             .find({ adjustment })
+            .populate({
+                path: 'product',
+                select: 'name'
+            })
             .lean();
     }
 }
