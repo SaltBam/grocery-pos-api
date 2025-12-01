@@ -1,25 +1,37 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator";
-import { Types } from "mongoose";
+import { ArrayNotEmpty, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, min, Min, ValidateNested } from "class-validator";
+import { RequiresOne } from "src/common/validators";
+import { NewProductFields } from "src/product/types";
 
 export class GetDetailsDto {
     @IsNotEmpty()
     @IsMongoId()
     restock: string
 }
-class RestockFields {
-    @IsNotEmpty()
+
+export class RestockFields {
+    @IsOptional()
+    @ValidateNested()
+    @Type(() => NewProductFields)
+    newProduct?: NewProductFields;
+
+    @IsOptional()
     @IsMongoId()
-    product: string;
-    
+    product?: string
+
+    @RequiresOne(['newProduct', 'product'])
+    dummy?: any
+
     @IsNumber()
     @IsNotEmpty()
+    @Type(() => Number)
     @Min(1)
     @IsInt()
     quantity: number;
     
     @IsNumber()
     @IsNotEmpty()
+    @Type(() => Number)
     @Min(0)
     unitCost: number;
 }

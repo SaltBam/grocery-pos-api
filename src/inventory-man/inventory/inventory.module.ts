@@ -3,13 +3,15 @@ import { InventoryService } from './inventory.service';
 import { InventoryController } from './inventory.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Inventory, InventorySchema } from './inventory.schema';
+import { ProductModule } from 'src/product/product.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{
       name: Inventory.name,
       schema: InventorySchema
-    }])
+    }]),
+    ProductModule,
   ],
   providers: [InventoryService],
   controllers: [InventoryController],

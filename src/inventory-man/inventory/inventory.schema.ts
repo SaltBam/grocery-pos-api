@@ -17,6 +17,7 @@ export class Inventory {
     @Prop({
         required: true,
         min: 0,
+        default: 0,
         validate: {
             validator: Number.isInteger,
             message: `Stock must be an integer`

@@ -27,6 +27,9 @@ export class RestockService {
         }, 0);
 
         await runInTransaction(async (session) => {
+            const updatedRestockDetails = await 
+                this.inventoryService.restock(user, dto, session);
+            
             const [created] = await this.model
                 .create([{
                     description,
@@ -34,7 +37,7 @@ export class RestockService {
                     totalCost
                 }], {session});
     
-            const inserts = restockDetails
+            const inserts = updatedRestockDetails
                 .map((detail) => ({
                     insertOne: { 
                         document: {
@@ -45,7 +48,6 @@ export class RestockService {
                 }));
     
                 await this.modelDetails.bulkWrite(inserts, {session});
-                await this.inventoryService.restock(dto, session);
         }, this.connection, session);
     }
 

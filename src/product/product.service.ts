@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
-import { GetDto, UpdateBulkDto } from './types';
+import { GetDto, NewProductDto, NewProductFields, UpdateBulkDto } from './types';
 import { runInTransaction } from 'src/common/utils/db';
 
 @Injectable()
@@ -50,5 +50,16 @@ export class ProductService {
         return new Map(found.map(item => [
                 item._id.toString(), item
             ]));
+    }
+
+    async createMany(dto: NewProductFields[], session: ClientSession) {        
+        const inserted = await this.model.insertMany(dto, { session });
+
+        const EANMap: Record<string, string> = {};
+        inserted.forEach(({_id, EAN}) => {
+            EANMap[EAN] = _id.toString();
+        });
+
+        return EANMap
     }
 }
