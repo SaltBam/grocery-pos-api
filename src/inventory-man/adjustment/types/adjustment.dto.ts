@@ -31,10 +31,6 @@ export class AdjustDto {
     @Transform(({value}) => typeof value === "string" ? value.trim() : value)
     description?: string
 
-    @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    adjustedBy: Types.ObjectId;
-
     @ArrayNotEmpty()
     @ValidateNested({each: true})
     @Type(() => AdjustFields)

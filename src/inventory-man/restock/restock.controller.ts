@@ -2,7 +2,8 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { RestockService } from './restock.service';
 import { GetDetailsDto, RestockDto } from './types';
 import { BaseResponse } from 'src/common/base/base.response';
-
+import { CurrentUser } from 'src/auth/types';
+import type { AuthUser } from 'src/auth/types';
 @Controller('restocks')
 export class RestockController {
     constructor(
@@ -11,10 +12,9 @@ export class RestockController {
 
     @Post()
     async restock(
-        @Body() dto: RestockDto
+        @CurrentUser() user: AuthUser, @Body() dto: RestockDto
     ) {
-        console.log({dto})
-        await this.service.restock(dto);
+        await this.service.restock(user, dto);
 
         return new BaseResponse();
     }

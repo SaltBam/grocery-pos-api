@@ -2,7 +2,8 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AdjustmentService } from './adjustment.service';
 import { BaseResponse } from 'src/common/base/base.response';
 import { AdjustDto, GetDetailsDto } from './types';
-
+import { CurrentUser } from 'src/auth/types';
+import type { AuthUser } from 'src/auth/types';
 @Controller('adjustments')
 export class AdjustmentController {
     constructor(
@@ -10,8 +11,8 @@ export class AdjustmentController {
     ) {}
 
     @Post()
-    async adjust(@Body() dto: AdjustDto) {
-        await this.service.adjust(dto);
+    async adjust(@CurrentUser() user: AuthUser, @Body() dto: AdjustDto) {
+        await this.service.adjust(user, dto);
 
         return new BaseResponse();
     }

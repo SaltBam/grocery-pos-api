@@ -6,6 +6,7 @@ import { AdjustmentDetails } from './adjustment-details.schema';
 import { AdjustDto, GetDetailsDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
 import { runInTransaction } from 'src/common/utils/db';
+import { AuthUser } from 'src/auth/types';
 
 @Injectable()
 export class AdjustmentService {
@@ -22,14 +23,16 @@ export class AdjustmentService {
             .lean();
     }
 
-    async adjust(dto: AdjustDto, session?: ClientSession): Promise<void> {
-        const { description, adjustDetails, adjustedBy } = dto;
+    async adjust(
+        user: AuthUser, dto: AdjustDto, session?: ClientSession
+    ): Promise<void> {
+        const { description, adjustDetails } = dto;
 
         await runInTransaction(async (session) => {
             const [adjustment] = await this.model
                 .create([{
                 description,
-                    adjustedBy,
+                    adjustedBy: user._id,
                 }], {session});
             
             const inserts = adjustDetails

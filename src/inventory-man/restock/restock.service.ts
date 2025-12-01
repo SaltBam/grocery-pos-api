@@ -6,6 +6,7 @@ import { RestockDetails } from './restock-details.schema';
 import { GetDetailsDto, RestockDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
 import { runInTransaction } from 'src/common/utils/db';
+import { AuthUser } from 'src/auth/types';
 
 @Injectable()
 export class RestockService {
@@ -16,8 +17,10 @@ export class RestockService {
         private inventoryService: InventoryService,
     ) {}
 
-    async restock(dto: RestockDto, session?: ClientSession): Promise<void> {
-        const { restockedBy, description, restockDetails } = dto; 
+    async restock(
+        user: AuthUser, dto: RestockDto, session?: ClientSession
+    ): Promise<void> {
+        const { description, restockDetails } = dto; 
 
         const totalCost = restockDetails.reduce((sum, detail) => {
             return sum + detail.quantity * detail.unitCost
@@ -27,7 +30,7 @@ export class RestockService {
             const [created] = await this.model
                 .create([{
                     description,
-                    restockedBy,
+                    restockedBy: user._id,
                     totalCost
                 }], {session});
     

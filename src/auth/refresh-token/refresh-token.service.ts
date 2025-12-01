@@ -60,6 +60,7 @@ export class RefreshTokenService {
 
         const refreshPayload = await this.create(found.user._id, found.expiry);
         const jwtPayload = {
+            _id: found.user._id,
             username: found.user.name,
             roles: found.user.roles
         };

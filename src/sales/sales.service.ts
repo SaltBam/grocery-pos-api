@@ -8,6 +8,7 @@ import { ProductService } from 'src/product/product.service';
 import { runInTransaction } from 'src/common/utils/db';
 import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
 import { UserService } from 'src/user/user.service';
+import { AuthUser } from 'src/auth/types';
 
 @Injectable()
 export class SalesService {
@@ -35,15 +36,15 @@ export class SalesService {
             .lean();
     }
 
-    async sell(dto: SellDto, session?: ClientSession) {
-        const { cashier, paymentType, referenceNumber} = dto;
+    async sell(user: AuthUser, dto: SellDto, session?: ClientSession) {
+        const { paymentType, referenceNumber} = dto;
 
         const { totalAmount, fullSellDetails } = await this.prepareSell(dto);
 
         await runInTransaction(async (session) => {
             const [created] = await this.model.create([{
                 amount: totalAmount,
-                cashier,
+                cashier: user._id,
                 paymentType,
                 referenceNumber,
             }], { session });
@@ -64,11 +65,11 @@ export class SalesService {
                 await this.inventoryService.sell(dto, session);
         }, this.connection, session);
 
-        return await this.makeReceipt(fullSellDetails, cashier, totalAmount);
+        return await this.makeReceipt(fullSellDetails, user.username, totalAmount);
     }
 
     private async makeReceipt(
-        itemsInfo: ReceiptFields[], cashier: Types.ObjectId, totalAmount: number
+        itemsInfo: ReceiptFields[], cashierName: string, totalAmount: number
     ): Promise<ReceiptDto> {
         const items: ReceiptFields[] = 
             itemsInfo.map(({productName, quantity, amount}) => ({
@@ -76,8 +77,6 @@ export class SalesService {
                 quantity,
                 amount
             }));
-
-        const cashierName = await this.userService.getName(cashier);
 
         return {
             cashierName, 

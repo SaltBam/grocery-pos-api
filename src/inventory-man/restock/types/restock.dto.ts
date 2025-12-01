@@ -33,8 +33,4 @@ export class RestockDto {
     @IsString()
     @MaxLength(300)
     description?: string;
-
-    @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    restockedBy: Types.ObjectId
 }

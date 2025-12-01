@@ -18,11 +18,7 @@ class SellDetailsFields {
     quantity: number;
 }
 
-export class SellDto {
-    @IsNotEmpty()
-    @Transform(({value}) => new Types.ObjectId(value))
-    cashier: Types.ObjectId;
-    
+export class SellDto {   
     @IsNotEmpty()
     @IsEnum(PaymentType)
     paymentType: PaymentType;

@@ -2,7 +2,8 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { GetDetailsDto, SellDto } from './types';
 import { BaseResponse } from 'src/common/base/base.response';
-
+import { CurrentUser } from 'src/auth/types';
+import type { AuthUser } from 'src/auth/types';
 @Controller('sales')
 export class SalesController {
     constructor(
@@ -24,8 +25,8 @@ export class SalesController {
     }
 
     @Post()
-    async sell(@Body() dto: SellDto) {
-        const data = await this.service.sell(dto);
+    async sell(@CurrentUser() user: AuthUser, @Body() dto: SellDto) {
+        const data = await this.service.sell(user, dto);
 
         return new BaseResponse(data);
     }
