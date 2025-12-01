@@ -6,7 +6,7 @@ import { User } from "src/user/user.schema";
 @Schema({ timestamps: true })
 export class Inventory {
     @Prop({
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: Product.name,
         required: true,
         unique: true,
@@ -25,7 +25,7 @@ export class Inventory {
     stock: number
 
     @Prop({
-        type: mongoose.Schema.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: User.name,
         required: true
     })

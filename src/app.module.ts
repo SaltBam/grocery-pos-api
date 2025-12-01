@@ -14,6 +14,7 @@ import { ProductModule } from './product/product.module';
 import { InventoryModule } from './inventory-man/inventory/inventory.module';
 import { RestockModule } from './inventory-man/restock/restock.module';
 import { AdjustmentModule } from './inventory-man/adjustment/adjustment.module';
+import { SalesModule } from './sales/sales.module';
 
 @Module({
   imports: [
@@ -28,7 +29,8 @@ import { AdjustmentModule } from './inventory-man/adjustment/adjustment.module';
     ProductModule,
     InventoryModule,
     RestockModule,
-    AdjustmentModule
+    AdjustmentModule,
+    SalesModule
   ],
   controllers: [],
   providers: [
