@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { GetDetailsDto, SellDto } from './types';
 import { BaseResponse } from 'src/common/base/base.response';
@@ -17,7 +17,7 @@ export class SalesController {
     }
 
     @Get('details/:sales')
-    async getDetails(@Body() dto: GetDetailsDto) {
+    async getDetails(@Param() dto: GetDetailsDto) {
         const data = await this.service.getDetails(dto);
 
         return new BaseResponse(data);
