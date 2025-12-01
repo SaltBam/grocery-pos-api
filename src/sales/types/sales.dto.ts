@@ -3,6 +3,10 @@ import { ArrayNotContains, ArrayNotEmpty, IsEnum, IsInt, IsNotEmpty, IsOptional,
 import { Types } from "mongoose";
 import { PaymentType } from "./sales.types";
 
+export class GetDetailsDto {
+    @IsNotEmpty()
+    sales: Types.ObjectId
+}
 class SellDetailsFields {
     @IsNotEmpty()
     @Transform(({value}) => new Types.ObjectId(value))

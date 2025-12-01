@@ -3,7 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Sales } from './sales.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { SalesDetails } from './sales-details.schema';
-import { ReceiptDto, ReceiptFields, SellDto } from './types';
+import { GetDetailsDto, ReceiptDto, ReceiptFields, SellDto } from './types';
 import { ProductService } from 'src/product/product.service';
 import { runInTransaction } from 'src/common/utils/db';
 import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
@@ -19,6 +19,21 @@ export class SalesService {
         private inventoryService: InventoryService,
         private userService: UserService,
     ) {}
+
+    async getAll(): Promise<Sales[]> {
+        return await this.model
+            .find()
+            .lean();
+    }
+    
+    async getDetails(dto: GetDetailsDto)
+    : Promise<SalesDetails[]> {
+        const { sales } = dto;
+
+        return await this.modelDetails
+            .find({ sales })
+            .lean();
+    }
 
     async sell(dto: SellDto, session?: ClientSession) {
         const { cashier, paymentType, referenceNumber} = dto;
