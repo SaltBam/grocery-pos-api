@@ -6,7 +6,6 @@ import { AuthService } from './auth.service';
 import { CookieService } from 'src/common/utils/cookie/cookie.service';
 import { BaseResponse } from 'src/common/base/base.response';
 import { Public, Roles } from './auth.decorator';
-import { Types } from 'mongoose';
 
 @Controller('auth')
 export class AuthController extends BaseController {
@@ -35,7 +34,6 @@ export class AuthController extends BaseController {
         return new BaseResponse();
     }
     
-    @Roles(Role.Clerk, Role.Owner)
     @Post('logout')
     async logout(
         @Res({ passthrough: true }) res: Response,

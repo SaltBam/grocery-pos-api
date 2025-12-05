@@ -2,8 +2,10 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { GetDetailsDto, SellDto } from './types';
 import { BaseResponse } from 'src/common/base/base.response';
-import { CurrentUser } from 'src/auth/types';
+import { CurrentUser, Role } from 'src/auth/types';
 import type { AuthUser } from 'src/auth/types';
+import { Roles } from 'src/auth/auth.decorator';
+@Roles(Role.Owner, Role.Cashier)
 @Controller('sales')
 export class SalesController {
     constructor(

@@ -1,10 +1,9 @@
 import { createParamDecorator, ExecutionContext } from "@nestjs/common"
-import { Types } from "mongoose";
 
 export enum Role {
-    Guest = 'guest',
-    Clerk = 'clerk',
+    Cashier = 'cashier',
     Owner = 'owner',
+    InventoryManager = 'inventory manager',
     Unauthenticated = 'unauthenticated',
 }
 

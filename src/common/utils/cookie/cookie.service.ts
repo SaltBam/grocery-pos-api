@@ -18,8 +18,8 @@ export class CookieService {
     ) {
         res.cookie(name, payload, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
+            secure: false,
+            sameSite: 'lax',
             signed: true,
             maxAge,
             path: path ?? '/',
@@ -35,8 +35,8 @@ export class CookieService {
     ) {
         res.clearCookie(name, {
             httpOnly: true,
-            secure: true,
-            sameSite: 'strict',
+            secure: false,
+            sameSite: 'lax',
             signed: true,
             // domain: domain ?? `.${this.config.get('DOMAIN')}`,
             path: path ?? '/',

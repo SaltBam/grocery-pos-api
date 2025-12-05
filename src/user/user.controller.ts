@@ -2,15 +2,26 @@ import { Body, Controller, Get, Logger, Patch, Post, Req } from '@nestjs/common'
 import { UserService } from './user.service';
 import { CreateBulkDto, UpdateBulkDto } from './types/user.dto';
 import { Roles } from 'src/auth/auth.decorator';
-import { Role } from 'src/auth/types';
+import { CurrentUser, Role } from 'src/auth/types';
+import type { AuthUser } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';
 
+@Roles(Role.Owner)
 @Controller('users')
 export class UserController {
     constructor(
         private service: UserService,
     ) 
     {}
+
+    @Roles(Role.Cashier, Role.Owner, Role.InventoryManager)
+    @Get('/profile')
+    getProfile(@CurrentUser() user: AuthUser) {
+        return new BaseResponse({
+            username: user.username,
+            roles: user.roles
+        })
+    }
 
     @Roles(Role.Owner)
     @Get()

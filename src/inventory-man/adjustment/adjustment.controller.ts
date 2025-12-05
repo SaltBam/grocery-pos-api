@@ -2,8 +2,10 @@ import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { AdjustmentService } from './adjustment.service';
 import { BaseResponse } from 'src/common/base/base.response';
 import { AdjustDto, GetDetailsDto } from './types';
-import { CurrentUser } from 'src/auth/types';
+import { CurrentUser, Role } from 'src/auth/types';
 import type { AuthUser } from 'src/auth/types';
+import { Roles } from 'src/auth/auth.decorator';
+@Roles(Role.Owner, Role.InventoryManager)
 @Controller('adjustments')
 export class AdjustmentController {
     constructor(
