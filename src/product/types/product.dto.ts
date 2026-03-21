@@ -1,5 +1,6 @@
 import { Transform, Type } from "class-transformer"
-import { ArrayNotEmpty, IsArray, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator"
+import { ArrayNotEmpty, IsArray, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, Min, ValidateNested } from "class-validator"
+import { Category } from "./product.types";
 
 export class NewProductFields {
     @IsNotEmpty()
@@ -12,6 +13,12 @@ export class NewProductFields {
     @IsString()
     @MaxLength(50)
     name: string
+
+    @IsNotEmpty()
+    @IsEnum(Category, {
+        message: `Category must be a valid enum value: ${Object.values(Category).join(', ')}`
+    })
+    category: Category;
 
     @IsNotEmpty()
     @IsNumber()
@@ -60,4 +67,24 @@ export class UpdateBulkDto {
     @IsArray()
     @ArrayNotEmpty()
     updates: UpdateBulkFields[]
+}
+
+export class GetAllDto {
+    @IsString()
+    @IsOptional()
+    name: string
+    
+    @IsString()
+    @IsOptional()
+    EAN:string
+
+    @IsPositive()
+    @IsNumber()
+    @IsNotEmpty()
+    page: number
+    
+    @IsPositive()
+    @IsNumber()
+    @IsNotEmpty()
+    limit: number
 }

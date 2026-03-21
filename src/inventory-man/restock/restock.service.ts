@@ -3,7 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Restock } from './restock.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { RestockDetails } from './restock-details.schema';
-import { GetDetailsDto, RestockDto } from './types';
+import { GetAllDto, GetDetailsDto, RestockDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
 import { runInTransaction } from 'src/common/utils/db';
 import { AuthUser } from 'src/auth/types';
@@ -50,15 +50,31 @@ export class RestockService {
                 await this.modelDetails.bulkWrite(inserts, {session});
         }, this.connection, session);
     }
+    
+    async getAll(dto: GetAllDto): Promise<{data: Restock[], pages: number}> {
+        const { page, limit } = dto;
+        
+        const skip = (page - 1) * limit;
 
-    async getAll(): Promise<Restock[]> {
-        return await this.model
-            .find()
+        const [data, totalItems] = await Promise.all([
+            this.model.find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
             .populate({
                 path: 'restockedBy',
                 select: 'name'
             })
-            .lean();
+            .lean(),
+
+            this.model.countDocuments()
+        ]);
+
+        const pages = Math.ceil(totalItems / limit)
+
+        return {
+            data, pages
+        }
     }
 
     async getDetails(dto: GetDetailsDto)

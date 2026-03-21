@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotContains, ArrayNotEmpty, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsOptional, IsString, MaxLength, Min, ValidateNested } from "class-validator";
+import { ArrayNotContains, ArrayNotEmpty, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, Min, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 import { PaymentType } from "./sales.types";
 
@@ -45,4 +45,16 @@ export class ReceiptDto {
     cashierName: string;
     items: ReceiptFields[];
     totalAmount: number;
+}
+
+export class GetAllDto {
+    @IsPositive()
+    @IsNumber()
+    @IsNotEmpty()
+    page: number
+    
+    @IsPositive()
+    @IsNumber()
+    @IsNotEmpty()
+    limit: number
 }

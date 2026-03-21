@@ -1,12 +1,12 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Roles } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';
-import { GetDto, UpdateBulkDto } from './types';
+import { GetAllDto, GetDto, UpdateBulkDto } from './types';
 
 @Roles(Role.Owner, Role.InventoryManager)
-@Controller('product')
+@Controller('products')
 export class ProductController {
     constructor(
         private service: ProductService,
@@ -25,5 +25,12 @@ export class ProductController {
         await this.service.update(dto);
 
         return new BaseResponse();
+    }
+
+    @Get()
+    async getAll(@Query() dto: GetAllDto) {
+        const data = await this.service.getAll(dto)
+
+        return new BaseResponse(data)
     }
 }

@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, NotEquals, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, NotEquals, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 
 export class GetDetailsDto {
@@ -35,4 +35,14 @@ export class AdjustDto {
     @ValidateNested({each: true})
     @Type(() => AdjustFields)
     adjustDetails: AdjustFields[]
+}
+
+export class GetAllDto {
+    @IsNumber()
+    @IsPositive()
+    limit: number
+    
+    @IsNumber()
+    @IsPositive()
+    page: number
 }

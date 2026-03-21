@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsOptional, IsString, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 import { Role } from "src/auth/types";
 
@@ -58,4 +58,20 @@ export class UpdateBulkDto {
     @IsArray()
     @ArrayNotEmpty()
     updates: UpdateBulkFields[]
+}
+
+export class GetAllDto {
+    @IsString()
+    @IsOptional()
+    name: string
+    
+    @IsPositive()
+    @IsNumber()
+    @IsNotEmpty()
+    page: number
+    
+    @IsPositive()
+    @IsNumber()
+    @IsNotEmpty()
+    limit: number
 }

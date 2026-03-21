@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsString, MaxLength, min, Min, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, min, Min, ValidateNested } from "class-validator";
 import { RequiresOne } from "src/common/validators";
 import { NewProductFields } from "src/product/types";
 
@@ -45,4 +45,16 @@ export class RestockDto {
     @IsString()
     @MaxLength(300)
     description?: string;
+}
+
+export class GetAllDto {
+    @IsPositive()
+    @IsNumber()
+    @IsNotEmpty()
+    page: number
+    
+    @IsPositive()
+    @IsNumber()
+    @IsNotEmpty()
+    limit: number
 }

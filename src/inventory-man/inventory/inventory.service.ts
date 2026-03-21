@@ -8,6 +8,7 @@ import { SellDto } from 'src/sales/types';
 import { ProductService } from 'src/product/product.service';
 import { NewProductDto, NewProductFields } from 'src/product/types';
 import { AuthUser } from 'src/auth/types';
+import { GetAllDto } from './types';
 
 @Injectable()
 export class InventoryService {
@@ -16,14 +17,17 @@ export class InventoryService {
         private productService: ProductService,
     ) {}
 
-    async getAll(): Promise<Inventory[]> {
-        return await this.model
-            .find()
-            .populate([
-                { path: 'product' },
-                { path: 'updatedBy', select: 'name -_id' }
-            ])
-            .lean();
+    async getAll(dto: GetAllDto): Promise<{data: Inventory[], pages: number}> {        
+        const {productIds, pages} = await this.productService.getAllExec(dto);
+
+        const data = await this.model.find({
+            product: { $in: productIds }
+        }).populate('product')
+        .lean();
+
+        return {
+            data, pages
+        }
     }
 
     async restock(

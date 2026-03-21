@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Category } from "./types";
 
-@Schema()
+@Schema({ timestamps: true })
 export class Product {
     @Prop({
         type: String,
@@ -27,6 +28,13 @@ export class Product {
         min: 0,
     })
     price: number
+
+    @Prop({
+        required: true,
+        enum: Object.values(Category),
+        type: String,
+    })
+    category: Category;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

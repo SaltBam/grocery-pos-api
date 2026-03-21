@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Logger, Patch, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Patch, Post, Query, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateBulkDto, UpdateBulkDto } from './types/user.dto';
 import { Roles } from 'src/auth/auth.decorator';
 import { CurrentUser, Role } from 'src/auth/types';
 import type { AuthUser } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';
+import { GetAllDto } from 'src/product/types';
 
 @Roles(Role.Owner)
 @Controller('users')
@@ -25,8 +26,8 @@ export class UserController {
 
     @Roles(Role.Owner)
     @Get()
-    async get() {
-        const data = await this.service.get();
+    async getAll(@Query() dto: GetAllDto) {
+        const data = await this.service.getAll(dto);
 
         return new BaseResponse(data);
     }

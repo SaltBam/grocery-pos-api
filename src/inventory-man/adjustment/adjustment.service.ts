@@ -3,7 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Adjustment } from './adjustment.schema';
 import { ClientSession, Connection, Model } from 'mongoose';
 import { AdjustmentDetails } from './adjustment-details.schema';
-import { AdjustDto, GetDetailsDto } from './types';
+import { AdjustDto, GetAllDto, GetDetailsDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
 import { runInTransaction } from 'src/common/utils/db';
 import { AuthUser } from 'src/auth/types';
@@ -17,14 +17,30 @@ export class AdjustmentService {
         private inventoryService: InventoryService,
     ) {}
 
-    async getAll(): Promise<Adjustment[]> {
-        return await this.model
-            .find()
+    async getAll(dto: GetAllDto): Promise<{data: Adjustment[], pages: number}> {
+        const { page, limit } = dto;
+        
+        const skip = (page - 1) * limit;
+
+        const [data, totalItems] = await Promise.all([
+            this.model.find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
             .populate({
                 path: 'adjustedBy',
                 select: 'name'
             })
-            .lean();
+            .lean(),
+
+            this.model.countDocuments()
+        ]);
+
+        const pages = Math.ceil(totalItems / limit)
+
+        return {
+            data, pages
+        }
     }
 
     async adjust(

@@ -1,6 +1,6 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { RestockService } from './restock.service';
-import { GetDetailsDto, RestockDto } from './types';
+import { GetAllDto, GetDetailsDto, RestockDto } from './types';
 import { BaseResponse } from 'src/common/base/base.response';
 import { CurrentUser, Role } from 'src/auth/types';
 import type { AuthUser } from 'src/auth/types';
@@ -22,8 +22,8 @@ export class RestockController {
     }
 
     @Get()
-    async getAll() {
-        const data = await this.service.getAll();
+    async getAll(@Query() dto: GetAllDto) {
+        const data = await this.service.getAll(dto);
 
         return new BaseResponse(data);
     }

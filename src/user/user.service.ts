@@ -4,7 +4,7 @@ import { User } from './user.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import * as argon from 'argon2'
 import { Role } from 'src/auth/types/auth.types';
-import { CreateBulkDto, UpdateBulkDto } from './types';
+import { CreateBulkDto, GetAllDto, UpdateBulkDto } from './types';
 import { runInTransaction } from 'src/common/utils/db';
 
 class UserInfo {
@@ -21,11 +21,33 @@ export class UserService {
         @InjectModel(User.name) private model: Model<User>,
     ) {}
 
-    async get(): Promise<UserInfo[]> {
-        return this.model
-            .find()
+    async getAll(dto: GetAllDto): Promise<{data: User[], pages: number}> {
+        const { page, limit, name } = dto;
+        
+        const skip = (page - 1) * limit;
+
+        let query: any = {};
+        if (name) {
+            const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.name = { $regex: `^${escaped}`, $options: 'i' }
+        }
+
+        const [data, totalItems] = await Promise.all([
+            this.model.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
             .select('-passwordHash -__v')
-            .lean();
+            .lean(),
+
+            this.model.countDocuments(query)
+        ]);
+
+        const pages = Math.ceil(totalItems / limit)
+
+        return {
+            data, pages
+        }
     }
 
     async update(dto: UpdateBulkDto, session?: ClientSession): Promise<void> {

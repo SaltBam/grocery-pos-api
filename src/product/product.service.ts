@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
-import { GetDto, NewProductDto, NewProductFields, UpdateBulkDto } from './types';
+import { GetAllDto, GetDto, NewProductDto, NewProductFields, UpdateBulkDto } from './types';
 import { runInTransaction } from 'src/common/utils/db';
 
 @Injectable()
@@ -50,6 +50,70 @@ export class ProductService {
         return new Map(found.map(item => [
                 item._id.toString(), item
             ]));
+    }
+
+    async getAll(dto: GetAllDto): Promise<{data: Product[], pages: number}> {
+        const { page, limit, name, EAN } = dto;
+        
+        const skip = (page - 1) * limit;
+
+        let query: any = {};
+        if (name) {
+            const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.name = { $regex: `^${escaped}`, $options: 'i' }
+        } else if (EAN) {
+            const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.EAN = { $regex: `^${escaped}`, $options: 'i' }
+        }
+
+        const [data, totalItems] = await Promise.all([
+            this.model.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+
+            this.model.countDocuments(query)
+        ]);
+
+        const pages = Math.ceil(totalItems / limit)
+
+        return {
+            data, pages
+        }
+    }
+
+    async getAllExec(dto: GetAllDto): Promise<{productIds: Types.ObjectId[], pages: number}> {
+        const { page, limit, name, EAN } = dto;
+        
+        const skip = (page - 1) * limit;
+
+        let query: any = {};
+        if (name) {
+            const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.name = { $regex: `^${escaped}`, $options: 'i' }
+        } else if (EAN) {
+            const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.EAN = { $regex: `^${escaped}`, $options: 'i' }
+        }
+
+        const [data, totalItems] = await Promise.all([
+            this.model.find(query, '_id')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
+            .lean(),
+
+            this.model.countDocuments(query)
+        ]);
+
+        const productIds = data.map(x => x._id);
+
+        const pages = Math.ceil(totalItems / limit)
+
+        return {
+            productIds, pages
+        }
     }
 
     async createMany(dto: NewProductFields[], session: ClientSession) {        

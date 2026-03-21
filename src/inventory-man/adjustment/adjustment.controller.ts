@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AdjustmentService } from './adjustment.service';
 import { BaseResponse } from 'src/common/base/base.response';
-import { AdjustDto, GetDetailsDto } from './types';
+import { AdjustDto, GetAllDto, GetDetailsDto } from './types';
 import { CurrentUser, Role } from 'src/auth/types';
 import type { AuthUser } from 'src/auth/types';
 import { Roles } from 'src/auth/auth.decorator';
@@ -20,8 +20,8 @@ export class AdjustmentController {
     }
 
     @Get()
-    async getAll() {
-        const data = await this.service.getAll();
+    async getAll(@Query() dto: GetAllDto) {
+        const data = await this.service.getAll(dto);
 
         return new BaseResponse(data); 
     }

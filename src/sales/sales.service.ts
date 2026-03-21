@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Sales } from './sales.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { SalesDetails } from './sales-details.schema';
-import { GetDetailsDto, ReceiptDto, ReceiptFields, SellDto } from './types';
+import { GetAllDto, GetDetailsDto, ReceiptDto, ReceiptFields, SellDto } from './types';
 import { ProductService } from 'src/product/product.service';
 import { runInTransaction } from 'src/common/utils/db';
 import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
@@ -20,17 +20,33 @@ export class SalesService {
         private inventoryService: InventoryService,
         private userService: UserService,
     ) {}
+    
+    async getAll(dto: GetAllDto): Promise<{data: Sales[], pages: number}> {
+        const { page, limit} = dto;
+        
+        const skip = (page - 1) * limit;
 
-    async getAll(): Promise<Sales[]> {
-        return await this.model
-            .find()
+        const [data, totalItems] = await Promise.all([
+            this.model.find()
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit)
             .populate({
                 path: 'cashier',
                 select: 'name'
             })
-            .lean();
+            .lean(),
+
+            this.model.countDocuments()
+        ]);
+
+        const pages = Math.ceil(totalItems / limit)
+
+        return {
+            data, pages
+        }
     }
-    
+
     async getDetails(dto: GetDetailsDto)
     : Promise<SalesDetails[]> {
         const { sales } = dto;
@@ -97,8 +113,9 @@ export class SalesService {
         const { sellDetails } = dto;
 
         const productsMap = await this.productService
-            .getMany(sellDetails.map(detail => detail.product));
-
+        .getMany(sellDetails.map(detail => detail.product));
+        
+        Logger.log({sellDetails, productsMap})
         let totalAmount = 0;
 
         const fullSellDetails = sellDetails.map(
