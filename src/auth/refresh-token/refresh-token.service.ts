@@ -6,7 +6,7 @@ import { randomBytes } from 'crypto';
 import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
 import { RefreshPayload } from './types';
 import * as argon from 'argon2';
-import { Role } from '../types';
+import { JWTPayload, Role } from '../types';
 import { AuthService } from '../auth.service';
 
 type FoundRefresh = 
@@ -28,66 +28,62 @@ export class RefreshTokenService {
     ) {}
 
     async create(userId: string, expiry?: Date, session?: ClientSession)
-    : Promise<RefreshPayload> {
-        const token = randomBytes(32).toString('hex');
+    : Promise<string> {
         const newExpiry = expiry ?? new Date(
             Date.now() + this.config.get('REFRESH_EXPIRY')
         );
 
         const [created] = await this.model.create([{
-                token: await argon.hash(token),
                 user: userId,
                 expiry: newExpiry
             }], { session }
         );
 
-        return { _id: created._id.toString(), token, userId };
+        return created._id.toString();
     }
 
     async rotate(
-        refreshTokenId: string, token: string
-    ): Promise<{refreshPayload: string, jwtPayload: string}> {
+        refreshId: string
+    ): Promise<{refreshId: string, jwtPayload: JWTPayload}> {
         const found = await this.model
-            .findByIdAndDelete(refreshTokenId)
+            .findByIdAndDelete(refreshId)
             .populate('user')
             .lean<FoundRefresh>();
         
-        if (!found || !await this.checkValid(found, token)) {
+        if (!found || !await this.checkValid(found)) {
             throw new UnauthorizedException(
                 `Please login again`
             );
         }
 
-        const refreshPayload = await this.create(found.user._id.toString(), found.expiry);
-        const jwtPayload = {
+        const newRefreshId = await this.create(found.user._id.toString(), found.expiry);
+        const jwtPayload: JWTPayload = {
             userId: found.user._id.toString(),
             username: found.user.name,
-            roles: found.user.roles
-        };
+            roles: found.user.roles,
+        }
 
         return {
-            refreshPayload: JSON.stringify(refreshPayload),
-            jwtPayload: this.authService.signJWT(jwtPayload)
+            refreshId: newRefreshId,
+            jwtPayload
         }
     }
 
     async invalidate(_id: string, session?: ClientSession): Promise<void> {
         await this.model
-            .findByIdAndUpdate(
+            .findByIdAndDelete(
                 _id,
-                { isValid: false },
-                { session }
+                { isValid: false }
             );
     }
 
     private async checkValid(
-        refreshToken: FoundRefresh, token: string
+        refreshToken: FoundRefresh
     ): Promise<boolean> {
         return (
             !!refreshToken &&
             refreshToken.expiry.getTime() > Date.now() &&
-            refreshToken.isValid &&
-            await argon.verify(refreshToken.token, token)
+            refreshToken.isValid
         );
     }
 }

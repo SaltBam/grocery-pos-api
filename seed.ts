@@ -11,11 +11,13 @@ import { Adjustment, AdjustmentSchema } from "src/inventory-man/adjustment/adjus
 import { AdjustmentDetails, AdjustmentDetailsSchema } from "src/inventory-man/adjustment/adjustment-details.schema";
 import { Sales, SalesSchema } from "src/sales/sales.schema";
 import { SalesDetails, SalesDetailsSchema } from "src/sales/sales-details.schema";
+import { RefreshToken, RefreshTokenSchema } from "src/auth/refresh-token/refresh-token.schema";
 
 const user = mongoose.model(User.name, UserSchema);
 const product = mongoose.model(Product.name, ProductSchema);
 const inventory = mongoose.model(Inventory.name, InventorySchema);
 const restock = mongoose.model(Restock.name, RestockSchema);
+const refreshToken = mongoose.model(RefreshToken.name, RefreshTokenSchema);
 const restockDetails = mongoose.model(RestockDetails.name, RestockDetailsSchema);
 const adjustment = mongoose.model(Adjustment.name, AdjustmentSchema);
 const adjustmentDetails = mongoose.model(AdjustmentDetails.name, AdjustmentDetailsSchema);
@@ -42,6 +44,7 @@ async function seedAll() {
         adjustmentDetails.collection.drop(),
         sales.collection.drop(),
         salesDetails.collection.drop(),
+        refreshToken.collection.drop(),
     ]);
     
     //must run after seedProduct()

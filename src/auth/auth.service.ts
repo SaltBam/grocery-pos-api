@@ -37,22 +37,31 @@ export class AuthService {
         const isActivated = await this.userService.checkActivated(username);
         if (!isActivated) {
             throw new UnauthorizedException(
-                `Account is deactivated. Kindly contact the owner.`
+                `Account is deactivated. Kindly contact the owner`
             );
         }
 
-        const refreshPayload = await this.refreshTokenService
+        const refreshId = await this.refreshTokenService
             .create(userInfo._id.toString());
 
-        const jwtPayload = { 
-            userId: userInfo._id.toString(), username: userInfo.name, 
+        const jwtPayload = {
+            userId: userInfo._id.toString(), 
+            username: userInfo.name, 
             roles: userInfo.roles 
         };
         
         return {
-            refreshPayload: JSON.stringify(refreshPayload),
+            refreshPayload: JSON.stringify({refreshId}),
             jwtPayload: this.signJWT(jwtPayload)
         }            
+    }
+
+    async refresh(oldRefreshId: string) {
+        const {refreshId, jwtPayload} = await this.refreshTokenService.rotate(oldRefreshId)
+        return {
+            refreshPayload: JSON.stringify({refreshId}),
+            jwtPayload: this.signJWT(jwtPayload),
+        }
     }
 
     async logout(refreshTokenId: string): Promise<void> {

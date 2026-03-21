@@ -1,4 +1,4 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger, UnauthorizedException } from '@nestjs/common';
+import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, HttpException, HttpStatus, Logger, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import { RefreshTokenService } from 'src/auth/refresh-token/refresh-token.service';
@@ -10,7 +10,6 @@ import { MongoFilter } from './mongo.filter';
 @Catch()
 export class GlobalFilter implements ExceptionFilter {
   constructor(
-    private refreshTokenService: RefreshTokenService,
     private cookieService: CookieService
   ) {}
 
@@ -25,7 +24,7 @@ export class GlobalFilter implements ExceptionFilter {
     try {
       if (exception instanceof JWTInvalidError) {
         Logger.log('JWT FILTER')
-        return await this.handleJWT(exception, res, req);
+        throw new BadRequestException('Please log in again');
       } else if ((exception as any)?.name?.toLowerCase().includes('mongo')) {
         Logger.log('MONGO FILTER')
         return MongoFilter.catch(exception);
@@ -58,38 +57,38 @@ export class GlobalFilter implements ExceptionFilter {
     });
   }
 
-  private async handleJWT(exception: JWTInvalidError, res: Response, req: Request) {
-      try {
-        const refreshCookie = req.signedCookies['refresh'];
-        if (!refreshCookie) {
-          throw new UnauthorizedException(
-            `Please login again`
-          );
-        }
+  // private async handleJWT(exception: JWTInvalidError, res: Response, req: Request) {
+  //     try {
+  //       const refreshCookie = req.signedCookies['refresh'];
+  //       if (!refreshCookie) {
+  //         throw new UnauthorizedException(
+  //           `Please login again`
+  //         );
+  //       }
         
-        let _id: string, token: string;
+  //       let _id: string, token: string;
         
-        try {
-          ({ _id, token } = JSON.parse(refreshCookie));
+  //       try {
+  //         ({ _id, token } = JSON.parse(refreshCookie));
           
-          if (!_id || !token) {
-            throw new Error();
-          }
-        } catch (err) {
-          throw new UnauthorizedException(
-            `Please login again`
-          );
-        }
+  //         if (!_id || !token) {
+  //           throw new Error();
+  //         }
+  //       } catch (err) {
+  //         throw new UnauthorizedException(
+  //           `Please login again`
+  //         );
+  //       }
         
-        const { jwtPayload, refreshPayload } = 
-        await this.refreshTokenService.rotate(_id, token);
+  //       const { jwtPayload, refreshPayload } = 
+  //       await this.refreshTokenService.rotate(_id, token);
         
-        this.cookieService.createRefresh(res, refreshPayload);
-        this.cookieService.createJwt(res, jwtPayload);
+  //       this.cookieService.createRefresh(res, refreshPayload);
+  //       this.cookieService.createJwt(res, jwtPayload);
         
-        res.redirect(req.originalUrl);
-      } catch (err) {
-        throw err;
-      }
-    }
+  //       res.redirect(req.originalUrl);
+  //     } catch (err) {
+  //       throw err;
+  //     }
+  //   }
 }

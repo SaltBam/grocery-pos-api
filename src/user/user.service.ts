@@ -38,7 +38,7 @@ export class UserService {
 
     private async prepareUpdates(dto: UpdateBulkDto) {
         const newDto = await Promise.all(
-            dto.updates.map(async ({_id, update}) => {
+            dto.updates.map(async ({user, update}) => {
                 const newUpdate: any = {...update};
 
                 if (newUpdate.password) {
@@ -47,13 +47,13 @@ export class UserService {
                     delete newUpdate.password;
                 }
 
-                return {_id, newUpdate}
+                return {user, newUpdate}
             })
         );
 
-        return newDto.map(({_id, newUpdate}) => ({
+        return newDto.map(({user, newUpdate}) => ({
             updateOne: {
-                filter: { _id },
+                filter: { _id: user },
                 update: { $set: newUpdate }
             }
         }));

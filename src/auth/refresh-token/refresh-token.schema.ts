@@ -5,13 +5,6 @@ import { User } from "src/user/user.schema";
 @Schema()
 export class RefreshToken {
     @Prop({
-        required: true,
-        unique: true,
-        index: true
-    })
-    token: string
-
-    @Prop({
         type: mongoose.Schema.ObjectId,
         ref: User.name,
         required: true,
