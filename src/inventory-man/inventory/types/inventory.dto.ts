@@ -1,6 +1,10 @@
 import { IsString, IsOptional, IsPositive, IsNumber, IsNotEmpty } from "class-validator"
 
 export class GetAllDto {
+    @IsOptional()
+    @IsNumber()
+    maxStock: number
+    
     @IsString()
     @IsOptional()
     name: string

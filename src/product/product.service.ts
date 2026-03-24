@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
@@ -48,11 +48,11 @@ export class ProductService {
             .lean();
 
         return new Map(found.map(item => [
-                item._id.toString(), item
-            ]));
+            item._id.toString(), item
+        ]));
     }
 
-    async getAll(dto: GetAllDto): Promise<{data: Product[], pages: number}> {
+    async getAll(dto: GetAllDto): Promise<{data: Product[], totalItems: number}> {
         const { page, limit, name, EAN } = dto;
         
         const skip = (page - 1) * limit;
@@ -61,14 +61,15 @@ export class ProductService {
         if (name) {
             const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             query.name = { $regex: `^${escaped}`, $options: 'i' }
-        } else if (EAN) {
+        }
+        if (EAN) {
             const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             query.EAN = { $regex: `^${escaped}`, $options: 'i' }
         }
 
         const [data, totalItems] = await Promise.all([
             this.model.find(query)
-            .sort({ createdAt: -1 })
+            .sort({ name: 1 })
             .skip(skip)
             .limit(limit)
             .lean(),
@@ -76,14 +77,12 @@ export class ProductService {
             this.model.countDocuments(query)
         ]);
 
-        const pages = Math.ceil(totalItems / limit)
-
         return {
-            data, pages
+            data, totalItems
         }
     }
 
-    async getAllExec(dto: GetAllDto): Promise<{productIds: Types.ObjectId[], pages: number}> {
+    async getAllExec(dto: GetAllDto): Promise<{productIds: Types.ObjectId[], totalItems: number}> {
         const { page, limit, name, EAN } = dto;
         
         const skip = (page - 1) * limit;
@@ -91,15 +90,18 @@ export class ProductService {
         let query: any = {};
         if (name) {
             const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            query.name = { $regex: `^${escaped}`, $options: 'i' }
-        } else if (EAN) {
+            query.name = { $regex: `${escaped}` }
+        } 
+        if (EAN) {
             const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            query.EAN = { $regex: `^${escaped}`, $options: 'i' }
+            query.EAN = { $regex: `^${escaped}` }
         }
+
+        Logger.log({query, dto})
 
         const [data, totalItems] = await Promise.all([
             this.model.find(query, '_id')
-            .sort({ createdAt: -1 })
+            .sort({ name: 1, _id: 1 })
             .skip(skip)
             .limit(limit)
             .lean(),
@@ -109,10 +111,8 @@ export class ProductService {
 
         const productIds = data.map(x => x._id);
 
-        const pages = Math.ceil(totalItems / limit)
-
         return {
-            productIds, pages
+            productIds, totalItems
         }
     }
 

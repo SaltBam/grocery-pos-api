@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Inventory } from './inventory.schema';
 import { ClientSession, Model, Types } from 'mongoose';
@@ -12,90 +12,126 @@ import { GetAllDto } from './types';
 
 @Injectable()
 export class InventoryService {
-    constructor(
-        @InjectModel(Inventory.name) private model: Model<Inventory>,
-        private productService: ProductService,
-    ) {}
+  constructor(
+    @InjectModel(Inventory.name) private model: Model<Inventory>,
+    private productService: ProductService,
+  ) {}
 
-    async getAll(dto: GetAllDto): Promise<{data: Inventory[], pages: number}> {        
-        const {productIds, pages} = await this.productService.getAllExec(dto);
+  async getAll(dto: GetAllDto): Promise<{ data: Inventory[]; totalItems: number }> {
+    const { page, limit, maxStock } = dto;
 
-        const data = await this.model.find({
-            product: { $in: productIds }
-        }).populate('product')
-        .lean();
+    if (maxStock) {
+      const skip = (page - 1) * limit;
 
-        return {
-            data, pages
-        }
+      const matchQuery = { stock: { $lte: maxStock } };
+
+      const [data, totalItems] = await Promise.all([
+        this.model.aggregate([
+          { $match: matchQuery },
+          {
+            $lookup: {
+              from: 'products',
+              localField: 'product',
+              foreignField: '_id', 
+              as: 'product',
+            },
+          },
+
+          { $unwind: '$product' },
+          { $sort: { 'product.name': 1, _id: 1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ]),
+
+        this.model.countDocuments(matchQuery),
+      ]);
+
+      Logger.log('MAX STOCK', {data})
+      return {
+        data,
+        totalItems,
+      };
     }
 
-    async restock(
-        user: AuthUser, dto: RestockDto, session: ClientSession
-    ) {
-        const { restockDetails } = dto;
+    const { productIds, totalItems } = await this.productService.getAllExec(dto);
 
-        const newProducts = restockDetails
-            .filter(
-                (d): d is RestockFields & { newProduct: NewProductFields } =>
-                    !!d.newProduct
-            )
-            .map((details) => details.newProduct);
-        
-        const EANMap = await this.productService.createMany(newProducts, session);
+    const data = await this.model
+      .find({
+        product: { $in: productIds },
+      })
+      .populate('product')
+      .lean();
 
-        const updatedRestockDetails = restockDetails.map((details) => {
-            let product =
-                details.product ?? EANMap[details.newProduct!.EAN];
+    return {
+      data,
+      totalItems,
+    };
+  }
 
-            return {
-                product, quantity: details.quantity, 
-                updatedBy: user.userId, unitCost: details.unitCost
-            }
-        });
+  async restock(user: AuthUser, dto: RestockDto, session: ClientSession) {
+    const { restockDetails } = dto;
 
-        const updates = updatedRestockDetails
-            .filter(({product}) => !!product)
-            .map(({product, quantity, updatedBy}) => ({
-                updateOne: {
-                    filter: { product },
-                    update: { 
-                        $inc: { stock: quantity },
-                        $setOnInsert: { updatedBy, product }
-                    }, upsert: true
-                }
-            }));
+    const newProducts = restockDetails
+      .filter(
+        (d): d is RestockFields & { newProduct: NewProductFields } =>
+          !!d.newProduct,
+      )
+      .map((details) => details.newProduct);
 
-        await this.model.bulkWrite(updates, { session });
+    const EANMap = await this.productService.createMany(newProducts, session);
 
-        return updatedRestockDetails;
-    }
+    const updatedRestockDetails = restockDetails.map((details) => {
+      let product = details.product ?? EANMap[details.newProduct!.EAN];
 
-    async adjust(dto: AdjustDto, session: ClientSession): Promise<void> {
-        const { adjustDetails } = dto;
+      return {
+        product,
+        quantity: details.quantity,
+        updatedBy: user.userId,
+        unitCost: details.unitCost,
+      };
+    });
 
-        const updates = adjustDetails
-            .map(({product, change}) => ({
-                updateOne: {
-                    filter: { product },
-                    update: { $inc: { stock: change } }
-                }
-            }));
+    const updates = updatedRestockDetails
+      .filter(({ product }) => !!product)
+      .map(({ product, quantity, updatedBy }) => ({
+        updateOne: {
+          filter: { product },
+          update: {
+            $inc: { stock: quantity },
+            $setOnInsert: { updatedBy, product },
+          },
+          upsert: true,
+        },
+      }));
 
-        await this.model.bulkWrite(updates, { session });
-    }
+    await this.model.bulkWrite(updates, { session });
 
-    async sell(dto: SellDto, session: ClientSession): Promise<void> {
-        const { sellDetails } = dto;
+    return updatedRestockDetails;
+  }
 
-        const updates = sellDetails
-            .map(({product, quantity}) => ({
-                updateOne: {
-                    filter: { product },
-                    update: { $inc: { stock: -quantity} }
-                }
-            }));
-        
-        await this.model.bulkWrite(updates, { session });
-    }
+  async adjust(dto: AdjustDto, session: ClientSession): Promise<void> {
+    const { adjustDetails } = dto;
+
+    const updates = adjustDetails.map(({ product, change }) => ({
+      updateOne: {
+        filter: { product },
+        update: { $inc: { stock: change } },
+      },
+    }));
+
+    await this.model.bulkWrite(updates, { session });
+  }
+
+  async sell(dto: SellDto, session: ClientSession): Promise<void> {
+    const { sellDetails } = dto;
+
+    const updates = sellDetails.map(({ product, quantity }) => ({
+      updateOne: {
+        filter: { product },
+        update: { $inc: { stock: -quantity } },
+      },
+    }));
+
+    await this.model.bulkWrite(updates, { session });
+  }
 }

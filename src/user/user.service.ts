@@ -21,7 +21,7 @@ export class UserService {
         @InjectModel(User.name) private model: Model<User>,
     ) {}
 
-    async getAll(dto: GetAllDto): Promise<{data: User[], pages: number}> {
+    async getAll(dto: GetAllDto): Promise<{data: User[], totalItems: number}> {
         const { page, limit, name } = dto;
         
         const skip = (page - 1) * limit;
@@ -43,10 +43,8 @@ export class UserService {
             this.model.countDocuments(query)
         ]);
 
-        const pages = Math.ceil(totalItems / limit)
-
         return {
-            data, pages
+            data, totalItems
         }
     }
 

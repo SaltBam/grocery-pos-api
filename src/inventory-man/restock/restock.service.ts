@@ -51,7 +51,7 @@ export class RestockService {
         }, this.connection, session);
     }
     
-    async getAll(dto: GetAllDto): Promise<{data: Restock[], pages: number}> {
+    async getAll(dto: GetAllDto): Promise<{data: Restock[], totalItems: number}> {
         const { page, limit } = dto;
         
         const skip = (page - 1) * limit;
@@ -69,11 +69,9 @@ export class RestockService {
 
             this.model.countDocuments()
         ]);
-
-        const pages = Math.ceil(totalItems / limit)
-
+        
         return {
-            data, pages
+            data, totalItems
         }
     }
 

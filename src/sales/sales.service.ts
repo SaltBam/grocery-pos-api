@@ -21,7 +21,7 @@ export class SalesService {
         private userService: UserService,
     ) {}
     
-    async getAll(dto: GetAllDto): Promise<{data: Sales[], pages: number}> {
+    async getAll(dto: GetAllDto): Promise<{data: Sales[], totalItems: number}> {
         const { page, limit} = dto;
         
         const skip = (page - 1) * limit;
@@ -40,10 +40,8 @@ export class SalesService {
             this.model.countDocuments()
         ]);
 
-        const pages = Math.ceil(totalItems / limit)
-
         return {
-            data, pages
+            data, totalItems
         }
     }
 

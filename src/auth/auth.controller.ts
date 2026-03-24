@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Logger, Post, Req, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Logger, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
 import { BaseController } from 'src/common/base/base.controller';
 import { LoginDto, Role } from './types';
 import type { Request, Response } from 'express';
@@ -25,12 +25,12 @@ export class AuthController extends BaseController {
         @Body() dto: LoginDto,
         @Res({ passthrough: true }) res: Response,
     ) {
-        const { refreshPayload, jwtPayload } = await this.service.login(dto);
+        const { refreshPayload, jwtPayload, user } = await this.service.login(dto);
         
         this.cookieService.createJwt(res, jwtPayload);
         this.cookieService.createRefresh(res, refreshPayload)
         Logger.log({jwtPayload})
-        return new BaseResponse();
+        return new BaseResponse({user});
     }
     
     @Public()
@@ -55,12 +55,13 @@ export class AuthController extends BaseController {
             this.cookieService.createJwt(res, jwtPayload)
         } catch (err) {
             Logger.error(err)
-            throw new BadRequestException('Please log in again')
+            throw new UnauthorizedException('Please log in again')
         }
 
         return new BaseResponse();
     }
 
+    @Public()
     @Post('logout')
     async logout(
         @Res({ passthrough: true }) res: Response,

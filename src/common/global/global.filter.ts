@@ -24,7 +24,7 @@ export class GlobalFilter implements ExceptionFilter {
     try {
       if (exception instanceof JWTInvalidError) {
         Logger.log('JWT FILTER')
-        throw new BadRequestException('Please log in again');
+        throw new UnauthorizedException('Please log in again');
       } else if ((exception as any)?.name?.toLowerCase().includes('mongo')) {
         Logger.log('MONGO FILTER')
         return MongoFilter.catch(exception);

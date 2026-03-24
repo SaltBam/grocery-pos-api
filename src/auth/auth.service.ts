@@ -21,7 +21,10 @@ export class AuthService {
     async login(dto: LoginDto)
     : Promise<{
         refreshPayload: string,
-        jwtPayload: string
+        jwtPayload: string,
+        user: {
+            username: string
+        }
     }> {
         const { username, password } = dto;
 
@@ -52,7 +55,8 @@ export class AuthService {
         
         return {
             refreshPayload: JSON.stringify({refreshId}),
-            jwtPayload: this.signJWT(jwtPayload)
+            jwtPayload: this.signJWT(jwtPayload),
+            user: { username }
         }            
     }
 

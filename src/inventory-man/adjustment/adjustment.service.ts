@@ -17,7 +17,7 @@ export class AdjustmentService {
         private inventoryService: InventoryService,
     ) {}
 
-    async getAll(dto: GetAllDto): Promise<{data: Adjustment[], pages: number}> {
+    async getAll(dto: GetAllDto): Promise<{data: Adjustment[], totalItems: number}> {
         const { page, limit } = dto;
         
         const skip = (page - 1) * limit;
@@ -36,10 +36,8 @@ export class AdjustmentService {
             this.model.countDocuments()
         ]);
 
-        const pages = Math.ceil(totalItems / limit)
-
         return {
-            data, pages
+            data, totalItems
         }
     }
 
