@@ -79,7 +79,7 @@ async function seedAll() {
   ]);
 
   //must run after seedProduct()
-  (await seedInventory(), await mongoose.disconnect());
+  (await seedInventory(), await seedRestock(), await mongoose.disconnect());
 }
 
 async function seedUser() {
@@ -166,4 +166,61 @@ async function seedInventory() {
   console.log(inventories);
   await inventory.collection.drop();
   await inventory.insertMany(inventories);
+}
+
+async function seedRestock() {
+  // 1. Fetch available users and products to reference
+  const [users, products] = await Promise.all([
+    user.find().lean(), 
+    product.find().lean(),
+  ]);
+
+  if (!users.length || !products.length) {
+    console.log('Users or Products missing. Cannot seed Restocks.');
+    return;
+  }
+
+  const restocksToInsert: Restock[] = [];
+  const restockDetailsToInsert: RestockDetails[] = [];
+
+  // 2. Generate 5 random Restock batches
+  for (let i = 0; i < 5; i++) {
+    // Generate an ID up front so we can link the details to it
+    const restockId = new mongoose.Types.ObjectId();
+    const restockedBy = users[randomInt(0, users.length)]._id;
+    
+    let totalCost = 0;
+
+    // Pick 2 to 5 random items for this specific restock batch
+    const numItems = randomInt(2, 6);
+    
+    for (let j = 0; j < numItems; j++) {
+      const randomProduct = products[randomInt(0, products.length)];
+      const quantity = randomInt(10, 100);
+      const unitCost = randomInt(5, 50); // Random unit cost
+
+      totalCost += quantity * unitCost;
+
+      restockDetailsToInsert.push({
+        restock: restockId,
+        product: randomProduct._id,
+        quantity,
+        unitCost,
+      });
+    }
+
+    // 3. Create the parent Restock document now that we have the totalCost
+    restocksToInsert.push({
+      _id: restockId,
+      description: `Monthly Restock Batch #${i + 1}`,
+      restockedBy: restockedBy,
+      totalCost: totalCost,
+    } as any);
+  }
+
+  console.log(`Prepared ${restocksToInsert.length} restocks and ${restockDetailsToInsert.length} restock details.`);
+
+  // 4. Insert into the database
+  await restock.insertMany(restocksToInsert);
+  await restockDetails.insertMany(restockDetailsToInsert);
 }
