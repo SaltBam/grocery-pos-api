@@ -3,11 +3,32 @@ import { ArrayNotEmpty, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPo
 import { RequiresOne } from "src/common/validators";
 import { NewProductFields } from "src/product/types";
 
-export class GetDetailsDto {
+export class GetDetailsParamDto {
     @IsNotEmpty()
     @IsMongoId()
     restock: string
 }
+export class GetDetailsQueryDto {
+    @IsString()
+    @IsOptional()
+    name: string
+    
+    @IsString()
+    @IsOptional()
+    EAN: string
+
+    @IsNumber()
+    @IsPositive()
+    @IsNotEmpty()
+    page: number
+
+    @IsNumber()
+    @IsPositive()
+    @IsNotEmpty()
+    limit: number
+}
+
+export type GetDetailsDto = GetDetailsQueryDto & GetDetailsParamDto
 
 export class RestockFields {
     @IsOptional()

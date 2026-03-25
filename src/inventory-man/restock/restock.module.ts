@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Restock, RestockSchema } from './restock.schema';
 import { RestockDetails, RestockDetailsSchema } from './restock-details.schema';
 import { InventoryModule } from '../inventory/inventory.module';
+import { ProductModule } from 'src/product/product.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { InventoryModule } from '../inventory/inventory.module';
       }
     ]),
     InventoryModule,
+    ProductModule,
   ],
   providers: [RestockService],
   controllers: [RestockController]

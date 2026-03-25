@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { RestockService } from './restock.service';
-import { GetAllDto, GetDetailsDto, RestockDto } from './types';
+import { GetAllDto, GetDetailsParamDto, GetDetailsQueryDto, RestockDto } from './types';
 import { BaseResponse } from 'src/common/base/base.response';
 import { CurrentUser, Role } from 'src/auth/types';
 import type { AuthUser } from 'src/auth/types';
@@ -30,9 +30,10 @@ export class RestockController {
 
     @Get('details/:restock')
     async getDetails(
-        @Param() dto: GetDetailsDto
+        @Param() paramDto: GetDetailsParamDto,
+        @Query() queryDto: GetDetailsQueryDto
     ) {
-        const data = await this.service.getDetails(dto);
+        const data = await this.service.getDetails({...paramDto, ...queryDto});
 
         return new BaseResponse(data);
     }

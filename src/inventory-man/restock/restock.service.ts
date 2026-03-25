@@ -1,4 +1,4 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable, Logger, Type } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Restock } from './restock.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
@@ -7,6 +7,8 @@ import { GetAllDto, GetDetailsDto, RestockDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
 import { runInTransaction } from 'src/common/utils/db';
 import { AuthUser } from 'src/auth/types';
+import { ProductService } from 'src/product/product.service';
+import { metadata } from 'reflect-metadata/no-conflict';
 
 @Injectable()
 export class RestockService {
@@ -15,6 +17,7 @@ export class RestockService {
         @InjectModel(Restock.name) private model: Model<Restock>,
         @InjectModel(RestockDetails.name) private modelDetails: Model<RestockDetails>,
         private inventoryService: InventoryService,
+        private productService: ProductService,
     ) {}
 
     async restock(
@@ -76,15 +79,55 @@ export class RestockService {
     }
 
     async getDetails(dto: GetDetailsDto)
-    : Promise<RestockDetails[]> {
-        const { restock } = dto;
+    : Promise<{data: RestockDetails[], totalItems: number}> {
+        const { page, limit, EAN, name, restock } = dto;
 
-        return await this.modelDetails
-            .find({restock: restock})
-            .populate({
-                path: 'product',
-                select: 'name'
-            })
-            .lean();
+        const skip = (page - 1) * limit
+
+        const restockQuery = {
+            restock: new Types.ObjectId(restock)
+        }
+
+        const productQuery: any = {
+        }
+        if (name) {
+            const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            productQuery['product.name'] = { $regex: escaped }
+        }
+        if (EAN) {
+            const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            productQuery['product.EAN'] = { $regex: `^${escaped}` }
+        }
+
+        Logger.log({productQuery})
+
+        const result = await this.modelDetails.aggregate([
+          { $match: restockQuery },
+          {
+            $lookup: {
+              from: 'products',
+              localField: 'product',
+              foreignField: '_id', 
+              as: 'product',
+            },
+          },
+          { $unwind: '$product' },
+          { $match: productQuery },
+          { 
+            $facet: {
+                metadata: [{ $count: 'total' }],
+                paginatedData: [
+                    { $sort: { 'product.name': 1, _id: 1 } },
+                    { $skip: skip },
+                    { $limit: limit },
+                ]
+          }},
+        ])
+
+        Logger.log({result})
+        const data = result[0]?.paginatedData ?? []
+        const totalItems = result[0]?.metadata[0]?.total ?? 0
+    
+        return { data, totalItems };
     }
 }

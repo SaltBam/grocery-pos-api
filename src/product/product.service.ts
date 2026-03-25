@@ -90,7 +90,7 @@ export class ProductService {
         let query: any = {};
         if (name) {
             const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            query.name = { $regex: `${escaped}` }
+            query.name = { $regex: escaped }
         } 
         if (EAN) {
             const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
