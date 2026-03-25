@@ -1,12 +1,35 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, NotEquals, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsDate, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, NotEquals, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
 
-export class GetDetailsDto {
+export class GetDetailsParamDto {
     @IsNotEmpty()
     @IsMongoId()
     adjustment: string;
 }
+
+export class GetDetailsQueryDto {
+    @IsString()
+    @IsOptional()
+    name: string
+    
+    @IsString()
+    @IsOptional()
+    EAN: string
+
+    @IsNumber()
+    @IsPositive()
+    @IsNotEmpty()
+    page: number
+
+    @IsNumber()
+    @IsPositive()
+    @IsNotEmpty()
+    limit: number
+}
+
+export type GetDetailsDto = GetDetailsQueryDto & GetDetailsParamDto
+
 
 class AdjustFields {
     @IsNotEmpty()
@@ -38,6 +61,17 @@ export class AdjustDto {
 }
 
 export class GetAllDto {
+    @IsMongoId()
+    @IsOptional()
+    adjustedBy: string
+    
+    @IsArray()
+    @IsDate({ each: true, })
+    @IsOptional()
+    @Transform(({value}) => (Array.isArray(value) ? value : [value]))
+    @Type(() => Date)
+    dateRange: Date[]
+
     @IsNumber()
     @IsPositive()
     limit: number

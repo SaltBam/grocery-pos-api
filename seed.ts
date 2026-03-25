@@ -79,7 +79,7 @@ async function seedAll() {
   ]);
 
   //must run after seedProduct()
-  (await seedInventory(), await seedRestock(), await mongoose.disconnect());
+  (await seedInventory(), await seedRestock(), await seedAdjustment(), await mongoose.disconnect());
 }
 
 async function seedUser() {
@@ -223,4 +223,61 @@ async function seedRestock() {
   // 4. Insert into the database
   await restock.insertMany(restocksToInsert);
   await restockDetails.insertMany(restockDetailsToInsert);
+}
+
+async function seedAdjustment() {
+  // 1. Fetch available users and products
+  const [users, products] = await Promise.all([
+    user.find().lean(),
+    product.find().lean(),
+  ]);
+
+  if (!users.length || !products.length) {
+    console.log('Users or Products missing. Cannot seed Adjustments.');
+    return;
+  }
+
+  const adjustmentsToInsert: Adjustment[] = [];
+  const adjustmentDetailsToInsert: AdjustmentDetails[] = [];
+
+  const reasons = ['Damaged goods', 'Expired product', 'Counting error', 'Theft', 'Promotional giveaway'];
+
+  // 2. Generate 5 random Adjustment batches
+  for (let i = 0; i < 5; i++) {
+    const adjustmentId = new mongoose.Types.ObjectId();
+    const adjustedBy = users[randomInt(0, users.length)]._id;
+
+    // Create the parent Adjustment document
+    adjustmentsToInsert.push({
+      _id: adjustmentId,
+      description: `Routine Inventory Audit #${i + 1}`,
+      adjustedBy: adjustedBy,
+    } as any);
+
+    // Pick 2 to 4 random items to adjust for this batch
+    const numItems = randomInt(2, 5);
+
+    for (let j = 0; j < numItems; j++) {
+      const randomProduct = products[randomInt(0, products.length)];
+      
+      // Generate a non-zero random integer between -10 and 10
+      let change = randomInt(-10, 11);
+      if (change === 0) change = -1; // Fallback to ensure it passes your validation
+
+      const reason = reasons[randomInt(0, reasons.length)];
+
+      adjustmentDetailsToInsert.push({
+        adjustment: adjustmentId,
+        product: randomProduct._id,
+        change,
+        reason,
+      } as any);
+    }
+  }
+
+  console.log(`Prepared ${adjustmentsToInsert.length} adjustments and ${adjustmentDetailsToInsert.length} adjustment details.`);
+
+  // 3. Insert into the database
+  await adjustment.insertMany(adjustmentsToInsert);
+  await adjustmentDetails.insertMany(adjustmentDetailsToInsert);
 }
