@@ -1,5 +1,5 @@
 import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, min, Min, ValidateNested } from "class-validator";
+import { ArrayNotEmpty, IsArray, IsDataURI, IsDate, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, min, Min, ValidateNested } from "class-validator";
 import { RequiresOne } from "src/common/validators";
 import { NewProductFields } from "src/product/types";
 
@@ -69,6 +69,17 @@ export class RestockDto {
 }
 
 export class GetAllDto {
+    @IsMongoId()
+    @IsOptional()
+    restockedBy: string
+
+    @IsArray()
+    @IsDate({ each: true, })
+    @IsOptional()
+    @Transform(({value}) => (Array.isArray(value) ? value : [value]))
+    @Type(() => Date)
+    dateRange: Date[]
+
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()

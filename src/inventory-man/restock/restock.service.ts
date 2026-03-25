@@ -9,6 +9,7 @@ import { runInTransaction } from 'src/common/utils/db';
 import { AuthUser } from 'src/auth/types';
 import { ProductService } from 'src/product/product.service';
 import { metadata } from 'reflect-metadata/no-conflict';
+import { User } from 'src/user/user.schema';
 
 @Injectable()
 export class RestockService {
@@ -55,12 +56,31 @@ export class RestockService {
     }
     
     async getAll(dto: GetAllDto): Promise<{data: Restock[], totalItems: number}> {
-        const { page, limit } = dto;
+        const { page, limit, dateRange, restockedBy } = dto;
         
         const skip = (page - 1) * limit;
 
+        const query: any = {}
+        if (restockedBy) {
+            query.restockedBy = new Types.ObjectId(restockedBy)
+        }
+        if (dateRange) {
+            const start = dateRange[0]
+            const end = dateRange[1] ?? new Date(start)
+
+            start.setHours(0, 0, 0, 0)
+            end.setHours(23, 59, 59, 999)
+
+            query.createdAt = {
+                $gte: start,
+                $lte: end
+            }
+        }
+
+        Logger.log({query, dto})
+
         const [data, totalItems] = await Promise.all([
-            this.model.find()
+            this.model.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)
@@ -70,7 +90,7 @@ export class RestockService {
             })
             .lean(),
 
-            this.model.countDocuments()
+            this.model.countDocuments(query)
         ]);
         
         return {
@@ -129,5 +149,22 @@ export class RestockService {
         const totalItems = result[0]?.metadata[0]?.total ?? 0
     
         return { data, totalItems };
+    }
+
+    async getRestockUsers(): Promise<User[]> {
+        return await this.model.aggregate([
+            { $group: { _id: '$restockedBy' } },
+            { $lookup: {
+                from: 'users', 
+                localField: '_id',
+                foreignField: '_id',
+                as: 'userDoc'
+            }},
+            { $unwind: '$userDoc' },
+            { $project: {
+                _id: '$userDoc._id',
+                name: '$userDoc.name'
+            }}
+        ]);
     }
 }

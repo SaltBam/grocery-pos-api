@@ -37,4 +37,11 @@ export class RestockController {
 
         return new BaseResponse(data);
     }
+
+    @Get('users')
+    async getRestockUsers() {
+        const data = await this.service.getRestockUsers()
+
+        return new BaseResponse(data)
+    }
 }
