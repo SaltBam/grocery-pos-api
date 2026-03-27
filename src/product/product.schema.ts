@@ -30,7 +30,7 @@ export class Product {
     price: number
 
     @Prop({
-        required: true,
+        required: false,
         enum: Object.values(Category),
         type: String,
     })

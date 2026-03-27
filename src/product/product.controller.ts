@@ -3,7 +3,7 @@ import { ProductService } from './product.service';
 import { Roles } from 'src/auth/auth.decorator';
 import { Role } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';
-import { GetAllDto, GetDto, UpdateBulkDto } from './types';
+import { GetAllDto, GetDto, NewProductsDto, UpdateBulkDto } from './types';
 
 @Roles(Role.Owner, Role.InventoryManager)
 @Controller('products')
@@ -32,5 +32,12 @@ export class ProductController {
         const data = await this.service.getAll(dto)
 
         return new BaseResponse(data)
+    }
+
+    @Post('bulk')
+    async addMany(@Body() dto: NewProductsDto) {
+        await this.service.addMany(dto)
+
+        return new BaseResponse()
     }
 }

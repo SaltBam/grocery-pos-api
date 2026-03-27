@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Inventory } from './inventory.schema';
 import { ClientSession, Model, Types } from 'mongoose';
@@ -6,7 +6,7 @@ import { RestockDto, RestockFields } from '../restock/types';
 import { AdjustDto } from '../adjustment/types';
 import { SellDto } from 'src/sales/types';
 import { ProductService } from 'src/product/product.service';
-import { NewProductDto, NewProductFields } from 'src/product/types';
+import { NewProductsDto, NewProductFields } from 'src/product/types';
 import { AuthUser } from 'src/auth/types';
 import { GetAllDto } from './types';
 
@@ -14,6 +14,7 @@ import { GetAllDto } from './types';
 export class InventoryService {
   constructor(
     @InjectModel(Inventory.name) private model: Model<Inventory>,
+    @Inject(forwardRef(() => ProductService))
     private productService: ProductService,
   ) {}
 
@@ -133,5 +134,19 @@ export class InventoryService {
     }));
 
     await this.model.bulkWrite(updates, { session });
+  }
+
+  async createMany(productIds: Types.ObjectId[], userId: Types.ObjectId) {
+    const commonFields = {
+      stock: 0,
+      updatedBy: userId
+    }
+
+    const toInsert = productIds.map(id => ({
+      product: id,
+      ...commonFields
+    }))
+
+    await this.model.insertMany(toInsert)
   }
 }

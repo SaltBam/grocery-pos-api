@@ -2,14 +2,16 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
-import { GetAllDto, GetDto, NewProductDto, NewProductFields, UpdateBulkDto } from './types';
+import { GetAllDto, GetDto, NewProductsDto, NewProductFields, UpdateBulkDto } from './types';
 import { runInTransaction } from 'src/common/utils/db';
+import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
 
 @Injectable()
 export class ProductService {
     constructor(
         @InjectConnection() private connection: Connection,
         @InjectModel(Product.name) private model: Model<Product>,
+        private inventoryService: InventoryService,
     ) {}
 
     async getByBarcode(dto: GetDto): Promise<Product> {
@@ -125,5 +127,12 @@ export class ProductService {
         });
 
         return EANMap
+    }
+
+    async addMany(dto: NewProductsDto) {
+        const inserted = await this.model.insertMany(dto.newProducts)
+        const ids = inserted.map(doc => doc._id)
+
+        await this.inventoryService.createMany(ids, new Types.ObjectId(dto.user))
     }
 }

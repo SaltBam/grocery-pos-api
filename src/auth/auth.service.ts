@@ -23,7 +23,8 @@ export class AuthService {
         refreshPayload: string,
         jwtPayload: string,
         user: {
-            username: string
+            username: string,
+            id: string
         }
     }> {
         const { username, password } = dto;
@@ -56,7 +57,7 @@ export class AuthService {
         return {
             refreshPayload: JSON.stringify({refreshId}),
             jwtPayload: this.signJWT(jwtPayload),
-            user: { username }
+            user: { username, id: userInfo._id.toString() }
         }            
     }
 

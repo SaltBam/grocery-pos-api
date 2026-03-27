@@ -14,7 +14,7 @@ export class NewProductFields {
     @MaxLength(50)
     name: string
 
-    @IsNotEmpty()
+    @IsOptional()
     @IsEnum(Category, {
         message: `Category must be a valid enum value: ${Object.values(Category).join(', ')}`
     })
@@ -27,10 +27,14 @@ export class NewProductFields {
     price: number
 }
 
-export class NewProductDto {
+export class NewProductsDto {
     @ValidateNested({each: true})
     @ArrayNotEmpty()
     newProducts: NewProductFields[]
+
+    @IsNotEmpty()
+    @IsMongoId()
+    user: string
 }
 export class GetDto {
     @IsNotEmpty()
