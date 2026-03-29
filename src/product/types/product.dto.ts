@@ -1,6 +1,26 @@
 import { Transform, Type } from "class-transformer"
-import { ArrayNotEmpty, IsArray, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, Min, ValidateNested } from "class-validator"
+import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, Min, ValidateNested } from "class-validator"
 import { Category } from "./product.types";
+
+export class EnsureValidDto {
+    @IsOptional()
+    @IsString()
+    @MaxLength(50)
+    @Transform(({value}) => typeof value === 'string' ? value.trim() : value)
+    EAN: string
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(50)
+    name: string
+
+    @IsOptional()
+    @IsBoolean()
+    @Transform(({ value }) => {
+        return value === 'true'
+    })
+    autoGenerateEAN: boolean
+}
 
 export class NewProductFields {
     @IsNotEmpty()
