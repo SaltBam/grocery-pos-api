@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Roles } from 'src/auth/auth.decorator';
-import { Role } from 'src/auth/types';
+import { CurrentUser, Role } from 'src/auth/types';
 import { BaseResponse } from 'src/common/base/base.response';
 import { GetAllDto, GetDto, NewProductsDto, UpdateBulkDto } from './types';
 
@@ -35,8 +35,8 @@ export class ProductController {
     }
 
     @Post('bulk')
-    async addMany(@Body() dto: NewProductsDto) {
-        await this.service.addMany(dto)
+    async addMany(@CurrentUser() user, @Body() dto: NewProductsDto) {
+        await this.service.addMany(user, dto)
 
         return new BaseResponse()
     }

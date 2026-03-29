@@ -31,10 +31,6 @@ export class NewProductsDto {
     @ValidateNested({each: true})
     @ArrayNotEmpty()
     newProducts: NewProductFields[]
-
-    @IsNotEmpty()
-    @IsMongoId()
-    user: string
 }
 export class GetDto {
     @IsNotEmpty()

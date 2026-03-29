@@ -5,6 +5,7 @@ import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { GetAllDto, GetDto, NewProductsDto, NewProductFields, UpdateBulkDto } from './types';
 import { runInTransaction } from 'src/common/utils/db';
 import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
+import { AuthUser } from 'src/auth/types';
 
 @Injectable()
 export class ProductService {
@@ -129,10 +130,10 @@ export class ProductService {
         return EANMap
     }
 
-    async addMany(dto: NewProductsDto) {
+    async addMany(user: AuthUser, dto: NewProductsDto) {
         const inserted = await this.model.insertMany(dto.newProducts)
         const ids = inserted.map(doc => doc._id)
 
-        await this.inventoryService.createMany(ids, new Types.ObjectId(dto.user))
+        await this.inventoryService.createMany(ids, new Types.ObjectId(user.userId))
     }
 }
