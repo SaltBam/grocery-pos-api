@@ -14,6 +14,7 @@ import {
   NewProductFields,
   UpdateBulkDto,
   EnsureValidDto,
+  MatchesDto,
 } from './types';
 import { runInTransaction } from 'src/common/utils/db';
 import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
@@ -174,5 +175,29 @@ export class ProductService {
 
       throw new BadRequestException(duplicates);
     }
+  }
+
+  async getMatches(dto: MatchesDto): Promise<{EAN: string, name: string}[]> {
+    const { EAN, name } = dto
+
+    const query: any = {}
+    if (EAN) {
+      const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.EAN = { $regex: `^${escaped}` };
+    } else if (name) {
+      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.name = { $regex: `${escaped}` };
+    } else {
+      return []
+    }
+
+    const matches = await this.model.find(query, 'name EAN')
+    .sort({name: 1})
+    .limit(5)
+    .lean()
+    
+    Logger.log({query, matches})
+
+    return matches.map(match => ({EAN: match.EAN, name: match.name}))
   }
 }

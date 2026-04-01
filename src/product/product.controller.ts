@@ -16,6 +16,7 @@ import {
   EnsureValidDto,
   GetAllDto,
   GetDto,
+  MatchesDto,
   NewProductFields,
   NewProductsDto,
   UpdateBulkDto,
@@ -25,6 +26,13 @@ import {
 @Controller('products')
 export class ProductController {
   constructor(private service: ProductService) {}
+
+  @Get('matches')
+  async getMatches(@Query() dto: MatchesDto) {
+      const data = await this.service.getMatches(dto)
+
+      return new BaseResponse(data)
+  }
 
   @Get('ensureValid')
   async ensureValid(@Query() dto: EnsureValidDto) {
@@ -61,5 +69,5 @@ export class ProductController {
     await this.service.addMany(user, dto);
 
     return new BaseResponse();
-  }
+  }  
 }

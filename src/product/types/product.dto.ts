@@ -108,3 +108,14 @@ export class GetAllDto {
     @IsNotEmpty()
     limit: number
 }
+
+
+export class MatchesDto {
+    @IsOptional()
+    @IsString()
+    EAN: string
+
+    @IsOptional()
+    @IsOptional()
+    name: string
+}
