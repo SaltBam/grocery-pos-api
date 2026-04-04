@@ -5,7 +5,7 @@ import { Category } from "./types";
 export class Product {
     @Prop({
         type: String,
-        isRequired: true,
+        required: true,
         unique: true,
         index: true,
         maxLength: 50
@@ -14,7 +14,7 @@ export class Product {
 
     @Prop({
         type: String,
-        isRequired: true,
+        required: true,
         unique: true,
         index: true,
         uppercase: true,
@@ -24,7 +24,7 @@ export class Product {
 
     @Prop({
         type: Number,
-        isRequired: true,
+        required: true,
         min: 0,
     })
     price: number
