@@ -62,10 +62,10 @@ export class RestockDto {
     @Type(() => RestockFields)
     restockDetails: RestockFields[];
 
-    @IsOptional()
+    @IsNotEmpty()
     @IsString()
     @MaxLength(300)
-    description?: string;
+    description: string;
 }
 
 export class GetAllDto {

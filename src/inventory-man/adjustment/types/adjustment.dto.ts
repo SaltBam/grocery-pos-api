@@ -49,10 +49,10 @@ class AdjustFields {
 }
 
 export class AdjustDto {
-    @IsOptional()
+    @IsNotEmpty()
     @IsString()
     @Transform(({value}) => typeof value === "string" ? value.trim() : value)
-    description?: string
+    description: string
 
     @ArrayNotEmpty()
     @ValidateNested({each: true})
