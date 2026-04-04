@@ -129,6 +129,7 @@ export class ProductService {
     ]);
 
     const productIds = data.map((x) => x._id);
+    Logger.log(data, productIds)
 
     return {
       productIds,
@@ -177,7 +178,7 @@ export class ProductService {
     }
   }
 
-  async getMatches(dto: MatchesDto): Promise<{EAN: string, name: string}[]> {
+  async getMatches(dto: MatchesDto): Promise<{EAN: string, name: string, product: string}[]> {
     const { EAN, name } = dto
 
     const query: any = {}
@@ -198,6 +199,6 @@ export class ProductService {
     
     Logger.log({query, matches})
 
-    return matches.map(match => ({EAN: match.EAN, name: match.name}))
+    return matches.map(match => ({EAN: match.EAN, name: match.name, product: match._id.toString()}))
   }
 }

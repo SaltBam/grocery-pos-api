@@ -23,7 +23,7 @@ export class EnsureValidDto {
 }
 
 export class NewProductFields {
-    @IsNotEmpty()
+    @IsOptional()
     @IsString()
     @MaxLength(50)
     @Transform(({value}) => typeof value === 'string' ? value.trim() : value)
