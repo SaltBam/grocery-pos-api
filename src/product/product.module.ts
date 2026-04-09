@@ -4,6 +4,7 @@ import { ProductController } from './product.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './product.schema';
 import { InventoryModule } from 'src/inventory-man/inventory/inventory.module';
+import { EanCounterModule } from 'src/ean-counter/ean-counter.module';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import { InventoryModule } from 'src/inventory-man/inventory/inventory.module';
       name: Product.name,
       schema: ProductSchema,
     }]),
-    forwardRef(() => InventoryModule)
+    forwardRef(() => InventoryModule),
+    EanCounterModule,
   ],
   providers: [
     ProductService

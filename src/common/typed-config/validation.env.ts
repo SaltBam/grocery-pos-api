@@ -8,6 +8,8 @@ export const envSchema = zod.object({
     JWT_SECRET: zod.string(),
     JWT_EXPIRY: zod.coerce.number().positive(),
     REFRESH_EXPIRY: zod.coerce.number().positive(),
+    EAN_COUNTER_ID: zod.string(),
+    EAN_COUNTER_DIGITS: zod.coerce.number(),
 });
 
 export type EnvTypes = zod.infer<typeof envSchema>;

@@ -19,6 +19,7 @@ import {
 import { runInTransaction } from 'src/common/utils/db';
 import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
 import { AuthUser } from 'src/auth/types';
+import { EanCounterService } from 'src/ean-counter/ean-counter.service';
 
 @Injectable()
 export class ProductService {
@@ -26,6 +27,7 @@ export class ProductService {
     @InjectConnection() private connection: Connection,
     @InjectModel(Product.name) private model: Model<Product>,
     private inventoryService: InventoryService,
+    private EANCounterService: EanCounterService,
   ) {}
 
   async getByBarcode(dto: GetDto): Promise<Product> {
@@ -138,6 +140,11 @@ export class ProductService {
   }
 
   async createMany(dto: NewProductFields[], session: ClientSession) {
+    for (const product of dto) {
+      if (!product.EAN)
+        product.EAN = await this.EANCounterService.generate(session)
+    }
+
     const inserted = await this.model.insertMany(dto, { session });
 
     const EANMap: Record<string, string> = {};
@@ -149,7 +156,18 @@ export class ProductService {
   }
 
   async addMany(user: AuthUser, dto: NewProductsDto) {
-    const inserted = await this.model.insertMany(dto.newProducts);
+    const newProducts = await Promise.all(
+        dto.newProducts.map(async (product) => {
+          const EAN = product?.EAN || await this.EANCounterService.generate()
+          return {
+            ...product,
+            EAN
+          }
+        })
+      )
+      
+    Logger.log({newProducts})
+    const inserted = await this.model.insertMany(newProducts);
     const ids = inserted.map((doc) => doc._id);
 
     await this.inventoryService.createMany(
@@ -160,6 +178,10 @@ export class ProductService {
 
   async ensureValid(dto: EnsureValidDto) {
     const { EAN, name, autoGenerateEAN } = dto;
+    Logger.log({dto})
+    if (!autoGenerateEAN) {
+      this.EANCounterService.ensureValid(EAN)
+    }
 
     const found = await this.model
       .findOne({
@@ -170,9 +192,9 @@ export class ProductService {
     Logger.log({ found }, { dto });
     const duplicates: string[] = [];
     if (found) {
-      if (!autoGenerateEAN && found.EAN === EAN) duplicates.push('EAN');
+      if (!autoGenerateEAN && found.EAN === EAN) duplicates.push('EAN already exists');
 
-      if (found.name === name) duplicates.push('name');
+      if (found.name === name) duplicates.push('name already exists');
 
       throw new BadRequestException(duplicates);
     }

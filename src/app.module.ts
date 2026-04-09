@@ -15,6 +15,7 @@ import { InventoryModule } from './inventory-man/inventory/inventory.module';
 import { RestockModule } from './inventory-man/restock/restock.module';
 import { AdjustmentModule } from './inventory-man/adjustment/adjustment.module';
 import { SalesModule } from './sales/sales.module';
+import { EanCounterModule } from './ean-counter/ean-counter.module';
 
 @Module({
   imports: [
@@ -30,7 +31,8 @@ import { SalesModule } from './sales/sales.module';
     InventoryModule,
     RestockModule,
     AdjustmentModule,
-    SalesModule
+    SalesModule,
+    EanCounterModule
   ],
   controllers: [],
   providers: [
