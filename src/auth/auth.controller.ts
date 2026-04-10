@@ -28,7 +28,9 @@ export class AuthController extends BaseController {
         const { refreshPayload, jwtPayload, user } = await this.service.login(dto);
         
         this.cookieService.createJwt(res, jwtPayload);
-        this.cookieService.createRefresh(res, refreshPayload)
+        this.cookieService.createRefresh(res, refreshPayload);
+        this.cookieService.createDummy(res);
+
         Logger.log({jwtPayload})
         return new BaseResponse({user});
     }
@@ -53,6 +55,7 @@ export class AuthController extends BaseController {
             const {refreshPayload, jwtPayload} = await this.service.refresh(refreshId)
             this.cookieService.createRefresh(res, refreshPayload)
             this.cookieService.createJwt(res, jwtPayload)
+            this.cookieService.createDummy(res)
         } catch (err) {
             Logger.error(err)
             throw new UnauthorizedException('Please log in again')
@@ -80,6 +83,7 @@ export class AuthController extends BaseController {
 
         this.cookieService.removeJwt(res);
         this.cookieService.removeRefresh(res);
+        this.cookieService.removeDummy(res);
 
         return new BaseResponse();
     }

@@ -64,4 +64,27 @@ export class CookieService {
     removeJwt(res: Response) {
         this.removeSecure(res, 'jwt');
     }
+
+    createDummy(res: Response) {
+        res.cookie('dummy', 'true', {
+            httpOnly: false,
+            secure: false,
+            sameSite: 'lax',
+            signed: false,
+            maxAge: this.config.get('REFRESH_EXPIRY'),
+            path: '/',
+            // domain: domain
+        })
+    }
+
+    removeDummy(res: Response) {
+        res.clearCookie('dummy', {
+            httpOnly: false,
+            secure: false,
+            sameSite: 'lax',
+            signed: false,
+            // domain: domain ?? `.${this.config.get('DOMAIN')}`,
+            path: '/',
+        });
+    }
 }
