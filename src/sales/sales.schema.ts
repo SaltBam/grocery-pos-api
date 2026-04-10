@@ -22,6 +22,7 @@ export class Sales {
         required: true,
         enum: Object.values(PaymentType),
         type: String,
+        index: true,
     })
     paymentType: PaymentType;
 

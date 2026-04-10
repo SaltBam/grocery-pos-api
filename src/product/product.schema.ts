@@ -7,8 +7,7 @@ export class Product {
         type: String,
         required: true,
         unique: true,
-        index: true,
-        maxLength: 50
+        maxLength: 13
     })
     EAN: string;
 
@@ -16,7 +15,6 @@ export class Product {
         type: String,
         required: true,
         unique: true,
-        index: true,
         uppercase: true,
         maxLength: 50
     })

@@ -8,14 +8,16 @@ export class AdjustmentDetails {
     @Prop({
         required: true,
         type: mongoose.Schema.ObjectId,
-        ref: Adjustment.name
+        ref: Adjustment.name,
+        index: true
     })
     adjustment: Adjustment | Types.ObjectId;
 
     @Prop({
         required: true,
         type: mongoose.Schema.ObjectId,
-        ref: Product.name
+        ref: Product.name,
+        index: true
     })
     product: Product | Types.ObjectId;
 
@@ -35,11 +37,11 @@ export class AdjustmentDetails {
     change: number
 
     @Prop({
-        required: false,
+        required: true,
         maxLength: 100,
         trim: true
     })
-    reason?: string
+    reason: string
 }
 
 export const AdjustmentDetailsSchema = SchemaFactory.createForClass(AdjustmentDetails);

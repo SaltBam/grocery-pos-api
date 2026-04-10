@@ -15,6 +15,7 @@ export class Restock {
         type: mongoose.Schema.ObjectId,
         ref: User.name,
         required: true,
+        index: true,
     })
     restockedBy: User | Types.ObjectId
 

@@ -8,14 +8,16 @@ export class SalesDetails {
     @Prop({
         required: true,
         type: mongoose.Schema.Types.ObjectId,
-        ref: Sales.name
+        ref: Sales.name,
+        index: true,
     })
     sales: Sales | Types.ObjectId;
     
     @Prop({
         required: true,
         type: mongoose.Schema.Types.ObjectId,
-        ref: Product.name
+        ref: Product.name,
+        index: true,
     })
     product: Product | Types.ObjectId;
     

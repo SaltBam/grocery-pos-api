@@ -8,7 +8,6 @@ export class User {
         unique: true,
         required: true,
         lowercase: true,
-        index: true,
         maxlength: 30,
         trim: true,
     })

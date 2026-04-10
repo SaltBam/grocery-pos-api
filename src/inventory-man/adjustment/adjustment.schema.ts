@@ -14,7 +14,8 @@ export class Adjustment {
     @Prop({
         required: true,
         type: mongoose.Schema.ObjectId,
-        ref: User.name
+        ref: User.name,
+        index: true,
     })
     adjustedBy: User | Types.ObjectId
 }

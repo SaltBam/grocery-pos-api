@@ -28,7 +28,8 @@ export class Inventory {
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
         ref: User.name,
-        required: true
+        required: true,
+        index: true,
     })
     updatedBy: User | Types.ObjectId
 }

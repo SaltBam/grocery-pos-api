@@ -9,6 +9,7 @@ export class RestockDetails {
         required: true,
         type: mongoose.Schema.ObjectId,
         ref: Restock.name,
+        index: true,
     })
     restock: Types.ObjectId
 
@@ -16,6 +17,7 @@ export class RestockDetails {
         required: true,
         type: mongoose.Schema.ObjectId,
         ref: Product.name,
+        index: true,
     })
     product: Product | Types.ObjectId
 
