@@ -85,9 +85,9 @@ export class InventoryService {
       let product = details.product ?? EANMap[details.newProduct!.EAN];
 
       return {
-        product,
+        product: new Types.ObjectId(product),
         quantity: details.quantity,
-        updatedBy: user.userId,
+        updatedBy: new Types.ObjectId(user.userId),
         unitCost: details.unitCost,
       };
     });
