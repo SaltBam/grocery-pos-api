@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { Types } from "mongoose";
-import { User } from "src/user/user.schema";
+import { User } from "../../user/user.schema";
 
 @Schema({ timestamps: true })
 export class Restock {

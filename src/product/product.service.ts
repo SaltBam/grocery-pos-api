@@ -16,10 +16,10 @@ import {
   EnsureValidDto,
   MatchesDto,
 } from './types';
-import { runInTransaction } from 'src/common/utils/db';
-import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
-import { AuthUser } from 'src/auth/types';
-import { EanCounterService } from 'src/ean-counter/ean-counter.service';
+import { runInTransaction } from '../common/utils/db';
+import { InventoryService } from '../inventory-man/inventory/inventory.service';
+import { AuthUser } from '../auth/types';
+import { EanCounterService } from '../ean-counter/ean-counter.service';
 
 @Injectable()
 export class ProductService {

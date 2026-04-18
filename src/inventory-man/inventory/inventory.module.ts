@@ -3,7 +3,7 @@ import { InventoryService } from './inventory.service';
 import { InventoryController } from './inventory.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Inventory, InventorySchema } from './inventory.schema';
-import { ProductModule } from 'src/product/product.module';
+import { ProductModule } from '../../product/product.module';
 
 @Module({
   imports: [

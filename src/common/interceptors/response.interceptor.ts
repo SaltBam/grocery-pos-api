@@ -1,6 +1,6 @@
 import { CallHandler, ExecutionContext, Injectable, InternalServerErrorException, Logger, NestInterceptor } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import { BaseResponse } from 'src/common/base/base.response';
+import { BaseResponse } from '../base/base.response';
 
 @Injectable()
 export class ResponseInterceptor<T>

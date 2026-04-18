@@ -3,8 +3,8 @@ import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './product.schema';
-import { InventoryModule } from 'src/inventory-man/inventory/inventory.module';
-import { EanCounterModule } from 'src/ean-counter/ean-counter.module';
+import { InventoryModule } from '../inventory-man/inventory/inventory.module';
+import { EanCounterModule } from '../ean-counter/ean-counter.module';
 
 @Module({
   imports: [

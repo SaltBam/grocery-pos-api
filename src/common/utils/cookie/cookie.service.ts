@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Response } from 'express';
-import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
+import { TypedConfigService } from '../../typed-config/typed-config.service';
 
 @Injectable()
 export class CookieService {

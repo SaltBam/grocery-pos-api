@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Sales } from "./sales.schema";
 import mongoose, { Types } from "mongoose";
-import { Product } from "src/product/product.schema";
+import { Product } from "../product/product.schema";
 
 @Schema()
 export class SalesDetails {

@@ -1,7 +1,7 @@
 import { Transform, Type } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsDataURI, IsDate, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, min, Min, ValidateNested } from "class-validator";
-import { RequiresOne } from "src/common/validators";
-import { NewProductFields } from "src/product/types";
+import { RequiresOne } from "../../../common/validators";
+import { NewProductFields } from "../../../product/types";
 
 export class GetDetailsParamDto {
     @IsNotEmpty()

@@ -4,10 +4,10 @@ import { Inventory } from './inventory.schema';
 import { ClientSession, Model, Types } from 'mongoose';
 import { RestockDto, RestockFields } from '../restock/types';
 import { AdjustDto } from '../adjustment/types';
-import { SellDto } from 'src/sales/types';
-import { ProductService } from 'src/product/product.service';
-import { NewProductsDto, NewProductFields } from 'src/product/types';
-import { AuthUser } from 'src/auth/types';
+import { SellDto } from '../../sales/types';
+import { ProductService } from '../../product/product.service';
+import { NewProductsDto, NewProductFields } from '../../product/types';
+import { AuthUser } from '../../auth/types';
 import { GetAllDto } from './types';
 
 @Injectable()

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import mongoose, { Types } from "mongoose";
-import { Product } from "src/product/product.schema";
-import { User } from "src/user/user.schema";
+import { Product } from "../../product/product.schema";
+import { User } from "../../user/user.schema";
 
 @Schema({ timestamps: true })
 export class Inventory {

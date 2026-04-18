@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginDto } from './types';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
 import { JWTPayload } from './types/auth.types';
-import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
+import { TypedConfigService } from '../common/typed-config/typed-config.service';
 import { RefreshTokenService } from './refresh-token/refresh-token.service';
 import { Connection, Types } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';

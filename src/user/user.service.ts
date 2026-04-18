@@ -3,9 +3,9 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { User } from './user.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import * as argon from 'argon2'
-import { Role } from 'src/auth/types/auth.types';
+import { Role } from '../auth/types/auth.types';
 import { CreateBulkDto, GetAllDto, UpdateBulkDto } from './types';
-import { runInTransaction } from 'src/common/utils/db';
+import { runInTransaction } from '../common/utils/db';
 
 class UserInfo {
     name: string;

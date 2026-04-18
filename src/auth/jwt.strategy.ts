@@ -2,7 +2,7 @@ import { Injectable, Logger } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";
 import { Strategy } from "passport-jwt";
-import { TypedConfigService } from "src/common/typed-config/typed-config.service";
+import { TypedConfigService } from "../common/typed-config/typed-config.service";
 import { JWTPayload } from "./types/auth.types";
 
 @Injectable()

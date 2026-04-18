@@ -1,7 +1,7 @@
 import { Transform, Type } from "class-transformer";
 import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, ValidateNested } from "class-validator";
 import { Types } from "mongoose";
-import { Role } from "src/auth/types";
+import { Role } from "../../auth/types";
 
 class CreateFields {
     @IsString()

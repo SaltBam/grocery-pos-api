@@ -3,7 +3,7 @@ import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { RefreshToken } from './refresh-token.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { randomBytes } from 'crypto';
-import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
+import { TypedConfigService } from '../../common/typed-config/typed-config.service';
 import { RefreshPayload } from './types';
 import * as argon from 'argon2';
 import { JWTPayload, Role } from '../types';

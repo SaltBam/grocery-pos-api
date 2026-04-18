@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Logger, Patch, Post, Query, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateBulkDto, UpdateBulkDto } from './types/user.dto';
-import { Roles } from 'src/auth/auth.decorator';
-import { CurrentUser, Role } from 'src/auth/types';
-import type { AuthUser } from 'src/auth/types';
-import { BaseResponse } from 'src/common/base/base.response';
-import { GetAllDto } from 'src/product/types';
+import { Roles } from '../auth/auth.decorator';
+import { CurrentUser, Role } from '../auth/types';
+import type { AuthUser } from '../auth/types';
+import { BaseResponse } from '../common/base/base.response';
+import { GetAllDto } from '../product/types';
 
 @Roles(Role.Owner)
 @Controller('users')

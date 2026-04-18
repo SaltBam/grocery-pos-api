@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, InternalServerErrorException } from '@
 import { InjectModel } from '@nestjs/mongoose';
 import { EANCounter } from './ean-counter.schema';
 import { ClientSession, Model } from 'mongoose';
-import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
+import { TypedConfigService } from '../common/typed-config/typed-config.service';
 
 @Injectable()
 export class EanCounterService {

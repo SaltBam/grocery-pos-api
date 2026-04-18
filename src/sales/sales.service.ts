@@ -4,11 +4,11 @@ import { Sales } from './sales.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { SalesDetails } from './sales-details.schema';
 import { GetAllDto, GetDetailsDto, ReceiptDto, ReceiptFields, SellDto } from './types';
-import { ProductService } from 'src/product/product.service';
-import { runInTransaction } from 'src/common/utils/db';
-import { InventoryService } from 'src/inventory-man/inventory/inventory.service';
-import { UserService } from 'src/user/user.service';
-import { AuthUser } from 'src/auth/types';
+import { ProductService } from '../product/product.service';
+import { runInTransaction } from '../common/utils/db';
+import { InventoryService } from '../inventory-man/inventory/inventory.service';
+import { UserService } from '../user/user.service';
+import { AuthUser } from '../auth/types';
 
 @Injectable()
 export class SalesService {

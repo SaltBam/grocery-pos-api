@@ -5,11 +5,11 @@ import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { RestockDetails } from './restock-details.schema';
 import { GetAllDto, GetDetailsDto, RestockDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
-import { runInTransaction } from 'src/common/utils/db';
-import { AuthUser } from 'src/auth/types';
-import { ProductService } from 'src/product/product.service';
+import { runInTransaction } from '../../common/utils/db';
+import { AuthUser } from '../../auth/types';
+import { ProductService } from '../../product/product.service';
 import { metadata } from 'reflect-metadata/no-conflict';
-import { User } from 'src/user/user.schema';
+import { User } from '../../user/user.schema';
 
 @Injectable()
 export class RestockService {

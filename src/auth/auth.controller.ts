@@ -1,13 +1,13 @@
 import { BadRequestException, Body, Controller, Get, Logger, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
-import { BaseController } from 'src/common/base/base.controller';
+import { BaseController } from '../common/base/base.controller';
 import { LoginDto, Role } from './types';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
-import { CookieService } from 'src/common/utils/cookie/cookie.service';
-import { BaseResponse } from 'src/common/base/base.response';
+import { CookieService } from '../common/utils/cookie/cookie.service';
+import { BaseResponse } from '../common/base/base.response';
 import { Public, Roles } from './auth.decorator';
 import { JwtService } from '@nestjs/jwt';
-import { TypedConfigService } from 'src/common/typed-config/typed-config.service';
+import { TypedConfigService } from '../common/typed-config/typed-config.service';
 
 @Controller('auth')
 export class AuthController extends BaseController {

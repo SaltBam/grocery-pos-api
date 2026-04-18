@@ -9,9 +9,9 @@ import {
   Query,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { Roles } from 'src/auth/auth.decorator';
-import { CurrentUser, Role } from 'src/auth/types';
-import { BaseResponse } from 'src/common/base/base.response';
+import { Roles } from '../auth/auth.decorator';
+import { CurrentUser, Role } from '../auth/types';
+import { BaseResponse } from '../common/base/base.response';
 import {
   EnsureValidDto,
   GetAllDto,

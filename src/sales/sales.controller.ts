@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { GetAllDto, GetDetailsDto, SellDto } from './types';
-import { BaseResponse } from 'src/common/base/base.response';
-import { CurrentUser, Role } from 'src/auth/types';
-import type { AuthUser } from 'src/auth/types';
-import { Roles } from 'src/auth/auth.decorator';
+import { BaseResponse } from '../common/base/base.response';
+import { CurrentUser, Role } from '../auth/types';
+import type { AuthUser } from '../auth/types';
+import { Roles } from '../auth/auth.decorator';
 @Roles(Role.Owner, Role.Cashier)
 @Controller('sales')
 export class SalesController {

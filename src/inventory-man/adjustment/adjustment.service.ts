@@ -5,9 +5,9 @@ import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { AdjustmentDetails } from './adjustment-details.schema';
 import { AdjustDto, GetAllDto, GetDetailsDto } from './types';
 import { InventoryService } from '../inventory/inventory.service';
-import { runInTransaction } from 'src/common/utils/db';
-import { AuthUser } from 'src/auth/types';
-import { User } from 'src/user/user.schema';
+import { runInTransaction } from '../../common/utils/db';
+import { AuthUser } from '../../auth/types';
+import { User } from '../../user/user.schema';
 
 @Injectable()
 export class AdjustmentService {

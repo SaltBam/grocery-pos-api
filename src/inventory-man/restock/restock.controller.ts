@@ -1,10 +1,10 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { RestockService } from './restock.service';
 import { GetAllDto, GetDetailsParamDto, GetDetailsQueryDto, RestockDto } from './types';
-import { BaseResponse } from 'src/common/base/base.response';
-import { CurrentUser, Role } from 'src/auth/types';
-import type { AuthUser } from 'src/auth/types';
-import { Roles } from 'src/auth/auth.decorator';
+import { BaseResponse } from '../../common/base/base.response';
+import { CurrentUser, Role } from '../../auth/types';
+import type { AuthUser } from '../../auth/types';
+import { Roles } from '../../auth/auth.decorator';
 @Roles(Role.Owner, Role.InventoryManager)
 @Controller('restocks')
 export class RestockController {

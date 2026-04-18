@@ -7,33 +7,33 @@ import { Product, ProductSchema } from './src/product/product.schema';
 import {
   Inventory,
   InventorySchema,
-} from 'src/inventory-man/inventory/inventory.schema';
+} from './src/inventory-man/inventory/inventory.schema';
 import {
   Restock,
   RestockSchema,
-} from 'src/inventory-man/restock/restock.schema';
+} from './src/inventory-man/restock/restock.schema';
 import {
   RestockDetails,
   RestockDetailsSchema,
-} from 'src/inventory-man/restock/restock-details.schema';
+} from './src/inventory-man/restock/restock-details.schema';
 import {
   Adjustment,
   AdjustmentSchema,
-} from 'src/inventory-man/adjustment/adjustment.schema';
+} from './src/inventory-man/adjustment/adjustment.schema';
 import {
   AdjustmentDetails,
   AdjustmentDetailsSchema,
-} from 'src/inventory-man/adjustment/adjustment-details.schema';
-import { Sales, SalesSchema } from 'src/sales/sales.schema';
+} from './src/inventory-man/adjustment/adjustment-details.schema';
+import { Sales, SalesSchema } from './src/sales/sales.schema';
 import {
   SalesDetails,
   SalesDetailsSchema,
-} from 'src/sales/sales-details.schema';
+} from './src/sales/sales-details.schema';
 import {
   RefreshToken,
   RefreshTokenSchema,
-} from 'src/auth/refresh-token/refresh-token.schema';
-import { Category } from 'src/product/types';
+} from './src/auth/refresh-token/refresh-token.schema';
+import { Category } from './src/product/types';
 
 const user = mongoose.model(User.name, UserSchema);
 const product = mongoose.model(Product.name, ProductSchema);

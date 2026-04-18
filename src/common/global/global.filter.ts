@@ -1,8 +1,8 @@
 import { ArgumentsHost, BadRequestException, Catch, ExceptionFilter, HttpException, HttpStatus, Logger, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
-import { RefreshTokenService } from 'src/auth/refresh-token/refresh-token.service';
-import { JWTInvalidError } from 'src/auth/types';
+import { RefreshTokenService } from '../../auth/refresh-token/refresh-token.service';
+import { JWTInvalidError } from '../../auth/types';
 import { CookieService } from '../utils/cookie/cookie.service';
 import { toLowerCase } from 'zod';
 import { MongoFilter } from './mongo.filter';
