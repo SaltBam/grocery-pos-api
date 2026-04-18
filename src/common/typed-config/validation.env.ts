@@ -10,6 +10,7 @@ export const envSchema = zod.object({
     REFRESH_EXPIRY: zod.coerce.number().positive(),
     EAN_COUNTER_ID: zod.string(),
     EAN_COUNTER_DIGITS: zod.coerce.number(),
+    FRONTEND_URL: zod.string(),
 });
 
 export type EnvTypes = zod.infer<typeof envSchema>;
