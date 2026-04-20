@@ -22,12 +22,14 @@ export class RestockDetails {
     product: Product | Types.ObjectId
 
     @Prop({
+        type: Number,
         required: true,
         min: 0
     })
     quantity: number
 
     @Prop({
+        type: Number,
         required: true,
         min: 0
     })

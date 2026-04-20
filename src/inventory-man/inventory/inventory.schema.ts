@@ -15,6 +15,7 @@ export class Inventory {
     product: Product | Types.ObjectId
 
     @Prop({
+        type: Number,
         required: true,
         min: 0,
         default: 0,

@@ -5,6 +5,7 @@ import { User } from "../../user/user.schema";
 @Schema({ timestamps: true })
 export class Restock {
     @Prop({
+        type: String,
         required: true,
         maxLength: 300,
         trim: true,
@@ -20,6 +21,7 @@ export class Restock {
     restockedBy: User | Types.ObjectId
 
     @Prop({
+        type: Number,
         required: true,
         min: 0
     })

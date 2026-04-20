@@ -13,11 +13,13 @@ export class RefreshToken {
     user: User | Types.ObjectId
     
     @Prop({
+        type: Date,
         required: true
     })
     expiry: Date
-    
+
     @Prop({
+        type: Boolean,
         required: true,
         default: true
     })

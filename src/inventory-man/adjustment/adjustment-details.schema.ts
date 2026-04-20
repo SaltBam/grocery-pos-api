@@ -22,6 +22,7 @@ export class AdjustmentDetails {
     product: Product | Types.ObjectId;
 
     @Prop({
+        type: Number,
         required: true,
         validate: [
             {
@@ -37,6 +38,7 @@ export class AdjustmentDetails {
     change: number
 
     @Prop({
+        type: String,
         required: true,
         maxLength: 100,
         trim: true

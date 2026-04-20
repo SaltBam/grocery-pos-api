@@ -5,6 +5,7 @@ import { User } from "../../user/user.schema";
 @Schema({ timestamps: true })
 export class Adjustment {
     @Prop({
+        type: String,
         required: true,
         maxLength: 300,
         trim: true,

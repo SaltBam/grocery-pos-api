@@ -22,6 +22,7 @@ export class SalesDetails {
     product: Product | Types.ObjectId;
     
     @Prop({
+        type: Number,
         required: true,
         min: 0,
         validate: {
@@ -32,6 +33,7 @@ export class SalesDetails {
     quantity: number;
     
     @Prop({
+        type: Number,
         required: true,
         min: 0
     })

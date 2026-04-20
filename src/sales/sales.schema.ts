@@ -6,6 +6,7 @@ import { PaymentType } from "./types";
 @Schema({ timestamps: true })
 export class Sales {
     @Prop({
+        type: Number,
         min: 0,
         required: true,
     })
@@ -27,6 +28,7 @@ export class Sales {
     paymentType: PaymentType;
 
     @Prop({
+        type: String,
         maxLength: 50
     })
     referenceNumber?: string;
