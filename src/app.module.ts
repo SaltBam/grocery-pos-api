@@ -25,7 +25,7 @@ import { EanCounterModule } from './ean-counter/ean-counter.module';
     RefreshTokenModule,
     UserModule,
     MongooseModule.forRoot(
-      'mongodb://127.0.0.1/grocery?replicaSet=rs0'
+      'mongodb://127.0.0.1:27017/grocery'
     ),
     ProductModule,
     InventoryModule,
