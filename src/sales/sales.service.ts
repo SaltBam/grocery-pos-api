@@ -57,10 +57,10 @@ export class SalesService {
     }
 
     async getDetails(dto: GetDetailsDto): Promise<SalesDetails[]> {
-        const { sales } = dto;
+        const { sale } = dto;
 
         return await this.modelDetails
-            .find({ sales })
+            .find({ sale })
             .populate({
                 path: 'product',
                 select: 'name',

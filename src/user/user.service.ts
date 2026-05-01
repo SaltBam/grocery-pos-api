@@ -8,10 +8,10 @@ import { CreateBulkDto, GetAllDto, UpdateBulkDto } from './types';
 import { runInTransaction } from '../common/utils/db';
 
 class UserInfo {
-    name: string;
-    roles: Role[];
-    _id: Types.ObjectId;
-    isActive: boolean;
+    name!: string;
+    roles!: Role[];
+    _id!: Types.ObjectId;
+    isActive!: boolean;
 }
 
 @Injectable()
