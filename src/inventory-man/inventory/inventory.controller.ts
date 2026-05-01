@@ -8,9 +8,7 @@ import { GetAllDto } from './types';
 @Roles(Role.Owner, Role.InventoryManager)
 @Controller('inventories')
 export class InventoryController {
-    constructor(
-        private service: InventoryService,
-    ) {}
+    constructor(private service: InventoryService) {}
 
     @Get()
     async getAll(@Query() dto: GetAllDto) {

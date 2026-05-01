@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Types } from "mongoose";
-import { Product } from "../../product/product.schema";
-import { User } from "../../user/user.schema";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Types } from 'mongoose';
+import { Product } from '../../product/product.schema';
+import { User } from '../../user/user.schema';
 
 @Schema({ timestamps: true })
 export class Inventory {
@@ -10,9 +10,9 @@ export class Inventory {
         ref: Product.name,
         required: true,
         unique: true,
-        index: true
+        index: true,
     })
-    product: Product | Types.ObjectId
+    product!: Product | Types.ObjectId;
 
     @Prop({
         type: Number,
@@ -21,10 +21,10 @@ export class Inventory {
         default: 0,
         validate: {
             validator: Number.isInteger,
-            message: `Stock must be an integer`
-        }
+            message: `Stock must be an integer`,
+        },
     })
-    stock: number
+    stock!: number;
 
     @Prop({
         type: mongoose.Schema.Types.ObjectId,
@@ -32,7 +32,7 @@ export class Inventory {
         required: true,
         index: true,
     })
-    updatedBy: User | Types.ObjectId
+    updatedBy!: User | Types.ObjectId;
 }
 
 export const InventorySchema = SchemaFactory.createForClass(Inventory);

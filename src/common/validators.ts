@@ -1,7 +1,14 @@
-import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
+import {
+    registerDecorator,
+    ValidationOptions,
+    ValidationArguments,
+} from 'class-validator';
 
-export function RequiresOne(properties: string[], validationOptions?: ValidationOptions) {
-    return function (object: Object, propertyName: string) {
+export function RequiresOne(
+    properties: string[],
+    validationOptions?: ValidationOptions,
+) {
+    return function (object: object, propertyName: string) {
         registerDecorator({
             name: 'requiresOne',
             target: object.constructor,
@@ -9,11 +16,15 @@ export function RequiresOne(properties: string[], validationOptions?: Validation
             options: validationOptions,
             constraints: properties,
             validator: {
-                validate(value: any, args: ValidationArguments) {
-                    const object = args.object as any;
-                    return properties.some(prop => object[prop] !== null && object[prop] !== undefined);
+                validate(value: unknown, args: ValidationArguments) {
+                    const object = args.object as Record<string, unknown>;
+                    return properties.some(
+                        (prop) =>
+                            object[prop] !== null && object[prop] !== undefined,
+                    );
                 },
-                defaultMessage(args: ValidationArguments) {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                defaultMessage(_: ValidationArguments) {
                     return `At least one of the following must be provided: ${properties.join(', ')}`;
                 },
             },

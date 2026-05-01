@@ -1,5 +1,5 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Category } from "./types";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Category } from './types';
 
 @Schema({ timestamps: true })
 export class Product {
@@ -7,32 +7,32 @@ export class Product {
         type: String,
         required: true,
         unique: true,
-        maxLength: 13
+        maxLength: 13,
     })
-    EAN: string;
+    EAN!: string;
 
     @Prop({
         type: String,
         required: true,
         unique: true,
         uppercase: true,
-        maxLength: 50
+        maxLength: 50,
     })
-    name: string;
+    name!: string;
 
     @Prop({
         type: Number,
         required: true,
         min: 0,
     })
-    price: number
+    price!: number;
 
     @Prop({
         required: false,
         enum: Object.values(Category),
         type: String,
     })
-    category: Category;
+    category!: Category;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

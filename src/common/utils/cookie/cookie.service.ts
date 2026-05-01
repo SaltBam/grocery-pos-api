@@ -1,17 +1,15 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import { TypedConfigService } from '../../typed-config/typed-config.service';
 
 @Injectable()
 export class CookieService {
-    constructor(
-        private config: TypedConfigService    
-    ) {}
+    constructor(private config: TypedConfigService) {}
 
     createSecure(
         res: Response,
-        name: string, 
-        payload: string, 
+        name: string,
+        payload: string,
         maxAge: number,
         domain?: string,
         path?: string,
@@ -24,15 +22,10 @@ export class CookieService {
             maxAge,
             path: path ?? '/',
             // domain: domain
-        })
+        });
     }
 
-    removeSecure(
-        res: Response,
-        name: string, 
-        domain?: string,
-        path?: string
-    ) {
+    removeSecure(res: Response, name: string, domain?: string, path?: string) {
         res.clearCookie(name, {
             httpOnly: true,
             secure: false,
@@ -45,8 +38,10 @@ export class CookieService {
 
     createRefresh(res: Response, payload: string) {
         this.createSecure(
-            res, 'refresh', payload, 
-            this.config.get('REFRESH_EXPIRY')
+            res,
+            'refresh',
+            payload,
+            this.config.get('REFRESH_EXPIRY'),
         );
     }
 
@@ -55,10 +50,7 @@ export class CookieService {
     }
 
     createJwt(res: Response, payload: string) {
-        this.createSecure(
-            res, 'jwt', payload, 
-            this.config.get('JWT_EXPIRY')
-        );
+        this.createSecure(res, 'jwt', payload, this.config.get('JWT_EXPIRY'));
     }
 
     removeJwt(res: Response) {
@@ -74,7 +66,7 @@ export class CookieService {
             maxAge: this.config.get('REFRESH_EXPIRY'),
             path: '/',
             // domain: domain
-        })
+        });
     }
 
     removeDummy(res: Response) {

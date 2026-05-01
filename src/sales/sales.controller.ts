@@ -8,9 +8,7 @@ import { Roles } from '../auth/auth.decorator';
 @Roles(Role.Owner, Role.Cashier)
 @Controller('sales')
 export class SalesController {
-    constructor(
-        private service: SalesService,
-    ) {}
+    constructor(private service: SalesService) {}
 
     @Get()
     async getAll(@Query() dto: GetAllDto) {

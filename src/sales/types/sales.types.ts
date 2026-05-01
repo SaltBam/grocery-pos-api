@@ -1,4 +1,4 @@
 export enum PaymentType {
     GCASH = 'GCASH',
-    CASH = 'CASH'
+    CASH = 'CASH',
 }

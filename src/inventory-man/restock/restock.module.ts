@@ -8,21 +8,21 @@ import { InventoryModule } from '../inventory/inventory.module';
 import { ProductModule } from '../../product/product.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([
-      {
-        name: Restock.name,
-        schema: RestockSchema,
-      },
-      {
-        name: RestockDetails.name,
-        schema: RestockDetailsSchema,
-      }
-    ]),
-    InventoryModule,
-    ProductModule,
-  ],
-  providers: [RestockService],
-  controllers: [RestockController]
+    imports: [
+        MongooseModule.forFeature([
+            {
+                name: Restock.name,
+                schema: RestockSchema,
+            },
+            {
+                name: RestockDetails.name,
+                schema: RestockDetailsSchema,
+            },
+        ]),
+        InventoryModule,
+        ProductModule,
+    ],
+    providers: [RestockService],
+    controllers: [RestockController],
 })
 export class RestockModule {}

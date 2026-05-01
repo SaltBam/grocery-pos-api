@@ -6,15 +6,17 @@ import { Inventory, InventorySchema } from './inventory.schema';
 import { ProductModule } from '../../product/product.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{
-      name: Inventory.name,
-      schema: InventorySchema
-    }]),
-    forwardRef(() => ProductModule),
-  ],
-  providers: [InventoryService],
-  controllers: [InventoryController],
-  exports: [InventoryService]
+    imports: [
+        MongooseModule.forFeature([
+            {
+                name: Inventory.name,
+                schema: InventorySchema,
+            },
+        ]),
+        forwardRef(() => ProductModule),
+    ],
+    providers: [InventoryService],
+    controllers: [InventoryController],
+    exports: [InventoryService],
 })
 export class InventoryModule {}

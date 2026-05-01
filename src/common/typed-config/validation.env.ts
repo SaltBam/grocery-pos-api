@@ -1,4 +1,4 @@
-import * as zod from 'zod'
+import * as zod from 'zod';
 
 export const envSchema = zod.object({
     NODE_ENV: zod.string(),

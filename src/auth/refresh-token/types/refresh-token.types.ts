@@ -1,5 +1,5 @@
 export class RefreshPayload {
-    _id: string;
-    token: string;
-    userId: string;
+    _id!: string;
+    token!: string;
+    userId!: string;
 }

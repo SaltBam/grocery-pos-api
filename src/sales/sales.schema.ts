@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Types } from "mongoose";
-import { User } from "../user/user.schema";
-import { PaymentType } from "./types";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Types } from 'mongoose';
+import { User } from '../user/user.schema';
+import { PaymentType } from './types';
 
 @Schema({ timestamps: true })
 export class Sales {
@@ -10,14 +10,14 @@ export class Sales {
         min: 0,
         required: true,
     })
-    amount: number;
+    amount!: number;
 
     @Prop({
         required: true,
         type: mongoose.Schema.Types.ObjectId,
-        ref: User.name
+        ref: User.name,
     })
-    cashier: User | Types.ObjectId;
+    cashier!: User | Types.ObjectId;
 
     @Prop({
         required: true,
@@ -25,11 +25,11 @@ export class Sales {
         type: String,
         index: true,
     })
-    paymentType: PaymentType;
+    paymentType!: PaymentType;
 
     @Prop({
         type: String,
-        maxLength: 50
+        maxLength: 50,
     })
     referenceNumber?: string;
 }

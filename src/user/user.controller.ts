@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Logger, Patch, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateBulkDto, UpdateBulkDto } from './types/user.dto';
 import { Roles } from '../auth/auth.decorator';
@@ -10,18 +10,15 @@ import { GetAllDto } from '../product/types';
 @Roles(Role.Owner)
 @Controller('users')
 export class UserController {
-    constructor(
-        private service: UserService,
-    ) 
-    {}
+    constructor(private service: UserService) {}
 
     @Roles(Role.Cashier, Role.Owner, Role.InventoryManager)
     @Get('/profile')
     getProfile(@CurrentUser() user: AuthUser) {
         return new BaseResponse({
             username: user.username,
-            roles: user.roles
-        })
+            roles: user.roles,
+        });
     }
 
     @Roles(Role.Owner)
@@ -34,9 +31,7 @@ export class UserController {
 
     @Roles(Role.Owner)
     @Patch()
-    async update(
-        @Body() dto: UpdateBulkDto
-    ) {
+    async update(@Body() dto: UpdateBulkDto) {
         await this.service.update(dto);
 
         return new BaseResponse();

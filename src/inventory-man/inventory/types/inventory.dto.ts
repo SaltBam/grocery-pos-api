@@ -1,25 +1,31 @@
-import { IsString, IsOptional, IsPositive, IsNumber, IsNotEmpty } from "class-validator"
+import {
+    IsString,
+    IsOptional,
+    IsPositive,
+    IsNumber,
+    IsNotEmpty,
+} from 'class-validator';
 
 export class GetAllDto {
     @IsOptional()
     @IsNumber()
-    maxStock: number
-    
+    maxStock!: number;
+
     @IsString()
     @IsOptional()
-    name: string
-    
+    name!: string;
+
     @IsString()
     @IsOptional()
-    EAN:string
+    EAN!: string;
 
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    page: number
-    
+    page!: number;
+
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    limit: number
+    limit!: number;
 }

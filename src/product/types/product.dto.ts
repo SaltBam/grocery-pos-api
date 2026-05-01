@@ -1,130 +1,148 @@
-import { Transform, Type } from "class-transformer"
-import { ArrayNotEmpty, IsArray, IsBoolean, IsEnum, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, Min, ValidateNested } from "class-validator"
-import { Category } from "./product.types";
-import { Logger } from "@nestjs/common";
+import { Transform, Type } from 'class-transformer';
+import {
+    ArrayNotEmpty,
+    IsArray,
+    IsBoolean,
+    IsEnum,
+    IsMongoId,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsPositive,
+    IsString,
+    MaxLength,
+    Min,
+    ValidateNested,
+} from 'class-validator';
+import { Category } from './product.types';
 
 export class EnsureValidDto {
     @IsOptional()
     @IsString()
     @MaxLength(50)
-    @Transform(({value}) => typeof value === 'string' ? value.trim() : value)
-    EAN: string
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : (value as unknown),
+    )
+    EAN!: string;
 
     @IsOptional()
     @IsString()
     @MaxLength(50)
-    name: string
+    name!: string;
 
     @IsOptional()
     @IsBoolean()
     @Transform(({ obj, key }) => {
-      // Access the RAW value from the incoming object 
-      // before any implicit conversion messes with it
-      const rawValue = obj[key]; 
-      
-      if (rawValue === 'true' || rawValue === true) return true;
-      if (rawValue === 'false' || rawValue === false) return false;
-      
-      // Return the raw value for anything else so @IsBoolean can catch bad data
-      return rawValue; 
+        // Access the RAW value from the incoming object
+        // before any implicit conversion messes with it
+        const rawValue = (obj as Record<string, unknown>)[key];
+
+        if (rawValue === 'true' || rawValue === true) return true;
+        if (rawValue === 'false' || rawValue === false) return false;
+
+        // Return the raw value for anything else so @IsBoolean can catch bad data
+        return rawValue;
     })
-    autoGenerateEAN: boolean
+    autoGenerateEAN!: boolean;
 }
 
 export class NewProductFields {
     @IsOptional()
     @IsString()
     @MaxLength(50)
-    @Transform(({value}) => typeof value === 'string' ? value.trim() : value)
-    EAN: string
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : (value as unknown),
+    )
+    EAN!: string;
 
     @IsNotEmpty()
     @IsString()
     @MaxLength(50)
-    name: string
+    name!: string;
 
     @IsOptional()
     @IsEnum(Category, {
-        message: `Category must be a valid enum value: ${Object.values(Category).join(', ')}`
+        message: `Category must be a valid enum value: ${Object.values(Category).join(', ')}`,
     })
-    category: Category;
+    category!: Category;
 
     @IsNotEmpty()
     @IsNumber()
     @Type(() => Number)
     @Min(0)
-    price: number
+    price!: number;
 }
 
 export class NewProductsDto {
-    @ValidateNested({each: true})
+    @ValidateNested({ each: true })
     @ArrayNotEmpty()
-    newProducts: NewProductFields[]
+    newProducts!: NewProductFields[];
 }
 export class GetDto {
     @IsNotEmpty()
     @IsString()
     @MaxLength(50)
-    @Transform(({value}) => typeof value === 'string' ? value.trim() : value)
-    EAN: string
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : (value as unknown),
+    )
+    EAN!: string;
 }
 class UpdateFields {
     @IsOptional()
     @IsString()
     @MaxLength(50)
-    @Transform(({value}) => value.trim())
+    @Transform(({ value }) => (value as string).trim())
     @IsNotEmpty()
-    name?: string
+    name?: string;
 
     @IsOptional()
     @IsNumber()
     @Min(0)
-    price?: number
+    price?: number;
 }
 class UpdateBulkFields {
     @IsNotEmpty()
     @IsMongoId()
-    product: string
-    
+    product!: string;
+
     @ValidateNested()
     @Type(() => UpdateFields)
-    update: UpdateFields
+    update!: UpdateFields;
 }
 export class UpdateBulkDto {
-    @ValidateNested({each: true})
+    @ValidateNested({ each: true })
     @Type(() => UpdateBulkFields)
     @IsArray()
     @ArrayNotEmpty()
-    updates: UpdateBulkFields[]
+    updates!: UpdateBulkFields[];
 }
 
 export class GetAllDto {
     @IsString()
     @IsOptional()
-    name: string
-    
+    name!: string;
+
     @IsString()
     @IsOptional()
-    EAN:string
+    EAN!: string;
 
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    page: number
-    
+    page!: number;
+
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    limit: number
+    limit!: number;
 }
-
 
 export class MatchesDto {
     @IsOptional()
     @IsString()
-    EAN: string
+    EAN!: string;
 
     @IsOptional()
     @IsOptional()
-    name: string
+    name!: string;
 }

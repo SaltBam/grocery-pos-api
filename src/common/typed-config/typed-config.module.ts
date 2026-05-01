@@ -14,13 +14,13 @@ import { TypedConfigService } from './typed-config.service';
                 if (!parsed.success) {
                     throw new Error(
                         'Invalid env variable: ' +
-                        JSON.stringify(parsed.error.issues, null, 2)
+                            JSON.stringify(parsed.error.issues, null, 2),
                     );
                 }
 
                 return parsed.data;
-            }
-        })
+            },
+        }),
     ],
     providers: [TypedConfigService],
     exports: [TypedConfigService],

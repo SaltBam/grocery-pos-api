@@ -1,34 +1,48 @@
-import { Transform, Type } from "class-transformer";
-import { ArrayNotEmpty, IsArray, IsDataURI, IsDate, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, min, Min, ValidateNested } from "class-validator";
-import { RequiresOne } from "../../../common/validators";
-import { NewProductFields } from "../../../product/types";
+import { Transform, Type } from 'class-transformer';
+import {
+    ArrayNotEmpty,
+    IsArray,
+    IsDate,
+    IsInt,
+    IsMongoId,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsPositive,
+    IsString,
+    MaxLength,
+    Min,
+    ValidateNested,
+} from 'class-validator';
+import { RequiresOne } from '../../../common/validators';
+import { NewProductFields } from '../../../product/types';
 
 export class GetDetailsParamDto {
     @IsNotEmpty()
     @IsMongoId()
-    restock: string
+    restock!: string;
 }
 export class GetDetailsQueryDto {
     @IsString()
     @IsOptional()
-    name: string
-    
+    name!: string;
+
     @IsString()
     @IsOptional()
-    EAN: string
+    EAN!: string;
 
     @IsNumber()
     @IsPositive()
     @IsNotEmpty()
-    page: number
+    page!: number;
 
     @IsNumber()
     @IsPositive()
     @IsNotEmpty()
-    limit: number
+    limit!: number;
 }
 
-export type GetDetailsDto = GetDetailsQueryDto & GetDetailsParamDto
+export type GetDetailsDto = GetDetailsQueryDto & GetDetailsParamDto;
 
 export class RestockFields {
     @IsOptional()
@@ -38,55 +52,57 @@ export class RestockFields {
 
     @IsOptional()
     @IsMongoId()
-    product?: string
+    product?: string;
 
     @RequiresOne(['newProduct', 'product'])
-    dummy?: any
+    dummy?: unknown;
 
     @IsNumber()
     @IsNotEmpty()
     @Type(() => Number)
     @Min(1)
     @IsInt()
-    quantity: number;
-    
+    quantity!: number;
+
     @IsNumber()
     @IsNotEmpty()
     @Type(() => Number)
     @Min(0)
-    unitCost: number;
+    unitCost!: number;
 }
 export class RestockDto {
     @ValidateNested({ each: true })
     @ArrayNotEmpty()
     @Type(() => RestockFields)
-    restockDetails: RestockFields[];
+    restockDetails!: RestockFields[];
 
     @IsNotEmpty()
     @IsString()
     @MaxLength(300)
-    description: string;
+    description!: string;
 }
 
 export class GetAllDto {
     @IsMongoId()
     @IsOptional()
-    restockedBy: string
+    restockedBy!: string;
 
     @IsArray()
-    @IsDate({ each: true, })
+    @IsDate({ each: true })
     @IsOptional()
-    @Transform(({value}) => (Array.isArray(value) ? value : [value]))
+    @Transform(
+        ({ value }) => (Array.isArray(value) ? value : [value]) as unknown[],
+    )
     @Type(() => Date)
-    dateRange: Date[]
+    dateRange!: Date[];
 
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    page: number
-    
+    page!: number;
+
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    limit: number
+    limit!: number;
 }

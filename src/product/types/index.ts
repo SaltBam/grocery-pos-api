@@ -1,2 +1,2 @@
-export * from './product.dto'
-export * from './product.types'
+export * from './product.dto';
+export * from './product.types';

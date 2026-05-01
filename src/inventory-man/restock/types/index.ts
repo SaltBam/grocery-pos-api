@@ -1,1 +1,1 @@
-export * from './restock.dto'
+export * from './restock.dto';

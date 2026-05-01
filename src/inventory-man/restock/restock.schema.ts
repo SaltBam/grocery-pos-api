@@ -1,6 +1,6 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Types } from "mongoose";
-import { User } from "../../user/user.schema";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Types } from 'mongoose';
+import { User } from '../../user/user.schema';
 
 @Schema({ timestamps: true })
 export class Restock {
@@ -10,7 +10,7 @@ export class Restock {
         maxLength: 300,
         trim: true,
     })
-    description: string
+    description!: string;
 
     @Prop({
         type: mongoose.Schema.ObjectId,
@@ -18,14 +18,14 @@ export class Restock {
         required: true,
         index: true,
     })
-    restockedBy: User | Types.ObjectId
+    restockedBy!: User | Types.ObjectId;
 
     @Prop({
         type: Number,
         required: true,
-        min: 0
+        min: 0,
     })
-    totalCost: number
+    totalCost!: number;
 }
 
 export const RestockSchema = SchemaFactory.createForClass(Restock);

@@ -1,7 +1,7 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Types } from "mongoose";
-import { Adjustment } from "./adjustment.schema";
-import { Product } from "../../product/product.schema";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Types } from 'mongoose';
+import { Adjustment } from './adjustment.schema';
+import { Product } from '../../product/product.schema';
 
 @Schema()
 export class AdjustmentDetails {
@@ -9,17 +9,17 @@ export class AdjustmentDetails {
         required: true,
         type: mongoose.Schema.ObjectId,
         ref: Adjustment.name,
-        index: true
+        index: true,
     })
-    adjustment: Adjustment | Types.ObjectId;
+    adjustment!: Adjustment | Types.ObjectId;
 
     @Prop({
         required: true,
         type: mongoose.Schema.ObjectId,
         ref: Product.name,
-        index: true
+        index: true,
     })
-    product: Product | Types.ObjectId;
+    product!: Product | Types.ObjectId;
 
     @Prop({
         type: Number,
@@ -27,23 +27,24 @@ export class AdjustmentDetails {
         validate: [
             {
                 validator: Number.isInteger,
-                message: 'Change must be an integer'
+                message: 'Change must be an integer',
             },
             {
                 validator: (value: number) => value !== 0,
-                message: 'Change must not be 0'
-            }
-        ]
+                message: 'Change must not be 0',
+            },
+        ],
     })
-    change: number
+    change!: number;
 
     @Prop({
         type: String,
         required: true,
         maxLength: 100,
-        trim: true
+        trim: true,
     })
-    reason: string
+    reason!: string;
 }
 
-export const AdjustmentDetailsSchema = SchemaFactory.createForClass(AdjustmentDetails);
+export const AdjustmentDetailsSchema =
+    SchemaFactory.createForClass(AdjustmentDetails);

@@ -4,7 +4,6 @@ import { CookieModule } from './common/utils/cookie/cookie.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthController } from './auth/auth.controller';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JWTAuthGuard } from './auth/guards/jwt.guard';
 import { RoleGuard } from './auth/guards/role.guard';
@@ -18,36 +17,34 @@ import { SalesModule } from './sales/sales.module';
 import { EanCounterModule } from './ean-counter/ean-counter.module';
 
 @Module({
-  imports: [
-    TypedConfigModule, 
-    CookieModule, 
-    AuthModule, 
-    RefreshTokenModule,
-    UserModule,
-    MongooseModule.forRoot(
-      'mongodb://127.0.0.1:27017/grocery'
-    ),
-    ProductModule,
-    InventoryModule,
-    RestockModule,
-    AdjustmentModule,
-    SalesModule,
-    EanCounterModule
-  ],
-  controllers: [],
-  providers: [
-    {  
-      provide: APP_GUARD,
-      useClass: JWTAuthGuard
-    },
-    {  
-      provide: APP_GUARD,
-      useClass: RoleGuard
-    },
-    {
-      provide: APP_FILTER,
-      useClass: GlobalFilter
-    },
-  ],
+    imports: [
+        TypedConfigModule,
+        CookieModule,
+        AuthModule,
+        RefreshTokenModule,
+        UserModule,
+        MongooseModule.forRoot('mongodb://127.0.0.1:27017/grocery'),
+        ProductModule,
+        InventoryModule,
+        RestockModule,
+        AdjustmentModule,
+        SalesModule,
+        EanCounterModule,
+    ],
+    controllers: [],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: JWTAuthGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: RoleGuard,
+        },
+        {
+            provide: APP_FILTER,
+            useClass: GlobalFilter,
+        },
+    ],
 })
 export class AppModule {}

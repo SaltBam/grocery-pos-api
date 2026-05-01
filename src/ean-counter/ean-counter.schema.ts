@@ -1,4 +1,4 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
 export class EANCounter {
@@ -7,21 +7,21 @@ export class EANCounter {
         required: true,
         default: 'EAN_COUNTER_ID',
     })
-    _id: string;
+    _id!: string;
 
     @Prop({
         type: Number,
         required: true,
         default: 0,
     })
-    counter: number;
+    counter!: number;
 
     @Prop({
         type: Number,
         required: true,
         default: 200,
     })
-    prefix: number;
+    prefix!: number;
 }
 
 export const EANCounterSchema = SchemaFactory.createForClass(EANCounter);

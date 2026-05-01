@@ -5,12 +5,10 @@ import { EnvTypes } from './validation.env';
 @Injectable()
 export class TypedConfigService extends ConfigService<EnvTypes> {
     get<Key extends keyof EnvTypes>(key: Key): EnvTypes[Key] {
-        const val = super.get(key, {infer: true});
+        const val = super.get(key, { infer: true });
 
         if (val === undefined) {
-            throw new Error (
-                `Missing env variable: ${String(key)}`
-            );
+            throw new Error(`Missing env variable: ${String(key)}`);
         }
 
         return val;
