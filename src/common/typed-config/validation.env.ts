@@ -18,7 +18,6 @@ export const envSchema = zod.object({
         .string()
         .trim()
         .optional()
-        .transform((val) => (val === '' ? undefined : val))
         .refine(
             (val) => {
                 if (!val) return true;
