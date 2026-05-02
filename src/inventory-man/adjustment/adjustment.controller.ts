@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AdjustmentService } from './adjustment.service';
-import { BaseResponse } from '../../common/base/base.response';
 import {
     AdjustDto,
     GetAllDto,
@@ -18,15 +17,12 @@ export class AdjustmentController {
     @Post()
     async adjust(@CurrentUser() user: AuthUser, @Body() dto: AdjustDto) {
         await this.service.adjust(user, dto);
-
-        return new BaseResponse();
     }
 
     @Get()
     async getAll(@Query() dto: GetAllDto) {
         const data = await this.service.getAll(dto);
-
-        return new BaseResponse(data);
+        return data;
     }
 
     @Get('details/:adjustment')
@@ -39,13 +35,12 @@ export class AdjustmentController {
             ...queryDto,
         });
 
-        return new BaseResponse(data);
+        return data;
     }
 
     @Get('users')
     async getAdjustUsers() {
         const data = await this.service.getAdjustUsers();
-
-        return new BaseResponse(data);
+        return data;
     }
 }

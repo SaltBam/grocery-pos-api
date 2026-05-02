@@ -7,23 +7,19 @@ import {
     Res,
     UnauthorizedException,
 } from '@nestjs/common';
-import { BaseController } from '../common/base/base.controller';
 import { LoginDto, Role } from './types';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CookieService } from '../common/utils/cookie/cookie.service';
-import { BaseResponse } from '../common/base/base.response';
 import { Public, Roles } from './auth.decorator';
 import 'cookie-parser';
 
 @Controller('auth')
-export class AuthController extends BaseController {
+export class AuthController {
     constructor(
         private service: AuthService,
         private cookieService: CookieService,
-    ) {
-        super();
-    }
+    ) {}
 
     @Public()
     @Roles(Role.Unauthenticated)
@@ -40,7 +36,7 @@ export class AuthController extends BaseController {
         this.cookieService.createDummy(res);
 
         Logger.log({ jwtPayload });
-        return new BaseResponse({ user });
+        return { user };
     }
 
     @Public()
@@ -72,8 +68,6 @@ export class AuthController extends BaseController {
             Logger.error(err);
             throw new UnauthorizedException('Please log in again');
         }
-
-        return new BaseResponse();
     }
 
     @Public()
@@ -103,7 +97,5 @@ export class AuthController extends BaseController {
         this.cookieService.removeJwt(res);
         this.cookieService.removeRefresh(res);
         this.cookieService.removeDummy(res);
-
-        return new BaseResponse();
     }
 }

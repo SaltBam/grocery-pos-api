@@ -3,7 +3,6 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { TypedConfigService } from './common/typed-config/typed-config.service';
 import { TimingInterceptor } from './common/interceptors/timing.interceptor';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
@@ -22,10 +21,7 @@ async function bootstrap() {
         }),
     );
 
-    app.useGlobalInterceptors(
-        new TimingInterceptor(),
-        new ResponseInterceptor(),
-    );
+    app.useGlobalInterceptors(new TimingInterceptor());
 
     app.use(cookieParser(config.get('COOKIE_SECRET')));
 

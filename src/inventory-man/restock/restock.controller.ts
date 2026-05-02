@@ -6,7 +6,6 @@ import {
     GetDetailsQueryDto,
     RestockDto,
 } from './types';
-import { BaseResponse } from '../../common/base/base.response';
 import { CurrentUser, Role } from '../../auth/types';
 import type { AuthUser } from '../../auth/types';
 import { Roles } from '../../auth/auth.decorator';
@@ -18,15 +17,12 @@ export class RestockController {
     @Post()
     async restock(@CurrentUser() user: AuthUser, @Body() dto: RestockDto) {
         await this.service.restock(user, dto);
-
-        return new BaseResponse();
     }
 
     @Get()
     async getAll(@Query() dto: GetAllDto) {
         const data = await this.service.getAll(dto);
-
-        return new BaseResponse(data);
+        return data;
     }
 
     @Get('details/:restock')
@@ -39,13 +35,12 @@ export class RestockController {
             ...queryDto,
         });
 
-        return new BaseResponse(data);
+        return data;
     }
 
     @Get('users')
     async getRestockUsers() {
         const data = await this.service.getRestockUsers();
-
-        return new BaseResponse(data);
+        return data;
     }
 }
