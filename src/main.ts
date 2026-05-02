@@ -3,44 +3,51 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { TypedConfigService } from './common/typed-config/typed-config.service';
 import { TimingInterceptor } from './common/interceptors/timing.interceptor';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
-async function bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
-    const config = app.get(TypedConfigService);
+import helmet from 'helmet';
 
-    // Get values from config or env
-    const port = process.env.PORT || config.get('PORT') || 3000;
-    const frontendUrl = config.get('FRONTEND_URL'); // Add this to your Env Vars
+async function bootstrap() {
+    const logger = new Logger('Bootstrap');
+
+    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    app.use(helmet());
+
+    const config = app.get(TypedConfigService);
+    // const isProd = config.get('NODE_ENV') === 'prod';
 
     app.useGlobalPipes(
         new ValidationPipe({
             transform: true,
             whitelist: true,
+            forbidNonWhitelisted: true,
             transformOptions: { enableImplicitConversion: true },
+            /* uncomment if frontend relies on api error messages */
+            // disableErrorMessages: isProd,
         }),
     );
 
     app.useGlobalInterceptors(new TimingInterceptor());
-
     app.use(cookieParser(config.get('COOKIE_SECRET')));
 
     app.enableCors({
-        // Logic: allow localhost in dev, but use the real URL in production
-        origin:
-            process.env.NODE_ENV === 'production'
-                ? frontendUrl
-                : 'http://localhost:5173',
+        origin: config.get('FRONTEND_URL'),
         credentials: true,
+        methods: ['GET', 'POST', 'PATCH', 'OPTIONS'],
     });
 
-    // Important for Railway to handle headers (like X-Forwarded-For) correctly
-    app.set('trust proxy', true);
+    if (config.get('NODE_ENV') === 'prod') {
+        app.set('trust proxy', 1);
+    }
 
-    // Start the server on 0.0.0.0
+    app.enableShutdownHooks();
+
+    const port = config.get('PORT') ?? process.env.PORT;
     await app.listen(port, '0.0.0.0');
 
-    console.log(`🚀 Server running on port: ${port}`);
+    logger.log(
+        `API running on port: ${port}, in ${config.get('NODE_ENV')} mode`,
+    );
 }
 
 void bootstrap();
