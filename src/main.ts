@@ -10,7 +10,9 @@ import helmet from 'helmet';
 async function bootstrap() {
     const logger = new Logger('Bootstrap');
 
-    const app = await NestFactory.create<NestExpressApplication>(AppModule);
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+        bufferLogs: true,
+    });
     app.use(helmet());
 
     const config = app.get(TypedConfigService);
