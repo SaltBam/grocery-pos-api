@@ -11,7 +11,9 @@ export const envSchema = zod.object({
     FRONTEND_URL: zod.url(
         'Frontend URL must be a valid URL including http:// or https://',
     ),
-
+    DATABASE_URL: zod.url(
+        'Database URL must be a valid URL including http:// or https://',
+    ),
     DOMAIN: zod.string(),
     COOKIE_SECRET: zod.string(),
     JWT_SECRET: zod.string(),

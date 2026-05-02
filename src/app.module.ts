@@ -15,15 +15,22 @@ import { RestockModule } from './inventory-man/restock/restock.module';
 import { AdjustmentModule } from './inventory-man/adjustment/adjustment.module';
 import { SalesModule } from './sales/sales.module';
 import { EanCounterModule } from './ean-counter/ean-counter.module';
+import { TypedConfigService } from './common/typed-config/typed-config.service';
 
 @Module({
     imports: [
         TypedConfigModule,
+        MongooseModule.forRootAsync({
+            imports: [TypedConfigModule],
+            inject: [TypedConfigService],
+            useFactory: (config: TypedConfigService) => ({
+                uri: config.get('DATABASE_URL'),
+            }),
+        }),
         CookieModule,
         AuthModule,
         RefreshTokenModule,
         UserModule,
-        MongooseModule.forRoot('mongodb://127.0.0.1:27017/grocery'),
         ProductModule,
         InventoryModule,
         RestockModule,

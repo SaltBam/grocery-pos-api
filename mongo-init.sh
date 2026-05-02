@@ -39,5 +39,6 @@ else
     echo "Replica set already initialized."
 fi
 
-# Bring mongod back to foreground
+# Trap shutdown signals and pass them to mongod for a graceful exit
+trap 'kill -TERM $MONGO_PID; wait $MONGO_PID' SIGTERM SIGINT
 wait "$MONGO_PID"
