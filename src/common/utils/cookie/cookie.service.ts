@@ -4,35 +4,40 @@ import { TypedConfigService } from '../../typed-config/typed-config.service';
 
 @Injectable()
 export class CookieService {
-    constructor(private config: TypedConfigService) {}
+    private readonly isProd: boolean;
+    private readonly isDomainSet: boolean;
+
+    constructor(private config: TypedConfigService) {
+        this.isProd = config.get('NODE_ENV') === 'prod';
+        this.isDomainSet = !!config.get('DOMAIN');
+    }
 
     createSecure(
         res: Response,
         name: string,
         payload: string,
         maxAge: number,
-        domain?: string,
-        path?: string,
+        path: string = '/',
     ) {
         res.cookie(name, payload, {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: this.isProd,
+            sameSite: this.isProd && !this.isDomainSet ? 'none' : 'lax',
             signed: true,
             maxAge,
-            path: path ?? '/',
-            // domain: domain
+            path: path,
+            domain: this.config.get('DOMAIN') || undefined,
         });
     }
 
-    removeSecure(res: Response, name: string, domain?: string, path?: string) {
+    removeSecure(res: Response, name: string, path: string = '/') {
         res.clearCookie(name, {
             httpOnly: true,
-            secure: false,
-            sameSite: 'lax',
+            secure: this.isProd,
+            sameSite: this.isProd && !this.isDomainSet ? 'none' : 'lax',
             signed: true,
-            // domain: domain ?? `.${this.config.get('DOMAIN')}`,
-            path: path ?? '/',
+            path: path,
+            domain: this.config.get('DOMAIN') || undefined,
         });
     }
 
@@ -42,11 +47,12 @@ export class CookieService {
             'refresh',
             payload,
             this.config.get('REFRESH_EXPIRY'),
+            '/api/auth/refresh',
         );
     }
 
     removeRefresh(res: Response) {
-        this.removeSecure(res, 'refresh');
+        this.removeSecure(res, 'refresh', '/api/auth/refresh');
     }
 
     createJwt(res: Response, payload: string) {
@@ -60,23 +66,23 @@ export class CookieService {
     createDummy(res: Response) {
         res.cookie('dummy', 'true', {
             httpOnly: false,
-            secure: false,
-            sameSite: 'lax',
+            secure: this.isProd,
+            sameSite: this.isProd && !this.isDomainSet ? 'none' : 'lax',
             signed: false,
             maxAge: this.config.get('REFRESH_EXPIRY'),
             path: '/',
-            // domain: domain
+            domain: this.config.get('DOMAIN') || undefined,
         });
     }
 
     removeDummy(res: Response) {
         res.clearCookie('dummy', {
             httpOnly: false,
-            secure: false,
-            sameSite: 'lax',
+            secure: this.isProd,
+            sameSite: this.isProd && !this.isDomainSet ? 'none' : 'lax',
             signed: false,
-            // domain: domain ?? `.${this.config.get('DOMAIN')}`,
             path: '/',
+            domain: this.config.get('DOMAIN') || undefined,
         });
     }
 }

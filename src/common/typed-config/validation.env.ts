@@ -14,7 +14,30 @@ export const envSchema = zod.object({
     DATABASE_URL: zod.url(
         'Database URL must be a valid URL including http:// or https://',
     ),
-    DOMAIN: zod.string(),
+    DOMAIN: zod
+        .string()
+        .trim()
+        .optional()
+        .transform((val) => (val === '' ? undefined : val))
+        .refine(
+            (val) => {
+                if (!val) return true;
+                return (
+                    !val.startsWith('http://') && !val.startsWith('https://')
+                );
+            },
+            {
+                message:
+                    'DOMAIN must be a raw hostname (e.g., .grocery.com), not a full URL.',
+            },
+        )
+        .refine(
+            (val) => {
+                if (!val) return true;
+                return !val.includes('/');
+            },
+            { message: 'DOMAIN must not contain paths or trailing slashes.' },
+        ),
     COOKIE_SECRET: zod.string(),
     JWT_SECRET: zod.string(),
     JWT_EXPIRY: zod.coerce.number().positive(),
