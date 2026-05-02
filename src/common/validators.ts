@@ -8,19 +8,21 @@ export function RequiresOne(
     properties: string[],
     validationOptions?: ValidationOptions,
 ) {
-    return function (object: object, propertyName: string) {
+    return function (target: object, propertyName: string) {
         registerDecorator({
             name: 'requiresOne',
-            target: object.constructor,
+            target: target.constructor,
             propertyName: propertyName,
             options: validationOptions,
             constraints: properties,
             validator: {
-                validate(value: unknown, args: ValidationArguments) {
-                    const object = args.object as Record<string, unknown>;
+                validate(_value: unknown, args: ValidationArguments) {
+                    const dto = args.object as Record<string, unknown>;
                     return properties.some(
                         (prop) =>
-                            object[prop] !== null && object[prop] !== undefined,
+                            dto[prop] !== null &&
+                            dto[prop] !== undefined &&
+                            dto[prop] !== '',
                     );
                 },
                 // eslint-disable-next-line @typescript-eslint/no-unused-vars

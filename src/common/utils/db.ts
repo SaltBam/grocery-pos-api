@@ -5,25 +5,21 @@ export async function runInTransaction<T>(
     connection: Connection,
     session?: ClientSession,
 ): Promise<T> {
-    const ownSession = !session;
-
-    if (ownSession) {
-        session = await connection.startSession();
-        session.startTransaction();
+    if (session) {
+        return fn(session);
     }
-    session = session as ClientSession;
+
+    const newSession = await connection.startSession();
 
     try {
-        const result = await fn(session);
+        let result: T;
 
-        if (ownSession) await session.commitTransaction();
+        await newSession.withTransaction(async (s) => {
+            result = await fn(s);
+        });
 
-        return result;
-    } catch (err) {
-        if (ownSession) await session.abortTransaction();
-
-        throw err;
+        return result!;
     } finally {
-        if (ownSession) await session.endSession();
+        await newSession.endSession();
     }
 }
