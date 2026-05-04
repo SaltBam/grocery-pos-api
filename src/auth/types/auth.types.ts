@@ -1,10 +1,12 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export enum Role {
-    Cashier = 'cashier',
-    Owner = 'owner',
-    InventoryManager = 'inventory manager',
-    Unauthenticated = 'unauthenticated',
+    Seller = 'SELLER',
+    Adjuster = 'ADJUSTER',
+    Restocker = 'RESTOCKER',
+    UserManager = 'USER_MANAGER',
+    Admin = 'ADMIN',
+    Unauthenticated = 'UNAUTHENTICATED',
 }
 
 export class JWTPayload {

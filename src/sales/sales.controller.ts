@@ -4,7 +4,7 @@ import { GetAllDto, GetDetailsDto, SellDto } from './types';
 import { CurrentUser, Role } from '../auth/types';
 import type { AuthUser } from '../auth/types';
 import { Roles } from '../auth/auth.decorator';
-@Roles(Role.Owner, Role.Cashier)
+@Roles(Role.Seller)
 @Controller('sales')
 export class SalesController {
     constructor(private service: SalesService) {}

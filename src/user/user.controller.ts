@@ -6,34 +6,31 @@ import { CurrentUser, Role } from '../auth/types';
 import type { AuthUser } from '../auth/types';
 import { GetAllDto } from '../product/types';
 
-@Roles(Role.Owner)
+@Roles(Role.UserManager)
 @Controller('users')
 export class UserController {
     constructor(private service: UserService) {}
 
-    @Roles(Role.Cashier, Role.Owner, Role.InventoryManager)
+    // Empty Roles() allow all authenticated users to access the endpoint
+    @Roles()
     @Get('/profile')
     getProfile(@CurrentUser() user: AuthUser) {
         return {
             username: user.username,
-            roles: user.roles,
         };
     }
 
-    @Roles(Role.Owner)
     @Get()
     async getAll(@Query() dto: GetAllDto) {
         const data = await this.service.getAll(dto);
         return data;
     }
 
-    @Roles(Role.Owner)
     @Patch()
     async update(@Body() dto: UpdateBulkDto) {
         await this.service.update(dto);
     }
 
-    @Roles(Role.Owner)
     @Post()
     async create(@Body() dto: CreateBulkDto) {
         await this.service.create(dto);

@@ -9,7 +9,7 @@ import {
 import { CurrentUser, Role } from '../../auth/types';
 import type { AuthUser } from '../../auth/types';
 import { Roles } from '../../auth/auth.decorator';
-@Roles(Role.Owner, Role.InventoryManager)
+@Roles(Role.Adjuster)
 @Controller('adjustments')
 export class AdjustmentController {
     constructor(private service: AdjustmentService) {}

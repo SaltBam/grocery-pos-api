@@ -4,7 +4,7 @@ import { Roles } from '../../auth/auth.decorator';
 import { Role } from '../../auth/types';
 import { GetAllDto } from './types';
 
-@Roles(Role.Owner, Role.InventoryManager)
+@Roles(Role.Restocker, Role.Adjuster)
 @Controller('inventories')
 export class InventoryController {
     constructor(private service: InventoryService) {}

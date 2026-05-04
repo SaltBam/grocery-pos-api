@@ -20,7 +20,7 @@ import {
     UpdateBulkDto,
 } from './types';
 
-@Roles(Role.Owner, Role.InventoryManager)
+@Roles(Role.Restocker, Role.Adjuster)
 @Controller('products')
 export class ProductController {
     constructor(private service: ProductService) {}
@@ -37,7 +37,7 @@ export class ProductController {
         await this.service.ensureValid(dto);
     }
 
-    @Roles(Role.Owner, Role.InventoryManager, Role.Cashier)
+    @Roles(Role.Restocker, Role.Adjuster, Role.Seller)
     @Get(':EAN')
     async getByBarcode(@Param() dto: GetDto) {
         const data = await this.service.getByBarcode(dto);

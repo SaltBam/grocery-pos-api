@@ -156,7 +156,7 @@ async function seedProduct() {
 
 async function seedInventory() {
     const [users, products] = await Promise.all([
-        user.find({ roles: Role.Owner }).lean(),
+        user.find({ roles: Role.Admin }).lean(),
         product.find().lean(),
     ]);
 
