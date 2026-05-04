@@ -8,12 +8,11 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { JWTInvalidError } from '../../auth/types';
-import { CookieService } from '../utils/cookie/cookie.service';
 import { MongoFilter } from './mongo.filter';
 
 @Catch()
 export class GlobalFilter implements ExceptionFilter {
-    constructor(private cookieService: CookieService) {}
+    constructor() {}
 
     catch(exception: unknown, host: ArgumentsHost): void {
         Logger.log('GLOBAL FILTER');
@@ -75,39 +74,4 @@ export class GlobalFilter implements ExceptionFilter {
             message,
         });
     }
-
-    // private async handleJWT(exception: JWTInvalidError, res: Response, req: Request) {
-    //     try {
-    //       const refreshCookie = req.signedCookies['refresh'];
-    //       if (!refreshCookie) {
-    //         throw new UnauthorizedException(
-    //           `Please login again`
-    //         );
-    //       }
-
-    //       let _id: string, token: string;
-
-    //       try {
-    //         ({ _id, token } = JSON.parse(refreshCookie));
-
-    //         if (!_id || !token) {
-    //           throw new Error();
-    //         }
-    //       } catch (err) {
-    //         throw new UnauthorizedException(
-    //           `Please login again`
-    //         );
-    //       }
-
-    //       const { jwtPayload, refreshPayload } =
-    //       await this.refreshTokenService.rotate(_id, token);
-
-    //       this.cookieService.createRefresh(res, refreshPayload);
-    //       this.cookieService.createJwt(res, jwtPayload);
-
-    //       res.redirect(req.originalUrl);
-    //     } catch (err) {
-    //       throw err;
-    //     }
-    //   }
 }
