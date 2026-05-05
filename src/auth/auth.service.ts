@@ -40,8 +40,7 @@ export class AuthService {
             throw new BadRequestException(`Username and Password do not match`);
         }
 
-        const isActivated = await this.userService.checkActivated(username);
-        if (!isActivated) {
+        if (!userInfo.isActive) {
             throw new UnauthorizedException(
                 `Account is deactivated. Kindly contact the owner`,
             );
