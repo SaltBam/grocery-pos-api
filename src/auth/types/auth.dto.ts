@@ -6,7 +6,9 @@ export class LoginDto {
     @IsNotEmpty()
     @MaxLength(30)
     @Transform(({ value }) =>
-        typeof value === 'string' ? value.trim() : (value as unknown),
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
     )
     username!: string;
 
