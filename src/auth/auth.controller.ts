@@ -1,6 +1,7 @@
 import {
     Body,
     Controller,
+    InternalServerErrorException,
     Logger,
     Post,
     Req,
@@ -50,21 +51,28 @@ export class AuthController {
             | string
             | undefined;
 
-        if (!oldRefreshPayload) throw new Error();
+        if (!oldRefreshPayload)
+            throw new InternalServerErrorException('Missing Refresh Cookie');
 
         try {
             const { refreshId } = JSON.parse(oldRefreshPayload) as {
                 refreshId: string;
             };
 
-            if (!refreshId) throw new Error();
+            if (!refreshId)
+                throw new InternalServerErrorException('Missing Refresh Token');
 
             const { refreshPayload, jwtPayload } =
                 await this.service.refresh(refreshId);
+
             this.cookieService.createRefresh(res, refreshPayload);
             this.cookieService.createJwt(res, jwtPayload);
             this.cookieService.createDummy(res);
         } catch (err) {
+            this.cookieService.removeRefresh(res);
+            this.cookieService.removeJwt(res);
+            this.cookieService.removeDummy(res);
+
             Logger.error(err);
             throw new UnauthorizedException('Please log in again');
         }
@@ -80,14 +88,16 @@ export class AuthController {
             | string
             | undefined;
 
-        if (!refreshPayload) throw new Error();
+        if (!refreshPayload)
+            throw new InternalServerErrorException('Missing Refresh Cookie');
 
         try {
             const { refreshId } = JSON.parse(refreshPayload) as {
                 refreshId: string;
             };
 
-            if (!refreshId) throw new Error();
+            if (!refreshId)
+                throw new InternalServerErrorException('Missing Refresh Token');
 
             await this.service.logout(refreshId);
         } catch (err) {
