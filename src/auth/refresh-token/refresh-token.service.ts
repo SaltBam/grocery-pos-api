@@ -25,7 +25,6 @@ export class RefreshTokenService {
         @InjectConnection() private connection: Connection,
         @InjectModel(RefreshToken.name) private model: Model<RefreshToken>,
         @Inject(forwardRef(() => AuthService))
-        private authService: AuthService,
         private config: TypedConfigService,
     ) {}
 
