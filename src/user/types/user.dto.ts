@@ -17,7 +17,11 @@ import { Role } from '../../auth/types';
 class CreateFields {
     @IsString()
     @IsNotEmpty()
-    @Transform(({ value }) => (value as string).trim())
+    @Transform(({ value }) =>
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
+    )
     name!: string;
 
     @IsString()
@@ -38,7 +42,11 @@ export class CreateBulkDto {
 class UpdateFields {
     @IsOptional()
     @IsString()
-    @Transform(({ value }) => (value as string).trim())
+    @Transform(({ value }) =>
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
+    )
     name?: string;
 
     @IsOptional()
@@ -74,6 +82,11 @@ export class UpdateBulkDto {
 export class GetAllDto {
     @IsString()
     @IsOptional()
+    @Transform(({ value }) =>
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
+    )
     name!: string;
 
     @IsPositive()

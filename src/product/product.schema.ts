@@ -15,7 +15,7 @@ export class Product {
         type: String,
         required: true,
         unique: true,
-        uppercase: true,
+        lowercase: true,
         maxLength: 50,
     })
     name!: string;

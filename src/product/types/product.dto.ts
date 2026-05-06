@@ -28,6 +28,11 @@ export class EnsureValidDto {
     @IsOptional()
     @IsString()
     @MaxLength(50)
+    @Transform(({ value }) =>
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
+    )
     name!: string;
 
     @IsOptional()
@@ -58,6 +63,11 @@ export class NewProductFields {
     @IsNotEmpty()
     @IsString()
     @MaxLength(50)
+    @Transform(({ value }) =>
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
+    )
     name!: string;
 
     @IsOptional()
@@ -91,7 +101,11 @@ class UpdateFields {
     @IsOptional()
     @IsString()
     @MaxLength(50)
-    @Transform(({ value }) => (value as string).trim())
+    @Transform(({ value }) =>
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
+    )
     @IsNotEmpty()
     name?: string;
 
@@ -120,10 +134,18 @@ export class UpdateBulkDto {
 export class GetAllDto {
     @IsString()
     @IsOptional()
+    @Transform(({ value }) =>
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
+    )
     name!: string;
 
     @IsString()
     @IsOptional()
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : (value as unknown),
+    )
     EAN!: string;
 
     @IsPositive()
@@ -140,9 +162,16 @@ export class GetAllDto {
 export class MatchesDto {
     @IsOptional()
     @IsString()
+    @Transform(({ value }) =>
+        typeof value === 'string' ? value.trim() : (value as unknown),
+    )
     EAN!: string;
 
     @IsOptional()
-    @IsOptional()
+    @Transform(({ value }) =>
+        typeof value === 'string'
+            ? value.trim().toLowerCase()
+            : (value as unknown),
+    )
     name!: string;
 }
