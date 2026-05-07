@@ -65,7 +65,7 @@ export class ProductService {
 
         const found = await this.model
             .find({ _id: { $in: unique_ids } })
-            .select('price')
+            .select('price name')
             .lean();
 
         return new Map(found.map((item) => [item._id.toString(), item]));
