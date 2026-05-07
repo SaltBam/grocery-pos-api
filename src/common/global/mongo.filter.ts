@@ -50,6 +50,8 @@ export class MongoFilter {
             ];
 
             throw new BadRequestException(details);
+        } else {
+            throw err;
         }
     }
 }
