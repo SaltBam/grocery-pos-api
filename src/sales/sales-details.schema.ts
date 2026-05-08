@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Sales } from './sales.schema';
 import mongoose, { Types } from 'mongoose';
 import { Product } from '../product/product.schema';
+import { NUMERIC_LIMITS } from '../constants';
 
 @Schema()
 export class SalesDetails {
@@ -24,7 +25,7 @@ export class SalesDetails {
     @Prop({
         type: Number,
         required: true,
-        min: 0,
+        min: NUMERIC_LIMITS.STOCK_MIN,
         validate: {
             validator: Number.isInteger,
             message: 'quantity must be an integer',
@@ -35,7 +36,7 @@ export class SalesDetails {
     @Prop({
         type: Number,
         required: true,
-        min: 0,
+        min: NUMERIC_LIMITS.STOCK_MIN,
     })
     unitPrice!: number;
 }

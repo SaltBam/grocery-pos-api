@@ -1,13 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { User } from '../../user/user.schema';
+import { NUMERIC_LIMITS, STRING_LIMITS } from '../../constants';
 
 @Schema({ timestamps: true })
 export class Restock {
     @Prop({
         type: String,
         required: true,
-        maxLength: 300,
+        maxLength: STRING_LIMITS.DESCRIPTION,
         trim: true,
     })
     description!: string;
@@ -23,7 +24,7 @@ export class Restock {
     @Prop({
         type: Number,
         required: true,
-        min: 0,
+        min: NUMERIC_LIMITS.PRICE_MIN,
     })
     totalCost!: number;
 }

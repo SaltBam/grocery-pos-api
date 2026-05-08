@@ -13,6 +13,7 @@ import {
     NotEquals,
     ValidateNested,
 } from 'class-validator';
+import { VALIDATION, STRING_LIMITS } from '../../../constants';
 
 export class GetDetailsParamDto {
     @IsNotEmpty()
@@ -49,12 +50,12 @@ class AdjustFields {
 
     @IsNotEmpty()
     @IsNumber()
-    @NotEquals(0, { message: 'Change must not be 0' })
+    @NotEquals(VALIDATION.CHANGE_NOT_ZERO, { message: 'Change must not be 0' })
     change!: number;
 
     @IsOptional()
     @IsString()
-    @MaxLength(100)
+    @MaxLength(STRING_LIMITS.REASON)
     @Transform(({ value }) =>
         typeof value === 'string' ? value.trim() : (value as unknown),
     )

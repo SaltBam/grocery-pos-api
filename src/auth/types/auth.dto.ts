@@ -1,10 +1,11 @@
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { STRING_LIMITS } from '../../constants';
 
 export class LoginDto {
     @IsString()
     @IsNotEmpty()
-    @MaxLength(30)
+    @MaxLength(STRING_LIMITS.USERNAME)
     @Transform(({ value }) =>
         typeof value === 'string'
             ? value.trim().toLowerCase()
@@ -14,6 +15,6 @@ export class LoginDto {
 
     @IsString()
     @IsNotEmpty()
-    @MaxLength(64)
+    @MaxLength(STRING_LIMITS.PASSWORD)
     password!: string;
 }

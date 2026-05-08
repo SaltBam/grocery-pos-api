@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from '../auth/types/auth.types';
+import { STRING_LIMITS } from '../constants';
 
 @Schema()
 export class User {
@@ -8,7 +9,7 @@ export class User {
         unique: true,
         required: true,
         lowercase: true,
-        maxlength: 30,
+        maxlength: STRING_LIMITS.USERNAME,
         trim: true,
     })
     name!: string;

@@ -15,11 +15,12 @@ import {
     ValidateNested,
 } from 'class-validator';
 import { Category } from './product.types';
+import { NUMERIC_LIMITS, STRING_LIMITS } from '../../constants';
 
 export class EnsureValidDto {
     @IsOptional()
     @IsString()
-    @MaxLength(50)
+    @MaxLength(STRING_LIMITS.EAN)
     @Transform(({ value }) =>
         typeof value === 'string' ? value.trim() : (value as unknown),
     )
@@ -27,7 +28,7 @@ export class EnsureValidDto {
 
     @IsOptional()
     @IsString()
-    @MaxLength(50)
+    @MaxLength(STRING_LIMITS.PRODUCT_NAME)
     @Transform(({ value }) =>
         typeof value === 'string'
             ? value.trim().toLowerCase()
@@ -54,7 +55,7 @@ export class EnsureValidDto {
 export class NewProductFields {
     @IsOptional()
     @IsString()
-    @MaxLength(50)
+    @MaxLength(STRING_LIMITS.EAN)
     @Transform(({ value }) =>
         typeof value === 'string' ? value.trim() : (value as unknown),
     )
@@ -79,7 +80,7 @@ export class NewProductFields {
     @IsNotEmpty()
     @IsNumber()
     @Type(() => Number)
-    @Min(0)
+    @Min(NUMERIC_LIMITS.PRICE_MIN)
     price!: number;
 }
 
@@ -100,7 +101,7 @@ export class GetDto {
 class UpdateFields {
     @IsOptional()
     @IsString()
-    @MaxLength(50)
+    @MaxLength(STRING_LIMITS.PRODUCT_NAME)
     @Transform(({ value }) =>
         typeof value === 'string'
             ? value.trim().toLowerCase()
@@ -111,7 +112,7 @@ class UpdateFields {
 
     @IsOptional()
     @IsNumber()
-    @Min(0)
+    @Min(NUMERIC_LIMITS.PRICE_MIN)
     price?: number;
 }
 class UpdateBulkFields {

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Category } from './types';
+import { NUMERIC_LIMITS, STRING_LIMITS } from '../constants';
 
 @Schema({ timestamps: true })
 export class Product {
@@ -7,7 +8,7 @@ export class Product {
         type: String,
         required: true,
         unique: true,
-        maxLength: 13,
+        maxLength: STRING_LIMITS.EAN,
     })
     EAN!: string;
 
@@ -16,14 +17,14 @@ export class Product {
         required: true,
         unique: true,
         lowercase: true,
-        maxLength: 50,
+        maxLength: STRING_LIMITS.PRODUCT_NAME,
     })
     name!: string;
 
     @Prop({
         type: Number,
         required: true,
-        min: 0,
+        min: NUMERIC_LIMITS.PRICE_MIN,
     })
     price!: number;
 

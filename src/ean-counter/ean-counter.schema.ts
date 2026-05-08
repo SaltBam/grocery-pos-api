@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { EAN_COUNTER } from '../constants';
 
 @Schema()
 export class EANCounter {
@@ -12,14 +13,14 @@ export class EANCounter {
     @Prop({
         type: Number,
         required: true,
-        default: 0,
+        default: EAN_COUNTER.STARTING_VALUE,
     })
     counter!: number;
 
     @Prop({
         type: Number,
         required: true,
-        default: 200,
+        default: EAN_COUNTER.PREFIX,
     })
     prefix!: number;
 }

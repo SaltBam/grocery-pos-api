@@ -16,6 +16,7 @@ import {
 } from 'class-validator';
 import { RequiresOne } from '../../../common/validators';
 import { NewProductFields } from '../../../product/types';
+import { NUMERIC_LIMITS, STRING_LIMITS } from '../../../constants';
 
 export class GetDetailsParamDto {
     @IsNotEmpty()
@@ -60,14 +61,14 @@ export class RestockFields {
     @IsNumber()
     @IsNotEmpty()
     @Type(() => Number)
-    @Min(1)
+    @Min(NUMERIC_LIMITS.QUANTITY_MIN)
     @IsInt()
     quantity!: number;
 
     @IsNumber()
     @IsNotEmpty()
     @Type(() => Number)
-    @Min(0)
+    @Min(NUMERIC_LIMITS.PRICE_MIN)
     unitCost!: number;
 }
 export class RestockDto {
@@ -78,7 +79,7 @@ export class RestockDto {
 
     @IsNotEmpty()
     @IsString()
-    @MaxLength(300)
+    @MaxLength(STRING_LIMITS.DESCRIPTION)
     description!: string;
 }
 

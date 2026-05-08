@@ -14,6 +14,7 @@ import {
     ValidateNested,
 } from 'class-validator';
 import { PaymentType } from './sales.types';
+import { NUMERIC_LIMITS, STRING_LIMITS } from '../../constants';
 
 export class GetDetailsDto {
     @IsNotEmpty()
@@ -27,7 +28,7 @@ class SellDetailsFields {
 
     @IsNotEmpty()
     @IsInt()
-    @Min(1)
+    @Min(NUMERIC_LIMITS.QUANTITY_MIN)
     quantity!: number;
 }
 
@@ -38,7 +39,7 @@ export class SellDto {
 
     @IsOptional()
     @IsString()
-    @MaxLength(50)
+    @MaxLength(STRING_LIMITS.REFERENCE_NUMBER)
     referenceNumber?: string;
 
     @ValidateNested({ each: true })

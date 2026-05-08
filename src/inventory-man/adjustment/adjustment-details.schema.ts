@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { Adjustment } from './adjustment.schema';
 import { Product } from '../../product/product.schema';
+import { VALIDATION, STRING_LIMITS } from '../../constants';
 
 @Schema()
 export class AdjustmentDetails {
@@ -30,7 +31,8 @@ export class AdjustmentDetails {
                 message: 'Change must be an integer',
             },
             {
-                validator: (value: number) => value !== 0,
+                validator: (value: number) =>
+                    value !== VALIDATION.CHANGE_NOT_ZERO,
                 message: 'Change must not be 0',
             },
         ],
@@ -40,7 +42,7 @@ export class AdjustmentDetails {
     @Prop({
         type: String,
         required: true,
-        maxLength: 100,
+        maxLength: STRING_LIMITS.REASON,
         trim: true,
     })
     reason!: string;

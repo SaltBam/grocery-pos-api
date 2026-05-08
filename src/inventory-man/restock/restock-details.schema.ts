@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { Product } from '../../product/product.schema';
 import { Restock } from './restock.schema';
+import { NUMERIC_LIMITS } from '../../constants';
 
 @Schema()
 export class RestockDetails {
@@ -24,14 +25,14 @@ export class RestockDetails {
     @Prop({
         type: Number,
         required: true,
-        min: 0,
+        min: NUMERIC_LIMITS.STOCK_MIN,
     })
     quantity!: number;
 
     @Prop({
         type: Number,
         required: true,
-        min: 0,
+        min: NUMERIC_LIMITS.STOCK_MIN,
     })
     unitCost!: number;
 }

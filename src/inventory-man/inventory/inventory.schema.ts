@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Types } from 'mongoose';
 import { Product } from '../../product/product.schema';
 import { User } from '../../user/user.schema';
+import { NUMERIC_LIMITS } from '../../constants';
 
 @Schema({ timestamps: true })
 export class Inventory {
@@ -17,8 +18,8 @@ export class Inventory {
     @Prop({
         type: Number,
         required: true,
-        min: 0,
-        default: 0,
+        min: NUMERIC_LIMITS.STOCK_MIN,
+        default: NUMERIC_LIMITS.STOCK_MIN,
         validate: {
             validator: Number.isInteger,
             message: `Stock must be an integer`,
