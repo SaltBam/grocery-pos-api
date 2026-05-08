@@ -4,7 +4,9 @@ import {
     IsPositive,
     IsNumber,
     IsNotEmpty,
+    MaxLength,
 } from 'class-validator';
+import { STRING_LIMITS } from '../../../constants';
 
 export class GetAllDto {
     @IsOptional()
@@ -13,10 +15,12 @@ export class GetAllDto {
 
     @IsString()
     @IsOptional()
+    @MaxLength(STRING_LIMITS.PRODUCT_NAME)
     name!: string;
 
     @IsString()
     @IsOptional()
+    @MaxLength(STRING_LIMITS.EAN)
     EAN!: string;
 
     @IsPositive()

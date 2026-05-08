@@ -65,6 +65,7 @@ class AdjustFields {
 export class AdjustDto {
     @IsNotEmpty()
     @IsString()
+    @MaxLength(STRING_LIMITS.DESCRIPTION)
     @Transform(({ value }) =>
         typeof value === 'string' ? value.trim() : (value as unknown),
     )

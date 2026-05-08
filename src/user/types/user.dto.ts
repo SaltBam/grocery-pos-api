@@ -10,13 +10,16 @@ import {
     IsOptional,
     IsPositive,
     IsString,
+    MaxLength,
     ValidateNested,
 } from 'class-validator';
 import { Role } from '../../auth/types';
+import { STRING_LIMITS } from '../../constants';
 
 class CreateFields {
     @IsString()
     @IsNotEmpty()
+    @MaxLength(STRING_LIMITS.USERNAME)
     @Transform(({ value }) =>
         typeof value === 'string'
             ? value.trim().toLowerCase()
@@ -26,6 +29,7 @@ class CreateFields {
 
     @IsString()
     @IsNotEmpty()
+    @MaxLength(STRING_LIMITS.PASSWORD)
     password!: string;
 
     @IsEnum(Role, { each: true })
@@ -42,6 +46,7 @@ export class CreateBulkDto {
 class UpdateFields {
     @IsOptional()
     @IsString()
+    @MaxLength(STRING_LIMITS.USERNAME)
     @Transform(({ value }) =>
         typeof value === 'string'
             ? value.trim().toLowerCase()
@@ -51,6 +56,7 @@ class UpdateFields {
 
     @IsOptional()
     @IsString()
+    @MaxLength(STRING_LIMITS.PASSWORD)
     password?: string;
 
     @IsOptional()
@@ -82,6 +88,7 @@ export class UpdateBulkDto {
 export class GetAllDto {
     @IsString()
     @IsOptional()
+    @MaxLength(STRING_LIMITS.USERNAME)
     @Transform(({ value }) =>
         typeof value === 'string'
             ? value.trim().toLowerCase()
