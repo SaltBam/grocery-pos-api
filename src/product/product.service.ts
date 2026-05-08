@@ -160,25 +160,39 @@ export class ProductService {
         return EANMap;
     }
 
-    async addMany(user: AuthUser, dto: NewProductsDto) {
-        const newProducts = await Promise.all(
-            dto.newProducts.map(async (product) => {
-                const EAN =
-                    product?.EAN || (await this.EANCounterService.generate());
-                return {
-                    ...product,
-                    EAN,
-                };
-            }),
-        );
+    async addMany(
+        user: AuthUser,
+        dto: NewProductsDto,
+        session?: ClientSession,
+    ) {
+        await runInTransaction(
+            async (session) => {
+                const newProducts = [];
+                for (const product of dto.newProducts) {
+                    const EAN =
+                        product?.EAN ||
+                        (await this.EANCounterService.generate(session));
 
-        Logger.log({ newProducts });
-        const inserted = await this.model.insertMany(newProducts);
-        const ids = inserted.map((doc) => doc._id);
+                    newProducts.push({
+                        ...product,
+                        EAN,
+                    });
+                }
 
-        await this.inventoryService.createMany(
-            ids,
-            new Types.ObjectId(user.userId),
+                Logger.log({ newProducts });
+                const inserted = await this.model.insertMany(newProducts, {
+                    session,
+                });
+                const ids = inserted.map((doc) => doc._id);
+
+                await this.inventoryService.createMany(
+                    ids,
+                    new Types.ObjectId(user.userId),
+                    session,
+                );
+            },
+            this.connection,
+            session,
         );
     }
 

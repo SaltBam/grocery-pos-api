@@ -141,7 +141,11 @@ export class InventoryService {
         await this.model.bulkWrite(updates, { session });
     }
 
-    async createMany(productIds: Types.ObjectId[], userId: Types.ObjectId) {
+    async createMany(
+        productIds: Types.ObjectId[],
+        userId: Types.ObjectId,
+        session?: ClientSession,
+    ) {
         const commonFields = {
             stock: 0,
             updatedBy: userId,
@@ -152,6 +156,6 @@ export class InventoryService {
             ...commonFields,
         }));
 
-        await this.model.insertMany(toInsert);
+        await this.model.insertMany(toInsert, { session });
     }
 }
