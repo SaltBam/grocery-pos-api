@@ -57,7 +57,9 @@ export class AdjustmentService {
                 })
                 .lean(),
 
-            this.model.countDocuments(query),
+            query?.adjustedBy || query?.createdAt
+                ? this.model.countDocuments(query)
+                : this.model.estimatedDocumentCount(),
         ]);
 
         return {

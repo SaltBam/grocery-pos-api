@@ -96,7 +96,9 @@ export class ProductService {
                 .limit(limit)
                 .lean(),
 
-            this.model.countDocuments(query),
+            query?.name || query?.EAN
+                ? this.model.countDocuments(query)
+                : this.model.estimatedDocumentCount(),
         ]);
 
         return {
@@ -132,7 +134,9 @@ export class ProductService {
                 .limit(limit)
                 .lean() as Promise<Array<{ _id: Types.ObjectId }>>,
 
-            this.model.countDocuments(query),
+            query?.name || query?.EAN
+                ? this.model.countDocuments(query)
+                : this.model.estimatedDocumentCount(),
         ]);
 
         const productIds = data.map((x) => x._id);

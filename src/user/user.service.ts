@@ -43,7 +43,9 @@ export class UserService {
                 .select('-passwordHash -__v')
                 .lean(),
 
-            this.model.countDocuments(query),
+            query?.name
+                ? this.model.countDocuments(query)
+                : this.model.estimatedDocumentCount(),
         ]);
 
         return {

@@ -47,7 +47,7 @@ export class SalesService {
                 })
                 .lean(),
 
-            this.model.countDocuments(),
+            this.model.estimatedDocumentCount(),
         ]);
 
         return {
