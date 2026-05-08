@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Sales } from './sales.schema';
 import { ClientSession, Connection, Model } from 'mongoose';
@@ -140,21 +140,39 @@ export class SalesService {
         Logger.log({ sellDetails, productsMap });
         let totalAmount = 0;
 
-        const fullSellDetails = sellDetails.map(({ product, quantity }) => {
-            //Note: account more thoroughly for when product is somehow missing
-            const unitPrice = productsMap.get(product.toString())!.price;
-            const productName = productsMap.get(product.toString())!.name;
+        const unknownProducts: string[] = [];
 
-            totalAmount += unitPrice * quantity;
+        const fullSellDetails = [];
 
-            return {
+        for (const { product, quantity } of sellDetails) {
+            const productDetails = productsMap.get(product.toString());
+
+            if (!productDetails) {
+                unknownProducts.push(product.toString());
+                continue;
+            }
+
+            const unitPrice = productDetails.price;
+            const productName = productDetails.name;
+
+            const quantityAmount = unitPrice * quantity;
+            totalAmount += quantityAmount;
+
+            fullSellDetails.push({
                 product,
                 productName,
-                amount: unitPrice * quantity,
+                amount: quantityAmount,
                 quantity,
                 unitPrice,
-            };
-        });
+            });
+        }
+
+        if (unknownProducts.length > 0) {
+            throw new BadRequestException({
+                message: 'Unknown products',
+                errors: unknownProducts,
+            });
+        }
 
         return { totalAmount, fullSellDetails };
     }
