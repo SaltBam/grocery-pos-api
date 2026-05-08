@@ -31,7 +31,7 @@ export class UserService {
         const query: Record<string, unknown> = {};
         if (name) {
             const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            query.name = { $regex: `^${escaped}`, $options: 'i' };
+            query.name = { $regex: `^${escaped}` };
         }
 
         const [data, totalItems] = await Promise.all([

@@ -81,11 +81,11 @@ export class ProductService {
         const query: Record<string, unknown> = {};
         if (name) {
             const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            query.name = { $regex: `^${escaped}`, $options: 'i' };
+            query.name = { $regex: `^${escaped}` };
         }
         if (EAN) {
             const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            query.EAN = { $regex: `^${escaped}`, $options: 'i' };
+            query.EAN = { $regex: `^${escaped}` };
         }
 
         const [data, totalItems] = await Promise.all([
