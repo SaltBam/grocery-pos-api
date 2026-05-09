@@ -1,4 +1,10 @@
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+    BadRequestException,
+    forwardRef,
+    Inject,
+    Injectable,
+    Logger,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Inventory } from './inventory.schema';
 import { ClientSession, Model, Types } from 'mongoose';
@@ -86,16 +92,41 @@ export class InventoryService {
             session,
         );
 
-        const updatedRestockDetails = restockDetails.map((details) => {
+        const missingProducts = [];
+        const updatedRestockDetails = [];
+
+        for (const [index, details] of restockDetails.entries()) {
+            if (
+                !(
+                    details.product ||
+                    (details.newProduct?.EAN && EANMap[details.newProduct.EAN])
+                )
+            ) {
+                missingProducts.push({
+                    index,
+                    EAN: details.newProduct?.EAN,
+                    name: details.newProduct?.name,
+                });
+
+                continue;
+            }
+
             const product = details.product ?? EANMap[details.newProduct!.EAN];
 
-            return {
+            updatedRestockDetails.push({
                 product: new Types.ObjectId(product),
                 quantity: details.quantity,
                 updatedBy: new Types.ObjectId(user.userId),
                 unitCost: details.unitCost,
-            };
-        });
+            });
+        }
+
+        if (missingProducts.length > 0) {
+            throw new BadRequestException({
+                message: 'Unresolved new Products',
+                errors: missingProducts,
+            });
+        }
 
         const updates = updatedRestockDetails
             .filter(({ product }) => !!product)
