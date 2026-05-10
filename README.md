@@ -7,12 +7,22 @@ pnpm install
 ```
 Installs all project dependencies.
 
+## Setup Env
+
+```bash
+cp .env.example .env
+```
+Copies the .env.example file to create a .env file
+
+*Note: Inspect the .env file if there are variables you must set*
+
 ## Database Initialization
 
 ```bash
+docker compose up -d
 pnpm run seed
 ```
-Seeds the MongoDB database with sample users, products, inventory, restocks, and adjustments.
+Starts the MongoDB database in Docker, and seeds it with sample users, products, inventory, restocks, and adjustments.
 
 ## Run the App
 
