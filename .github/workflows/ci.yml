@@ -1,0 +1,42 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ "master", "dev" ]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 1. NEW: Install pnpm first
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9 # Put your local pnpm version here (e.g., 8 or 9)
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'pnpm' # 2. NEW: Tell GitHub to cache pnpm modules instead of npm
+
+      # 3. NEW: Use pnpm install with the frozen lockfile flag
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 4. NEW: Execute scripts using pnpm
+      - name: Lint Code
+        run: pnpm run lint
+
+      - name: Build Application
+        run: pnpm run build
+        env:
+          VITE_NODE_ENV: prod
+          VITE_API_URL: https://api.ci-test.com
+          VITE_DOMAIN: ci-test.com
+          VITE_API_TIMEOUT: 5000
