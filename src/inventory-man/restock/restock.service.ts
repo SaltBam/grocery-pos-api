@@ -1,4 +1,4 @@
-import { Injectable, Logger, Type } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Restock } from './restock.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
@@ -8,7 +8,6 @@ import { InventoryService } from '../inventory/inventory.service';
 import { runInTransaction } from '../../common/utils/db';
 import { AuthUser } from '../../auth/types';
 import { ProductService } from '../../product/product.service';
-import { metadata } from 'reflect-metadata/no-conflict';
 import { User } from '../../user/user.schema';
 
 @Injectable()
@@ -16,155 +15,177 @@ export class RestockService {
     constructor(
         @InjectConnection() private connection: Connection,
         @InjectModel(Restock.name) private model: Model<Restock>,
-        @InjectModel(RestockDetails.name) private modelDetails: Model<RestockDetails>,
+        @InjectModel(RestockDetails.name)
+        private modelDetails: Model<RestockDetails>,
         private inventoryService: InventoryService,
         private productService: ProductService,
     ) {}
 
     async restock(
-        user: AuthUser, dto: RestockDto, session?: ClientSession
+        user: AuthUser,
+        dto: RestockDto,
+        session?: ClientSession,
     ): Promise<void> {
-        const { description, restockDetails } = dto; 
+        const { description, restockDetails } = dto;
 
         const totalCost = restockDetails.reduce((sum, detail) => {
-            return sum + detail.quantity * detail.unitCost
+            return sum + detail.quantity * detail.unitCost;
         }, 0);
 
-        await runInTransaction(async (session) => {
-            const updatedRestockDetails = await 
-                this.inventoryService.restock(user, dto, session);
-            
-            const [created] = await this.model
-                .create([{
-                    description,
-                    restockedBy: user.userId,
-                    totalCost
-                }], {session});
-    
-            const inserts = updatedRestockDetails
-                .map((detail) => ({
-                    insertOne: { 
+        await runInTransaction(
+            async (session) => {
+                const updatedRestockDetails =
+                    await this.inventoryService.restock(user, dto, session);
+
+                const [created] = await this.model.create(
+                    [
+                        {
+                            description,
+                            restockedBy: user.userId,
+                            totalCost,
+                        },
+                    ],
+                    { session },
+                );
+
+                const inserts = updatedRestockDetails.map((detail) => ({
+                    insertOne: {
                         document: {
                             restock: created._id,
-                            ...detail 
-                        }
-                    }
+                            ...detail,
+                        },
+                    },
                 }));
-    
-                await this.modelDetails.bulkWrite(inserts, {session});
-        }, this.connection, session);
+
+                await this.modelDetails.bulkWrite(inserts, { session });
+            },
+            this.connection,
+            session,
+        );
     }
-    
-    async getAll(dto: GetAllDto): Promise<{data: Restock[], totalItems: number}> {
+
+    async getAll(
+        dto: GetAllDto,
+    ): Promise<{ data: Restock[]; totalItems: number }> {
         const { page, limit, dateRange, restockedBy } = dto;
-        
+
         const skip = (page - 1) * limit;
 
-        const query: any = {}
+        const query: Record<string, unknown> = {};
         if (restockedBy) {
-            query.restockedBy = new Types.ObjectId(restockedBy)
+            query.restockedBy = new Types.ObjectId(restockedBy);
         }
         if (dateRange) {
-            const start = dateRange[0]
-            const end = dateRange[1] ?? new Date(start)
+            const start = dateRange[0];
+            const end = dateRange[1] ?? new Date(start);
 
-            start.setHours(0, 0, 0, 0)
-            end.setHours(23, 59, 59, 999)
+            start.setHours(0, 0, 0, 0);
+            end.setHours(23, 59, 59, 999);
 
             query.createdAt = {
                 $gte: start,
-                $lte: end
-            }
+                $lte: end,
+            };
         }
 
-        Logger.log({query, dto})
+        Logger.log({ query, dto });
 
         const [data, totalItems] = await Promise.all([
-            this.model.find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .populate({
-                path: 'restockedBy',
-                select: 'name'
-            })
-            .lean(),
+            this.model
+                .find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate({
+                    path: 'restockedBy',
+                    select: 'name',
+                })
+                .lean(),
 
-            this.model.countDocuments(query)
+            this.model.countDocuments(query),
         ]);
-        
+
         return {
-            data, totalItems
-        }
+            data,
+            totalItems,
+        };
     }
 
-    async getDetails(dto: GetDetailsDto)
-    : Promise<{data: RestockDetails[], totalItems: number}> {
+    async getDetails(
+        dto: GetDetailsDto,
+    ): Promise<{ data: RestockDetails[]; totalItems: number }> {
         const { page, limit, EAN, name, restock } = dto;
 
-        const skip = (page - 1) * limit
+        const skip = (page - 1) * limit;
 
         const restockQuery = {
-            restock: new Types.ObjectId(restock)
-        }
+            restock: new Types.ObjectId(restock),
+        };
 
-        const productQuery: any = {
-        }
+        const productQuery: Record<string, unknown> = {};
         if (name) {
             const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            productQuery['product.name'] = { $regex: escaped }
+            productQuery['product.name'] = { $regex: escaped };
         }
         if (EAN) {
             const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            productQuery['product.EAN'] = { $regex: `^${escaped}` }
+            productQuery['product.EAN'] = { $regex: `^${escaped}` };
         }
 
-        Logger.log({productQuery})
+        Logger.log({ productQuery });
 
-        const result = await this.modelDetails.aggregate([
-          { $match: restockQuery },
-          {
-            $lookup: {
-              from: 'products',
-              localField: 'product',
-              foreignField: '_id', 
-              as: 'product',
+        const result = await this.modelDetails.aggregate<{
+            paginatedData: RestockDetails[];
+            metadata: Array<{ total: number }>;
+        }>([
+            { $match: restockQuery },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'product',
+                    foreignField: '_id',
+                    as: 'product',
+                },
             },
-          },
-          { $unwind: '$product' },
-          { $match: productQuery },
-          { 
-            $facet: {
-                metadata: [{ $count: 'total' }],
-                paginatedData: [
-                    { $sort: { 'product.name': 1, _id: 1 } },
-                    { $skip: skip },
-                    { $limit: limit },
-                ]
-          }},
-        ])
+            { $unwind: '$product' },
+            { $match: productQuery },
+            {
+                $facet: {
+                    metadata: [{ $count: 'total' }],
+                    paginatedData: [
+                        { $sort: { 'product.name': 1, _id: 1 } },
+                        { $skip: skip },
+                        { $limit: limit },
+                    ],
+                },
+            },
+        ]);
 
-        Logger.log({result})
-        const data = result[0]?.paginatedData ?? []
-        const totalItems = result[0]?.metadata[0]?.total ?? 0
-    
+        Logger.log({ result });
+        const data = result[0]?.paginatedData ?? [];
+        const totalItems = result[0]?.metadata[0]?.total ?? 0;
+
         return { data, totalItems };
     }
 
     async getRestockUsers(): Promise<User[]> {
         return await this.model.aggregate([
             { $group: { _id: '$restockedBy' } },
-            { $lookup: {
-                from: 'users', 
-                localField: '_id',
-                foreignField: '_id',
-                as: 'userDoc'
-            }},
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'userDoc',
+                },
+            },
             { $unwind: '$userDoc' },
-            { $project: {
-                _id: '$userDoc._id',
-                name: '$userDoc.name'
-            }}
+            {
+                $project: {
+                    _id: '$userDoc._id',
+                    name: '$userDoc.name',
+                },
+            },
         ]);
     }
 }

@@ -7,18 +7,18 @@ import { InventoryModule } from '../inventory-man/inventory/inventory.module';
 import { EanCounterModule } from '../ean-counter/ean-counter.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{
-      name: Product.name,
-      schema: ProductSchema,
-    }]),
-    forwardRef(() => InventoryModule),
-    EanCounterModule,
-  ],
-  providers: [
-    ProductService
-  ],
-  controllers: [ProductController],
-  exports: [ProductService],
+    imports: [
+        MongooseModule.forFeature([
+            {
+                name: Product.name,
+                schema: ProductSchema,
+            },
+        ]),
+        forwardRef(() => InventoryModule),
+        EanCounterModule,
+    ],
+    providers: [ProductService],
+    controllers: [ProductController],
+    exports: [ProductService],
 })
 export class ProductModule {}

@@ -1,7 +1,8 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Types } from "mongoose";
-import { Product } from "../../product/product.schema";
-import { Restock } from "./restock.schema";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Types } from 'mongoose';
+import { Product } from '../../product/product.schema';
+import { Restock } from './restock.schema';
+import { NUMERIC_LIMITS } from '../../constants';
 
 @Schema()
 export class RestockDetails {
@@ -11,7 +12,7 @@ export class RestockDetails {
         ref: Restock.name,
         index: true,
     })
-    restock: Types.ObjectId
+    restock!: Types.ObjectId;
 
     @Prop({
         required: true,
@@ -19,21 +20,22 @@ export class RestockDetails {
         ref: Product.name,
         index: true,
     })
-    product: Product | Types.ObjectId
+    product!: Product | Types.ObjectId;
 
     @Prop({
         type: Number,
         required: true,
-        min: 0
+        min: NUMERIC_LIMITS.STOCK_MIN,
     })
-    quantity: number
+    quantity!: number;
 
     @Prop({
         type: Number,
         required: true,
-        min: 0
+        min: NUMERIC_LIMITS.STOCK_MIN,
     })
-    unitCost: number
+    unitCost!: number;
 }
 
-export const RestockDetailsSchema = SchemaFactory.createForClass(RestockDetails);
+export const RestockDetailsSchema =
+    SchemaFactory.createForClass(RestockDetails);

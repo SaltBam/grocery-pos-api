@@ -1,60 +1,73 @@
-import { Transform, Type } from "class-transformer";
-import { ArrayNotContains, ArrayNotEmpty, IsEnum, IsInt, IsMongoId, IsNotEmpty, IsNumber, IsOptional, IsPositive, IsString, MaxLength, Min, ValidateNested } from "class-validator";
-import { Types } from "mongoose";
-import { PaymentType } from "./sales.types";
+import { Type } from 'class-transformer';
+import {
+    ArrayNotEmpty,
+    IsEnum,
+    IsInt,
+    IsMongoId,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsPositive,
+    IsString,
+    MaxLength,
+    Min,
+    ValidateNested,
+} from 'class-validator';
+import { PaymentType } from './sales.types';
+import { NUMERIC_LIMITS, STRING_LIMITS } from '../../constants';
 
 export class GetDetailsDto {
     @IsNotEmpty()
     @IsMongoId()
-    sales: string
+    sale!: string;
 }
 class SellDetailsFields {
     @IsNotEmpty()
     @IsMongoId()
-    product: string;
-    
+    product!: string;
+
     @IsNotEmpty()
     @IsInt()
-    @Min(1)
-    quantity: number;
+    @Min(NUMERIC_LIMITS.QUANTITY_MIN)
+    quantity!: number;
 }
 
-export class SellDto {   
+export class SellDto {
     @IsNotEmpty()
     @IsEnum(PaymentType)
-    paymentType: PaymentType;
-    
+    paymentType!: PaymentType;
+
     @IsOptional()
     @IsString()
-    @MaxLength(50)
+    @MaxLength(STRING_LIMITS.REFERENCE_NUMBER)
     referenceNumber?: string;
 
     @ValidateNested({ each: true })
     @ArrayNotEmpty()
     @Type(() => SellDetailsFields)
-    sellDetails: SellDetailsFields[]
+    sellDetails!: SellDetailsFields[];
 }
 
 export class ReceiptFields {
-    productName: string
-    quantity: number
-    amount: number
+    productName!: string;
+    quantity!: number;
+    amount!: number;
 }
 
 export class ReceiptDto {
-    cashierName: string;
-    items: ReceiptFields[];
-    totalAmount: number;
+    cashierName!: string;
+    items!: ReceiptFields[];
+    totalAmount!: number;
 }
 
 export class GetAllDto {
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    page: number
-    
+    page!: number;
+
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    limit: number
+    limit!: number;
 }

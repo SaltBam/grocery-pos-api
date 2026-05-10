@@ -1,20 +1,20 @@
 import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
+    BadRequestException,
+    Injectable,
+    Logger,
+    NotFoundException,
 } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import {
-  GetAllDto,
-  GetDto,
-  NewProductsDto,
-  NewProductFields,
-  UpdateBulkDto,
-  EnsureValidDto,
-  MatchesDto,
+    GetAllDto,
+    GetDto,
+    NewProductsDto,
+    NewProductFields,
+    UpdateBulkDto,
+    EnsureValidDto,
+    MatchesDto,
 } from './types';
 import { runInTransaction } from '../common/utils/db';
 import { InventoryService } from '../inventory-man/inventory/inventory.service';
@@ -23,204 +23,240 @@ import { EanCounterService } from '../ean-counter/ean-counter.service';
 
 @Injectable()
 export class ProductService {
-  constructor(
-    @InjectConnection() private connection: Connection,
-    @InjectModel(Product.name) private model: Model<Product>,
-    private inventoryService: InventoryService,
-    private EANCounterService: EanCounterService,
-  ) {}
+    constructor(
+        @InjectConnection() private connection: Connection,
+        @InjectModel(Product.name) private model: Model<Product>,
+        private inventoryService: InventoryService,
+        private EANCounterService: EanCounterService,
+    ) {}
 
-  async getByBarcode(dto: GetDto): Promise<Product> {
-    Logger.log('BARCODE');
-    const { EAN } = dto;
+    async getByBarcode(dto: GetDto): Promise<Product> {
+        Logger.log('BARCODE');
+        const { EAN } = dto;
 
-    const product = await this.model.findOne({ EAN }).lean();
+        const product = await this.model.findOne({ EAN }).lean();
 
-    if (!product) {
-      throw new NotFoundException(`No Product found`);
+        if (!product) {
+            throw new NotFoundException(`No Product found`);
+        }
+
+        return product;
     }
 
-    return product;
-  }
+    async update(dto: UpdateBulkDto, session?: ClientSession): Promise<void> {
+        const updates = dto.updates.map(({ product, update }) => ({
+            updateOne: {
+                filter: { _id: product },
+                update: { $set: update },
+            },
+        }));
 
-  async update(dto: UpdateBulkDto, session?: ClientSession): Promise<void> {
-    const updates = dto.updates.map(({ product, update }) => ({
-      updateOne: {
-        filter: { _id: product },
-        update: { $set: update },
-      },
-    }));
-
-    await runInTransaction(
-      async (session) => {
-        await this.model.bulkWrite(updates, { session });
-      },
-      this.connection,
-      session,
-    );
-  }
-
-  async getMany(products: string[]) {
-    const unique_ids = [...new Set(products)];
-
-    const found = await this.model
-      .find({ _id: { $in: unique_ids } })
-      .select('price')
-      .lean();
-
-    return new Map(found.map((item) => [item._id.toString(), item]));
-  }
-
-  async getAll(
-    dto: GetAllDto,
-  ): Promise<{ data: Product[]; totalItems: number }> {
-    const { page, limit, name, EAN } = dto;
-
-    const skip = (page - 1) * limit;
-
-    let query: any = {};
-    if (name) {
-      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query.name = { $regex: `^${escaped}`, $options: 'i' };
-    }
-    if (EAN) {
-      const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query.EAN = { $regex: `^${escaped}`, $options: 'i' };
+        await runInTransaction(
+            async (session) => {
+                await this.model.bulkWrite(updates, { session });
+            },
+            this.connection,
+            session,
+        );
     }
 
-    const [data, totalItems] = await Promise.all([
-      this.model.find(query).sort({ name: 1 }).skip(skip).limit(limit).lean(),
+    async getMany(products: string[]) {
+        const unique_ids = [...new Set(products)];
 
-      this.model.countDocuments(query),
-    ]);
+        const found = await this.model
+            .find({ _id: { $in: unique_ids } })
+            .select('price name')
+            .lean();
 
-    return {
-      data,
-      totalItems,
-    };
-  }
-
-  async getAllExec(
-    dto: GetAllDto,
-  ): Promise<{ productIds: Types.ObjectId[]; totalItems: number }> {
-    const { page, limit, name, EAN } = dto;
-
-    const skip = (page - 1) * limit;
-
-    let query: any = {};
-    if (name) {
-      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query.name = { $regex: escaped };
-    }
-    if (EAN) {
-      const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query.EAN = { $regex: `^${escaped}` };
+        return new Map(found.map((item) => [item._id.toString(), item]));
     }
 
-    Logger.log({ query, dto });
+    async getAll(
+        dto: GetAllDto,
+    ): Promise<{ data: Product[]; totalItems: number }> {
+        const { page, limit, name, EAN } = dto;
 
-    const [data, totalItems] = await Promise.all([
-      this.model
-        .find(query, '_id')
-        .sort({ name: 1, _id: 1 })
-        .skip(skip)
-        .limit(limit)
-        .lean(),
+        const skip = (page - 1) * limit;
 
-      this.model.countDocuments(query),
-    ]);
+        const query: Record<string, unknown> = {};
+        if (name) {
+            const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.name = { $regex: `^${escaped}` };
+        }
+        if (EAN) {
+            const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.EAN = { $regex: `^${escaped}` };
+        }
 
-    const productIds = data.map((x) => x._id);
-    Logger.log(data, productIds)
+        const [data, totalItems] = await Promise.all([
+            this.model
+                .find(query)
+                .sort({ name: 1 })
+                .skip(skip)
+                .limit(limit)
+                .lean(),
 
-    return {
-      productIds,
-      totalItems,
-    };
-  }
+            query?.name || query?.EAN
+                ? this.model.countDocuments(query)
+                : this.model.estimatedDocumentCount(),
+        ]);
 
-  async createMany(dto: NewProductFields[], session: ClientSession) {
-    for (const product of dto) {
-      if (!product.EAN)
-        product.EAN = await this.EANCounterService.generate(session)
+        return {
+            data,
+            totalItems,
+        };
     }
 
-    const inserted = await this.model.insertMany(dto, { session });
+    async getAllExec(
+        dto: GetAllDto,
+    ): Promise<{ productIds: Types.ObjectId[]; totalItems: number }> {
+        const { page, limit, name, EAN } = dto;
 
-    const EANMap: Record<string, string> = {};
-    inserted.forEach(({ _id, EAN }) => {
-      EANMap[EAN] = _id.toString();
-    });
+        const skip = (page - 1) * limit;
 
-    return EANMap;
-  }
+        const query: Record<string, unknown> = {};
+        if (name) {
+            const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.name = { $regex: escaped };
+        }
+        if (EAN) {
+            const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.EAN = { $regex: `^${escaped}` };
+        }
 
-  async addMany(user: AuthUser, dto: NewProductsDto) {
-    const newProducts = await Promise.all(
-        dto.newProducts.map(async (product) => {
-          const EAN = product?.EAN || await this.EANCounterService.generate()
-          return {
-            ...product,
-            EAN
-          }
-        })
-      )
-      
-    Logger.log({newProducts})
-    const inserted = await this.model.insertMany(newProducts);
-    const ids = inserted.map((doc) => doc._id);
+        Logger.log({ query, dto });
 
-    await this.inventoryService.createMany(
-      ids,
-      new Types.ObjectId(user.userId),
-    );
-  }
+        const [data, totalItems] = await Promise.all([
+            this.model
+                .find(query, '_id')
+                .sort({ name: 1, _id: 1 })
+                .skip(skip)
+                .limit(limit)
+                .lean() as Promise<Array<{ _id: Types.ObjectId }>>,
 
-  async ensureValid(dto: EnsureValidDto) {
-    const { EAN, name, autoGenerateEAN } = dto;
-    Logger.log({dto})
-    if (!autoGenerateEAN) {
-      this.EANCounterService.ensureValid(EAN)
+            query?.name || query?.EAN
+                ? this.model.countDocuments(query)
+                : this.model.estimatedDocumentCount(),
+        ]);
+
+        const productIds = data.map((x) => x._id);
+        Logger.log(data, productIds);
+
+        return {
+            productIds,
+            totalItems,
+        };
     }
 
-    const found = await this.model
-      .findOne({
-        $or: [{ EAN: EAN }, { name: name }],
-      })
-      .lean();
+    async createMany(dto: NewProductFields[], session: ClientSession) {
+        for (const product of dto) {
+            if (!product.EAN)
+                product.EAN = await this.EANCounterService.generate(session);
+        }
 
-    Logger.log({ found }, { dto });
-    const duplicates: string[] = [];
-    if (found) {
-      if (!autoGenerateEAN && found.EAN === EAN) duplicates.push('EAN already exists');
+        const inserted = await this.model.insertMany(dto, { session });
 
-      if (found.name === name) duplicates.push('name already exists');
+        const EANMap: Record<string, string> = {};
+        inserted.forEach(({ _id, EAN }) => {
+            EANMap[EAN] = _id.toString();
+        });
 
-      throw new BadRequestException(duplicates);
-    }
-  }
-
-  async getMatches(dto: MatchesDto): Promise<{EAN: string, name: string, product: string}[]> {
-    const { EAN, name } = dto
-
-    const query: any = {}
-    if (EAN) {
-      const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query.EAN = { $regex: `^${escaped}` };
-    } else if (name) {
-      const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      query.name = { $regex: `${escaped}` };
-    } else {
-      return []
+        return EANMap;
     }
 
-    const matches = await this.model.find(query, 'name EAN')
-    .sort({name: 1})
-    .limit(5)
-    .lean()
-    
-    Logger.log({query, matches})
+    async addMany(
+        user: AuthUser,
+        dto: NewProductsDto,
+        session?: ClientSession,
+    ) {
+        await runInTransaction(
+            async (session) => {
+                const newProducts = [];
+                for (const product of dto.newProducts) {
+                    const EAN =
+                        product?.EAN ||
+                        (await this.EANCounterService.generate(session));
 
-    return matches.map(match => ({EAN: match.EAN, name: match.name, product: match._id.toString()}))
-  }
+                    newProducts.push({
+                        ...product,
+                        EAN,
+                    });
+                }
+
+                Logger.log({ newProducts });
+                const inserted = await this.model.insertMany(newProducts, {
+                    session,
+                });
+                const ids = inserted.map((doc) => doc._id);
+
+                await this.inventoryService.createMany(
+                    ids,
+                    new Types.ObjectId(user.userId),
+                    session,
+                );
+            },
+            this.connection,
+            session,
+        );
+    }
+
+    async ensureValid(dto: EnsureValidDto) {
+        const { EAN, name, autoGenerateEAN } = dto;
+        Logger.log({ dto });
+        if (!autoGenerateEAN) {
+            this.EANCounterService.ensureValid(EAN);
+        }
+
+        const found = await this.model
+            .findOne({
+                $or: [{ EAN: EAN }, { name: name }],
+            })
+            .lean();
+
+        Logger.log({ found }, { dto });
+        const duplicates: string[] = [];
+        if (found) {
+            if (!autoGenerateEAN && found.EAN === EAN)
+                duplicates.push('EAN already exists');
+
+            if (found.name === name) duplicates.push('name already exists');
+
+            throw new BadRequestException(duplicates);
+        }
+    }
+
+    async getMatches(
+        dto: MatchesDto,
+    ): Promise<{ EAN: string; name: string; product: string }[]> {
+        const { EAN, name } = dto;
+
+        const query: Record<string, unknown> = {};
+        if (EAN) {
+            const escaped = EAN.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.EAN = { $regex: `^${escaped}` };
+        } else if (name) {
+            const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.name = { $regex: `${escaped}` };
+        } else {
+            return [];
+        }
+
+        const matches = (await this.model
+            .find(query, 'name EAN')
+            .sort({ name: 1 })
+            .limit(5)
+            .lean()) as Array<{
+            EAN: string;
+            name: string;
+            _id: Types.ObjectId;
+        }>;
+
+        Logger.log({ query, matches });
+
+        return matches.map((match) => ({
+            EAN: match.EAN,
+            name: match.name,
+            product: match._id.toString(),
+        }));
+    }
 }

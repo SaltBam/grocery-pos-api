@@ -1,7 +1,8 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Sales } from "./sales.schema";
-import mongoose, { Types } from "mongoose";
-import { Product } from "../product/product.schema";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Sales } from './sales.schema';
+import mongoose, { Types } from 'mongoose';
+import { Product } from '../product/product.schema';
+import { NUMERIC_LIMITS } from '../constants';
 
 @Schema()
 export class SalesDetails {
@@ -11,33 +12,33 @@ export class SalesDetails {
         ref: Sales.name,
         index: true,
     })
-    sales: Sales | Types.ObjectId;
-    
+    sales!: Sales | Types.ObjectId;
+
     @Prop({
         required: true,
         type: mongoose.Schema.Types.ObjectId,
         ref: Product.name,
         index: true,
     })
-    product: Product | Types.ObjectId;
-    
+    product!: Product | Types.ObjectId;
+
     @Prop({
         type: Number,
         required: true,
-        min: 0,
+        min: NUMERIC_LIMITS.STOCK_MIN,
         validate: {
             validator: Number.isInteger,
-            message: 'quantity must be an integer'
-        }
+            message: 'quantity must be an integer',
+        },
     })
-    quantity: number;
-    
+    quantity!: number;
+
     @Prop({
         type: Number,
         required: true,
-        min: 0
+        min: NUMERIC_LIMITS.STOCK_MIN,
     })
-    unitPrice: number;
+    unitPrice!: number;
 }
 
 export const SalesDetailsSchema = SchemaFactory.createForClass(SalesDetails);

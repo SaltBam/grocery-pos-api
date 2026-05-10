@@ -1,23 +1,24 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import mongoose, { Types } from "mongoose";
-import { User } from "../user/user.schema";
-import { PaymentType } from "./types";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import mongoose, { Types } from 'mongoose';
+import { User } from '../user/user.schema';
+import { PaymentType } from './types';
+import { NUMERIC_LIMITS, STRING_LIMITS } from '../constants';
 
 @Schema({ timestamps: true })
 export class Sales {
     @Prop({
         type: Number,
-        min: 0,
+        min: NUMERIC_LIMITS.AMOUNT_MIN,
         required: true,
     })
-    amount: number;
+    amount!: number;
 
     @Prop({
         required: true,
         type: mongoose.Schema.Types.ObjectId,
-        ref: User.name
+        ref: User.name,
     })
-    cashier: User | Types.ObjectId;
+    cashier!: User | Types.ObjectId;
 
     @Prop({
         required: true,
@@ -25,11 +26,11 @@ export class Sales {
         type: String,
         index: true,
     })
-    paymentType: PaymentType;
+    paymentType!: PaymentType;
 
     @Prop({
         type: String,
-        maxLength: 50
+        maxLength: STRING_LIMITS.REFERENCE_NUMBER,
     })
     referenceNumber?: string;
 }

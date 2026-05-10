@@ -1,5 +1,6 @@
-import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { Role } from "../auth/types/auth.types";
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Role } from '../auth/types/auth.types';
+import { STRING_LIMITS } from '../constants';
 
 @Schema()
 export class User {
@@ -8,30 +9,30 @@ export class User {
         unique: true,
         required: true,
         lowercase: true,
-        maxlength: 30,
+        maxlength: STRING_LIMITS.USERNAME,
         trim: true,
     })
-    name: string
+    name!: string;
 
     @Prop({
         type: [String],
         enum: Role,
-        required: true
+        required: true,
     })
-    roles: Role[]
+    roles!: Role[];
 
     @Prop({
         type: String,
-        required: true
+        required: true,
     })
-    passwordHash: string
+    passwordHash!: string;
 
     @Prop({
         type: Boolean,
         required: true,
-        default: true
+        default: true,
     })
-    isActive: boolean
+    isActive!: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

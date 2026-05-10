@@ -1,23 +1,27 @@
-import { BadRequestException, Body, Controller, Get, Logger, Post, Req, Res, UnauthorizedException } from '@nestjs/common';
-import { BaseController } from '../common/base/base.controller';
+import {
+    Body,
+    Controller,
+    InternalServerErrorException,
+    Logger,
+    Post,
+    Req,
+    Res,
+    UnauthorizedException,
+} from '@nestjs/common';
 import { LoginDto, Role } from './types';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CookieService } from '../common/utils/cookie/cookie.service';
-import { BaseResponse } from '../common/base/base.response';
 import { Public, Roles } from './auth.decorator';
-import { JwtService } from '@nestjs/jwt';
-import { TypedConfigService } from '../common/typed-config/typed-config.service';
+import 'cookie-parser';
 
 @Controller('auth')
-export class AuthController extends BaseController {
+export class AuthController {
     constructor(
         private service: AuthService,
         private cookieService: CookieService,
-        private jwtService: JwtService,
-        private config: TypedConfigService
-    ) { super() }
-    
+    ) {}
+
     @Public()
     @Roles(Role.Unauthenticated)
     @Post('login')
@@ -25,43 +29,53 @@ export class AuthController extends BaseController {
         @Body() dto: LoginDto,
         @Res({ passthrough: true }) res: Response,
     ) {
-        const { refreshPayload, jwtPayload, user } = await this.service.login(dto);
-        
+        const { refreshPayload, jwtPayload, user } =
+            await this.service.login(dto);
+
         this.cookieService.createJwt(res, jwtPayload);
         this.cookieService.createRefresh(res, refreshPayload);
         this.cookieService.createDummy(res);
 
-        Logger.log({jwtPayload})
-        return new BaseResponse({user});
+        Logger.log({ jwtPayload });
+        return { user };
     }
-    
+
     @Public()
     @Roles(Role.Unauthenticated)
     @Post('refresh')
     async refresh(
         @Req() req: Request,
-        @Res({passthrough: true}) res: Response
+        @Res({ passthrough: true }) res: Response,
     ) {
-        Logger.log('REFRESH')
-        const oldRefreshPayload = req.signedCookies['refresh']
-        
-        Logger.log('BEFORE TRY')
+        const oldRefreshPayload = req.signedCookies['refresh'] as
+            | string
+            | undefined;
+
+        if (!oldRefreshPayload)
+            throw new InternalServerErrorException('Missing Refresh Cookie');
+
         try {
-            const { refreshId } = JSON.parse(oldRefreshPayload)
+            const { refreshId } = JSON.parse(oldRefreshPayload) as {
+                refreshId: string;
+            };
 
-            Logger.log({refreshId})
-            if (!refreshId) throw new Error()
+            if (!refreshId)
+                throw new InternalServerErrorException('Missing Refresh Token');
 
-            const {refreshPayload, jwtPayload} = await this.service.refresh(refreshId)
-            this.cookieService.createRefresh(res, refreshPayload)
-            this.cookieService.createJwt(res, jwtPayload)
-            this.cookieService.createDummy(res)
+            const { refreshPayload, jwtPayload } =
+                await this.service.refresh(refreshId);
+
+            this.cookieService.createRefresh(res, refreshPayload);
+            this.cookieService.createJwt(res, jwtPayload);
+            this.cookieService.createDummy(res);
         } catch (err) {
-            Logger.error(err)
-            throw new UnauthorizedException('Please log in again')
-        }
+            this.cookieService.removeRefresh(res);
+            this.cookieService.removeJwt(res);
+            this.cookieService.removeDummy(res);
 
-        return new BaseResponse();
+            Logger.error(err);
+            throw new UnauthorizedException('Please log in again');
+        }
     }
 
     @Public()
@@ -70,21 +84,28 @@ export class AuthController extends BaseController {
         @Res({ passthrough: true }) res: Response,
         @Req() req: Request,
     ) {
-        const refreshPayload = req.signedCookies['refresh'];
-        Logger.log({refreshPayload})
-        try {
-            const { refreshId } = JSON.parse(refreshPayload)
-            if (!refreshId) throw new Error()
+        const refreshPayload = req.signedCookies['refresh'] as
+            | string
+            | undefined;
 
-            await this.service.logout(refreshId)
+        if (!refreshPayload)
+            throw new InternalServerErrorException('Missing Refresh Cookie');
+
+        try {
+            const { refreshId } = JSON.parse(refreshPayload) as {
+                refreshId: string;
+            };
+
+            if (!refreshId)
+                throw new InternalServerErrorException('Missing Refresh Token');
+
+            await this.service.logout(refreshId);
         } catch (err) {
-            Logger.warn('refreshPayload does not have valid content');
+            Logger.warn('refreshPayload does not have valid content', err);
         }
 
         this.cookieService.removeJwt(res);
         this.cookieService.removeRefresh(res);
         this.cookieService.removeDummy(res);
-
-        return new BaseResponse();
     }
 }

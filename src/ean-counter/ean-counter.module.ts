@@ -5,14 +5,16 @@ import { EANCounter, EANCounterSchema } from './ean-counter.schema';
 import { EanCounterController } from './ean-counter.controller';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{
-      name: EANCounter.name,
-      schema: EANCounterSchema,
-    }]),
-  ],
-  providers: [EanCounterService],
-  exports: [EanCounterService],
-  controllers: [EanCounterController],
+    imports: [
+        MongooseModule.forFeature([
+            {
+                name: EANCounter.name,
+                schema: EANCounterSchema,
+            },
+        ]),
+    ],
+    providers: [EanCounterService],
+    exports: [EanCounterService],
+    controllers: [EanCounterController],
 })
 export class EanCounterModule {}

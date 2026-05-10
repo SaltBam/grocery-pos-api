@@ -9,20 +9,24 @@ import { InventoryModule } from '../inventory-man/inventory/inventory.module';
 import { UserModule } from '../user/user.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{
-      name: Sales.name,
-      schema: SalesSchema,
-    }]),
-    MongooseModule.forFeature([{
-      name: SalesDetails.name,
-      schema: SalesDetailsSchema,
-    }]),
-    ProductModule,
-    InventoryModule,
-    UserModule,
-  ],
-  providers: [SalesService],
-  controllers: [SalesController]
+    imports: [
+        MongooseModule.forFeature([
+            {
+                name: Sales.name,
+                schema: SalesSchema,
+            },
+        ]),
+        MongooseModule.forFeature([
+            {
+                name: SalesDetails.name,
+                schema: SalesDetailsSchema,
+            },
+        ]),
+        ProductModule,
+        InventoryModule,
+        UserModule,
+    ],
+    providers: [SalesService],
+    controllers: [SalesController],
 })
 export class SalesModule {}

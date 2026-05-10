@@ -8,19 +8,14 @@ import { JWTStrategy } from './jwt.strategy';
 import { RefreshTokenModule } from './refresh-token/refresh-token.module';
 
 @Module({
-  imports: [
-    UserModule,
-    JwtModule.register({}),
-    CookieModule,
-    forwardRef(() => RefreshTokenModule),
-  ],
-  controllers: [AuthController],
-  providers: [
-    AuthService,
-    JWTStrategy,
-  ],
-  exports: [
-    AuthService
-  ]
+    imports: [
+        UserModule,
+        JwtModule.register({}),
+        CookieModule,
+        forwardRef(() => RefreshTokenModule),
+    ],
+    controllers: [AuthController],
+    providers: [AuthService, JWTStrategy],
+    exports: [AuthService],
 })
 export class AuthModule {}

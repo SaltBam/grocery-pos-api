@@ -4,7 +4,6 @@ import { CookieModule } from './common/utils/cookie/cookie.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AuthController } from './auth/auth.controller';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { JWTAuthGuard } from './auth/guards/jwt.guard';
 import { RoleGuard } from './auth/guards/role.guard';
@@ -16,38 +15,43 @@ import { RestockModule } from './inventory-man/restock/restock.module';
 import { AdjustmentModule } from './inventory-man/adjustment/adjustment.module';
 import { SalesModule } from './sales/sales.module';
 import { EanCounterModule } from './ean-counter/ean-counter.module';
+import { TypedConfigService } from './common/typed-config/typed-config.service';
 
 @Module({
-  imports: [
-    TypedConfigModule, 
-    CookieModule, 
-    AuthModule, 
-    RefreshTokenModule,
-    UserModule,
-    MongooseModule.forRoot(
-      'mongodb://127.0.0.1:27017/grocery'
-    ),
-    ProductModule,
-    InventoryModule,
-    RestockModule,
-    AdjustmentModule,
-    SalesModule,
-    EanCounterModule
-  ],
-  controllers: [],
-  providers: [
-    {  
-      provide: APP_GUARD,
-      useClass: JWTAuthGuard
-    },
-    {  
-      provide: APP_GUARD,
-      useClass: RoleGuard
-    },
-    {
-      provide: APP_FILTER,
-      useClass: GlobalFilter
-    },
-  ],
+    imports: [
+        TypedConfigModule,
+        MongooseModule.forRootAsync({
+            imports: [TypedConfigModule],
+            inject: [TypedConfigService],
+            useFactory: (config: TypedConfigService) => ({
+                uri: config.get('DATABASE_URL'),
+            }),
+        }),
+        CookieModule,
+        AuthModule,
+        RefreshTokenModule,
+        UserModule,
+        ProductModule,
+        InventoryModule,
+        RestockModule,
+        AdjustmentModule,
+        SalesModule,
+        EanCounterModule,
+    ],
+    controllers: [],
+    providers: [
+        {
+            provide: APP_GUARD,
+            useClass: JWTAuthGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: RoleGuard,
+        },
+        {
+            provide: APP_FILTER,
+            useClass: GlobalFilter,
+        },
+    ],
 })
 export class AppModule {}

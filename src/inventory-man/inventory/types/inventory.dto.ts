@@ -1,25 +1,35 @@
-import { IsString, IsOptional, IsPositive, IsNumber, IsNotEmpty } from "class-validator"
+import {
+    IsString,
+    IsOptional,
+    IsPositive,
+    IsNumber,
+    IsNotEmpty,
+    MaxLength,
+} from 'class-validator';
+import { STRING_LIMITS } from '../../../constants';
 
 export class GetAllDto {
     @IsOptional()
     @IsNumber()
-    maxStock: number
-    
+    maxStock!: number;
+
     @IsString()
     @IsOptional()
-    name: string
-    
+    @MaxLength(STRING_LIMITS.PRODUCT_NAME)
+    name!: string;
+
     @IsString()
     @IsOptional()
-    EAN:string
+    @MaxLength(STRING_LIMITS.EAN)
+    EAN!: string;
 
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    page: number
-    
+    page!: number;
+
     @IsPositive()
     @IsNumber()
     @IsNotEmpty()
-    limit: number
+    limit!: number;
 }
