@@ -20,7 +20,7 @@ async function bootstrap() {
     // const isProd = config.get('NODE_ENV') === 'prod';
 
     app.useGlobalPipes(
-        new SanitationPipe(),
+        new SanitationPipe(config.get('SANITATION_EXCLUDES')),
         new ValidationPipe({
             transform: true,
             whitelist: true,

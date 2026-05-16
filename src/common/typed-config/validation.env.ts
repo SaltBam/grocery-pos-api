@@ -22,6 +22,20 @@ export const envSchema = zod
         REFRESH_EXPIRY: zod.coerce.number().positive(),
         EAN_COUNTER_ID: zod.string(),
         EAN_COUNTER_DIGITS: zod.coerce.number(),
+        SANITATION_EXCLUDES: zod
+            .string()
+            .transform((val) =>
+                val
+                    .split(',')
+                    .map((s) => s.trim())
+                    .filter(Boolean),
+            )
+            .pipe(
+                zod
+                    .string()
+                    .array()
+                    .min(1, 'At least one exclusion is required'),
+            ),
     })
     .refine(
         (data) => {

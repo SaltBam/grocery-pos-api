@@ -4,7 +4,11 @@ import sanitize from 'sanitize-html';
 
 @Injectable()
 export class SanitationPipe implements PipeTransform {
-    private readonly excludeFields = ['password'];
+    constructor(excludeFields: string[]) {
+        this.excludeFields = excludeFields;
+    }
+
+    private readonly excludeFields: string[];
 
     transform(value: unknown, metadata: ArgumentMetadata): unknown {
         if (
