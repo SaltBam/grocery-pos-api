@@ -135,6 +135,7 @@ export class UpdateBulkDto {
 export class GetAllDto {
     @IsString()
     @IsOptional()
+    @MaxLength(STRING_LIMITS.PRODUCT_NAME)
     @Transform(({ value }) =>
         typeof value === 'string'
             ? value.trim().toLowerCase()
@@ -144,6 +145,7 @@ export class GetAllDto {
 
     @IsString()
     @IsOptional()
+    @MaxLength(STRING_LIMITS.EAN)
     @Transform(({ value }) =>
         typeof value === 'string' ? value.trim() : (value as unknown),
     )
@@ -163,12 +165,14 @@ export class GetAllDto {
 export class MatchesDto {
     @IsOptional()
     @IsString()
+    @MaxLength(STRING_LIMITS.EAN)
     @Transform(({ value }) =>
         typeof value === 'string' ? value.trim() : (value as unknown),
     )
     EAN!: string;
 
     @IsOptional()
+    @MaxLength(STRING_LIMITS.PRODUCT_NAME)
     @Transform(({ value }) =>
         typeof value === 'string'
             ? value.trim().toLowerCase()

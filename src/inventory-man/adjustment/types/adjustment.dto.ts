@@ -24,10 +24,12 @@ export class GetDetailsParamDto {
 export class GetDetailsQueryDto {
     @IsString()
     @IsOptional()
+    @MaxLength(STRING_LIMITS.PRODUCT_NAME)
     name!: string;
 
     @IsString()
     @IsOptional()
+    @MaxLength(STRING_LIMITS.EAN)
     EAN!: string;
 
     @IsNumber()
