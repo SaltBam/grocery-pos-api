@@ -6,6 +6,7 @@ import { TimingInterceptor } from './common/interceptors/timing.interceptor';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
+import { SanitationPipe } from './common/pipes/sanitation.pipe';
 
 async function bootstrap() {
     const logger = new Logger('Bootstrap');
@@ -19,6 +20,7 @@ async function bootstrap() {
     // const isProd = config.get('NODE_ENV') === 'prod';
 
     app.useGlobalPipes(
+        new SanitationPipe(config.get('SANITATION_EXCLUDES')),
         new ValidationPipe({
             transform: true,
             whitelist: true,
