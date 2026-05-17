@@ -13,23 +13,29 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 1. NEW: Install pnpm first
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9 # Put your local pnpm version here (e.g., 8 or 9)
+          version: 9 
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.x'
-          cache: 'pnpm' # 2. NEW: Tell GitHub to cache pnpm modules instead of npm
+          cache: 'pnpm' 
 
-      # 3. NEW: Use pnpm install with the frozen lockfile flag
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      # 4. NEW: Execute scripts using pnpm
+      - name: Security Audit
+        run: pnpm audit --audit-level high
+
+      - name: Dependency Hygiene (Depcheck)
+        run: pnpm dlx depcheck
+
+      - name: License Compliance Check
+        run: pnpm dlx license-checker --summary --failOn "GPL-2.0;GPL-3.0;AGPL-3.0"
+
       - name: Lint Code
         run: pnpm run lint
 
