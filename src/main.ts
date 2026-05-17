@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { TypedConfigService } from './common/typed-config/typed-config.service';
-import { TimingInterceptor } from './common/interceptors/timing.interceptor';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
@@ -31,7 +30,6 @@ async function bootstrap() {
         }),
     );
 
-    app.useGlobalInterceptors(new TimingInterceptor());
     app.use(cookieParser(config.get('COOKIE_SECRET')));
 
     app.enableCors({

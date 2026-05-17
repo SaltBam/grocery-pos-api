@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypedConfigModule } from './common/typed-config/typed-config.module';
 import { CookieModule } from './common/utils/cookie/cookie.module';
 import { AuthModule } from './auth/auth.module';
@@ -16,6 +16,7 @@ import { AdjustmentModule } from './inventory-man/adjustment/adjustment.module';
 import { SalesModule } from './sales/sales.module';
 import { EanCounterModule } from './ean-counter/ean-counter.module';
 import { TypedConfigService } from './common/typed-config/typed-config.service';
+import { TimingMiddleware } from './common/middleware/timing.middleware';
 
 @Module({
     imports: [
@@ -54,4 +55,8 @@ import { TypedConfigService } from './common/typed-config/typed-config.service';
         },
     ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(TimingMiddleware).forRoutes('*');
+    }
+}
