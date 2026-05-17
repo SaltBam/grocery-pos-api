@@ -18,7 +18,6 @@ export class SalesDetails {
         required: true,
         type: mongoose.Schema.Types.ObjectId,
         ref: Product.name,
-        index: true,
     })
     product!: Product | Types.ObjectId;
 

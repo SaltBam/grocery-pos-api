@@ -25,6 +25,7 @@ export class Product {
         type: Number,
         required: true,
         min: NUMERIC_LIMITS.PRICE_MIN,
+        index: true,
     })
     price!: number;
 
@@ -32,6 +33,7 @@ export class Product {
         required: false,
         enum: Object.values(Category),
         type: String,
+        index: true,
     })
     category!: Category;
 }

@@ -18,7 +18,6 @@ export class RestockDetails {
         required: true,
         type: mongoose.Schema.ObjectId,
         ref: Product.name,
-        index: true,
     })
     product!: Product | Types.ObjectId;
 

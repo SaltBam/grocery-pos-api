@@ -29,6 +29,7 @@ export class User {
 
     @Prop({
         type: Boolean,
+        index: true,
         required: true,
         default: true,
     })
@@ -36,3 +37,5 @@ export class User {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.index({ name: 1, isActive: 1 });

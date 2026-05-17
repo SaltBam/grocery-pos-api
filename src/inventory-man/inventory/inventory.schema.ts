@@ -24,6 +24,7 @@ export class Inventory {
             validator: Number.isInteger,
             message: `Stock must be an integer`,
         },
+        index: true,
     })
     stock!: number;
 

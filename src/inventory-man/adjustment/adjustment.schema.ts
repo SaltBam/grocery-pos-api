@@ -23,3 +23,6 @@ export class Adjustment {
 }
 
 export const AdjustmentSchema = SchemaFactory.createForClass(Adjustment);
+
+AdjustmentSchema.index({ createdAt: 1 });
+AdjustmentSchema.index({ adjustedBy: 1, createdAt: 1 });

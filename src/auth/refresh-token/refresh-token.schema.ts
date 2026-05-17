@@ -8,7 +8,6 @@ export class RefreshToken {
         type: mongoose.Schema.ObjectId,
         ref: User.name,
         required: true,
-        index: true,
     })
     user!: User | Types.ObjectId;
 

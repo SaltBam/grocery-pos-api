@@ -30,3 +30,6 @@ export class Restock {
 }
 
 export const RestockSchema = SchemaFactory.createForClass(Restock);
+
+RestockSchema.index({ createdAt: 1 });
+RestockSchema.index({ restockedBy: 1, createdAt: 1 });
