@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { TypedConfigService } from './common/typed-config/typed-config.service';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import { SanitationPipe } from './common/pipes/sanitation.pipe';
@@ -31,6 +31,10 @@ async function bootstrap() {
     );
 
     app.use(cookieParser(config.get('COOKIE_SECRET')));
+    app.enableVersioning({
+        defaultVersion: '1',
+        type: VersioningType.URI,
+    });
 
     app.enableCors({
         origin: config.get('FRONTEND_URL'),
