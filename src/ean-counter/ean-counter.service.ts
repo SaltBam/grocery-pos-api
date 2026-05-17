@@ -1,12 +1,9 @@
-import {
-    BadRequestException,
-    Injectable,
-    InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { EANCounter } from './ean-counter.schema';
 import { ClientSession, Model } from 'mongoose';
 import { TypedConfigService } from '../common/typed-config/typed-config.service';
+import { ErrorCode, InternalError, ValidationError } from '../common/errors';
 
 @Injectable()
 export class EanCounterService {
@@ -42,19 +39,23 @@ export class EanCounterService {
 
     ensureValid(EAN: string) {
         if (!/^\d{13}$/.test(EAN))
-            throw new BadRequestException(
+            throw new ValidationError(
+                ErrorCode.VALIDATION_EAN_INVALID,
                 'EAN must be 13 digits (numbers) long',
             );
 
         const correctChecksum = this.calculateChecksum(EAN.slice(0, -1));
 
         if (correctChecksum.toString() !== EAN.at(-1))
-            throw new BadRequestException('EAN checksum is invalid');
+            throw new ValidationError(
+                ErrorCode.VALIDATION_EAN_INVALID,
+                'EAN checksum is invalid',
+            );
     }
 
     private calculateChecksum(tempEAN: string): number {
         if (tempEAN.length < 12) {
-            throw new InternalServerErrorException('EAN Generation Error');
+            throw new InternalError('EAN Generation Error');
         }
 
         let oddSum = 0;

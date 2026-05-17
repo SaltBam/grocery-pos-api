@@ -1,18 +1,10 @@
-import {
-    Body,
-    Controller,
-    InternalServerErrorException,
-    Logger,
-    Post,
-    Req,
-    Res,
-    UnauthorizedException,
-} from '@nestjs/common';
+import { Body, Controller, Logger, Post, Req, Res } from '@nestjs/common';
 import { LoginDto, Role } from './types';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 import { CookieService } from '../common/utils/cookie/cookie.service';
 import { Public, Roles } from './auth.decorator';
+import { AuthError, ErrorCode, InternalError } from '../common/errors';
 import 'cookie-parser';
 
 @Controller('auth')
@@ -52,15 +44,14 @@ export class AuthController {
             | undefined;
 
         if (!oldRefreshPayload)
-            throw new InternalServerErrorException('Missing Refresh Cookie');
+            throw new InternalError('Missing Refresh Cookie');
 
         try {
             const { refreshId } = JSON.parse(oldRefreshPayload) as {
                 refreshId: string;
             };
 
-            if (!refreshId)
-                throw new InternalServerErrorException('Missing Refresh Token');
+            if (!refreshId) throw new InternalError('Missing Refresh Token');
 
             const { refreshPayload, jwtPayload } =
                 await this.service.refresh(refreshId);
@@ -74,7 +65,10 @@ export class AuthController {
             this.cookieService.removeDummy(res);
 
             Logger.error(err);
-            throw new UnauthorizedException('Please log in again');
+            throw new AuthError(
+                ErrorCode.AUTH_TOKEN_EXPIRED,
+                'Please log in again',
+            );
         }
     }
 
@@ -88,16 +82,14 @@ export class AuthController {
             | string
             | undefined;
 
-        if (!refreshPayload)
-            throw new InternalServerErrorException('Missing Refresh Cookie');
+        if (!refreshPayload) throw new InternalError('Missing Refresh Cookie');
 
         try {
             const { refreshId } = JSON.parse(refreshPayload) as {
                 refreshId: string;
             };
 
-            if (!refreshId)
-                throw new InternalServerErrorException('Missing Refresh Token');
+            if (!refreshId) throw new InternalError('Missing Refresh Token');
 
             await this.service.logout(refreshId);
         } catch (err) {

@@ -3,52 +3,44 @@ import {
     Catch,
     ExceptionFilter,
     HttpStatus,
-    Logger,
-    UnauthorizedException,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { JWTInvalidError } from '../../auth/types';
-import { MongoFilter } from './mongo.filter';
+import { AppError, AppErrorResponse, ErrorCode } from '../errors';
 
 @Catch()
 export class GlobalFilter implements ExceptionFilter {
-    constructor() {}
-
     catch(exception: unknown, host: ArgumentsHost): void {
-        Logger.log('GLOBAL FILTER');
-        Logger.log({ exception });
-
         const ctx = host.switchToHttp();
         const res = ctx.getResponse<Response>();
         const req = ctx.getRequest<Request>();
 
-        try {
-            if (exception instanceof JWTInvalidError) {
-                Logger.log('JWT FILTER');
-                throw new UnauthorizedException('Please log in again');
-            } else if (
-                (
-                    (exception as { name?: string }).name?.toLowerCase() ?? ''
-                ).includes('mongo')
-            ) {
-                Logger.log('MONGO FILTER');
-                return MongoFilter.catch(exception);
-            }
-        } catch (err: unknown) {
-            Logger.log('RECAUGHT GLOBAL FILTER');
-            return this.sendResponse(res, req, err);
+        if (exception instanceof AppError) {
+            res.status(exception.statusCode).json(
+                exception.toResponse(req.url),
+            );
+            return;
         }
 
-        return this.sendResponse(res, req, exception);
+        if (
+            exception instanceof Error &&
+            exception.name === 'MongoServerError'
+        ) {
+            MongoErrorHandler.handle(exception, res, req);
+            return;
+        }
+
+        const errorResponse = this.buildErrorResponse(exception, req.url);
+        res.status(errorResponse.statusCode).json(errorResponse);
     }
 
-    private sendResponse(res: Response, req: Request, err: unknown) {
-        Logger.log('FINAL ERROR: ', { err });
-
-        const error = err as {
+    private buildErrorResponse(
+        exception: unknown,
+        path: string,
+    ): AppErrorResponse {
+        const error = exception as {
             getStatus?: () => number;
             status?: number;
-            getResponse?: () => { message?: string };
+            getResponse?: () => unknown;
             message?: string;
         };
 
@@ -57,21 +49,180 @@ export class GlobalFilter implements ExceptionFilter {
             error.status ??
             HttpStatus.INTERNAL_SERVER_ERROR;
 
-        let message =
-            error.getResponse?.().message ??
-            error.message ??
-            'Internal Server Error';
+        const response = error.getResponse?.();
 
-        message =
-            status === (HttpStatus.INTERNAL_SERVER_ERROR as number)
-                ? 'Internal Server Error'
-                : message;
+        if (typeof response === 'object' && response !== null) {
+            const respObj = response as { message?: string | string[] };
+            const message = Array.isArray(respObj.message)
+                ? respObj.message.join(', ')
+                : (respObj.message ?? 'Internal Server Error');
 
-        res.status(status).json({
+            return {
+                statusCode: status,
+                error: ErrorCode.VALIDATION_INVALID_INPUT,
+                message,
+                timestamp: new Date().toISOString(),
+                path,
+                details: respObj.message !== message ? respObj : null,
+            };
+        }
+
+        return {
             statusCode: status,
-            method: req.method,
-            path: req.url,
-            message,
-        });
+            error: ErrorCode.INTERNAL_ERROR,
+            message:
+                typeof response === 'string'
+                    ? response
+                    : 'Internal Server Error',
+            timestamp: new Date().toISOString(),
+            path,
+            details: null,
+        };
+    }
+}
+
+class MongoErrorHandler {
+    static handle(err: Error, res: Response, req: Request): void {
+        const error = err as {
+            code?: number | string;
+            name?: string;
+            message?: string;
+            writeErrors?: Array<{
+                err?: {
+                    op?: Record<string, unknown>;
+                    errmsg?: string;
+                };
+            }>;
+            errorResponse?: {
+                errmsg?: string;
+                validationErrors?: Array<{
+                    path: string;
+                    message: string;
+                }>;
+            };
+        };
+
+        const code = Number(error.code);
+
+        switch (code) {
+            case 11000:
+                return this.handleDuplicateKey(error, res, req);
+            case 121:
+                return this.handleValidationFailure(error, res, req);
+            case 112:
+                return this.handleWriteConflict(error, res, req);
+            default:
+                return this.handleGenericError(error, res, req);
+        }
+    }
+
+    private static handleDuplicateKey(
+        err: Record<string, unknown>,
+        res: Response,
+        req: Request,
+    ): void {
+        const error = err as {
+            name?: string;
+            writeErrors?: Array<{
+                err?: {
+                    op?: Record<string, unknown>;
+                    errmsg?: string;
+                };
+            }>;
+            errorResponse?: { errmsg?: string };
+        };
+
+        const baseErrMsg = 'Already exists';
+        const getKey = (origMsg: string) =>
+            origMsg.split('dup key: { ')[1]?.split(':')[0] ?? 'unknown';
+
+        let details: unknown;
+
+        if (error.name === 'MongoBulkWriteError') {
+            details = error.writeErrors?.map(({ err: writeErr }) => {
+                const op = writeErr?.op;
+                const entry: Record<string, unknown> = {
+                    msg: baseErrMsg,
+                    property: getKey(writeErr?.errmsg ?? ''),
+                };
+                if (op?._id) {
+                    entry._id = op._id;
+                }
+                return entry;
+            });
+        } else {
+            details = [
+                {
+                    msg: baseErrMsg,
+                    property: getKey(error.errorResponse?.errmsg ?? ''),
+                },
+            ];
+        }
+
+        const appError = new AppError(
+            ErrorCode.DB_DUPLICATE_KEY,
+            HttpStatus.BAD_REQUEST,
+            baseErrMsg,
+            details,
+        );
+        res.status(appError.statusCode).json(appError.toResponse(req.url));
+    }
+
+    private static handleValidationFailure(
+        err: Record<string, unknown>,
+        res: Response,
+        req: Request,
+    ): void {
+        const error = err as {
+            errorResponse?: {
+                errmsg?: string;
+                validationErrors?: Array<{
+                    path: string;
+                    message: string;
+                }>;
+            };
+        };
+
+        const validationErrors =
+            error.errorResponse?.validationErrors?.map((v) => ({
+                field: v.path,
+                message: v.message,
+            })) ?? [];
+
+        const appError = new AppError(
+            ErrorCode.DB_VALIDATION_ERROR,
+            HttpStatus.BAD_REQUEST,
+            'Document validation failed',
+            validationErrors.length > 0 ? validationErrors : null,
+        );
+        res.status(appError.statusCode).json(appError.toResponse(req.url));
+    }
+
+    private static handleWriteConflict(
+        err: Record<string, unknown>,
+        res: Response,
+        req: Request,
+    ): void {
+        const appError = new AppError(
+            ErrorCode.INTERNAL_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            'Write conflict - please retry',
+            { originalError: err.message },
+        );
+        res.status(appError.statusCode).json(appError.toResponse(req.url));
+    }
+
+    private static handleGenericError(
+        err: Record<string, unknown>,
+        res: Response,
+        req: Request,
+    ): void {
+        const appError = new AppError(
+            ErrorCode.INTERNAL_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            'Database error',
+            { originalError: err.message },
+        );
+        res.status(appError.statusCode).json(appError.toResponse(req.url));
     }
 }

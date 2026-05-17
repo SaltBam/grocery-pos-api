@@ -1,4 +1,5 @@
 import { ClientSession, Connection } from 'mongoose';
+import { InternalError } from '../errors';
 
 export async function runInTransaction<T>(
     fn: (session: ClientSession) => Promise<T>,
@@ -19,6 +20,8 @@ export async function runInTransaction<T>(
         });
 
         return result!;
+    } catch (err) {
+        throw new InternalError('Transaction failed', err);
     } finally {
         await newSession.endSession();
     }

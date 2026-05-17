@@ -1,9 +1,4 @@
-import {
-    BadRequestException,
-    Injectable,
-    Logger,
-    NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Product } from './product.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
@@ -20,6 +15,7 @@ import { runInTransaction } from '../common/utils/db';
 import { InventoryService } from '../inventory-man/inventory/inventory.service';
 import { AuthUser } from '../auth/types';
 import { EanCounterService } from '../ean-counter/ean-counter.service';
+import { ErrorCode, NotFoundError, ValidationError } from '../common/errors';
 
 @Injectable()
 export class ProductService {
@@ -37,7 +33,10 @@ export class ProductService {
         const product = await this.model.findOne({ EAN }).lean();
 
         if (!product) {
-            throw new NotFoundException(`No Product found`);
+            throw new NotFoundError(
+                ErrorCode.PRODUCT_NOT_FOUND,
+                `No Product found`,
+            );
         }
 
         return product;
@@ -221,7 +220,11 @@ export class ProductService {
 
             if (found.name === name) duplicates.push('name already exists');
 
-            throw new BadRequestException(duplicates);
+            throw new ValidationError(
+                ErrorCode.PRODUCT_DUPLICATE,
+                'Duplicate product',
+                duplicates,
+            );
         }
     }
 

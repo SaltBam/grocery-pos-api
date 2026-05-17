@@ -1,15 +1,11 @@
-import {
-    forwardRef,
-    Inject,
-    Injectable,
-    UnauthorizedException,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { RefreshToken } from './refresh-token.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { TypedConfigService } from '../../common/typed-config/typed-config.service';
 import { JWTPayload, Role } from '../types';
 import { AuthService } from '../auth.service';
+import { AuthError, ErrorCode } from '../../common/errors';
 
 type FoundRefresh = Omit<RefreshToken, 'user'> & {
     user: {
@@ -58,7 +54,10 @@ export class RefreshTokenService {
             .lean<FoundRefresh>();
 
         if (!found || !this.checkValid(found)) {
-            throw new UnauthorizedException(`Please login again`);
+            throw new AuthError(
+                ErrorCode.AUTH_MISSING_REFRESH_TOKEN,
+                `Please login again`,
+            );
         }
 
         const newRefreshId = await this.create(
