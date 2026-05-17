@@ -1,8 +1,4 @@
-import {
-    BadRequestException,
-    Injectable,
-    UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { LoginDto } from './types';
 import { UserService } from '../user/user.service';
 import { JwtService } from '@nestjs/jwt';
@@ -11,6 +7,7 @@ import { TypedConfigService } from '../common/typed-config/typed-config.service'
 import { RefreshTokenService } from './refresh-token/refresh-token.service';
 import { Connection } from 'mongoose';
 import { InjectConnection } from '@nestjs/mongoose';
+import { AuthError, ErrorCode, ValidationError } from '../common/errors';
 
 @Injectable()
 export class AuthService {
@@ -37,11 +34,15 @@ export class AuthService {
         );
 
         if (!userInfo) {
-            throw new BadRequestException(`Username and Password do not match`);
+            throw new ValidationError(
+                ErrorCode.AUTH_INVALID_CREDENTIALS,
+                `Username and Password do not match`,
+            );
         }
 
         if (!userInfo.isActive) {
-            throw new UnauthorizedException(
+            throw new AuthError(
+                ErrorCode.AUTH_INVALID_CREDENTIALS,
                 `Account is deactivated. Kindly contact the owner`,
             );
         }

@@ -1,10 +1,4 @@
-import {
-    BadRequestException,
-    forwardRef,
-    Inject,
-    Injectable,
-    Logger,
-} from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Inventory } from './inventory.schema';
 import { ClientSession, Model, Types } from 'mongoose';
@@ -15,6 +9,7 @@ import { ProductService } from '../../product/product.service';
 import { NewProductFields } from '../../product/types';
 import { AuthUser } from '../../auth/types';
 import { GetAllDto } from './types';
+import { ErrorCode, ValidationError } from '../../common/errors';
 
 @Injectable()
 export class InventoryService {
@@ -122,10 +117,11 @@ export class InventoryService {
         }
 
         if (missingProducts.length > 0) {
-            throw new BadRequestException({
-                message: 'Unresolved new Products',
-                errors: missingProducts,
-            });
+            throw new ValidationError(
+                ErrorCode.VALIDATION_INVALID_INPUT,
+                'Unresolved new Products',
+                missingProducts,
+            );
         }
 
         const updates = updatedRestockDetails
