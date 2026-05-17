@@ -17,6 +17,7 @@ import { SalesModule } from './sales/sales.module';
 import { EanCounterModule } from './ean-counter/ean-counter.module';
 import { TypedConfigService } from './common/typed-config/typed-config.service';
 import { TimingMiddleware } from './common/middleware/timing.middleware';
+import { HealthModule } from './health/health.module';
 
 @Module({
     imports: [
@@ -38,6 +39,7 @@ import { TimingMiddleware } from './common/middleware/timing.middleware';
         AdjustmentModule,
         SalesModule,
         EanCounterModule,
+        HealthModule,
     ],
     controllers: [],
     providers: [

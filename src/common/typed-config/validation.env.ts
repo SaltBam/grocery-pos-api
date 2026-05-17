@@ -36,6 +36,10 @@ export const envSchema = zod
                     .array()
                     .min(1, 'At least one exclusion is required'),
             ),
+        HEALTH_HEAP_THRESHOLD: zod.coerce.number().positive(),
+        HEALTH_RSS_THRESHOLD: zod.coerce.number().positive(),
+        HEALTH_DISK_THRESHOLD: zod.coerce.number().positive(),
+        HEALTH_DISK_PATH: zod.string(),
     })
     .refine(
         (data) => {
