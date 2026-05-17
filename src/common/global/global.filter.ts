@@ -25,10 +25,7 @@ export class GlobalFilter implements ExceptionFilter {
             exception instanceof Error &&
             exception.name === 'MongoServerError'
         ) {
-            const mongoFilter = MongoFilter as {
-                catch: (err: unknown, res: Response, req: Request) => void;
-            };
-            mongoFilter.catch(exception, res, req);
+            MongoErrorHandler.handle(exception, res, req);
             return;
         }
 
@@ -84,45 +81,51 @@ export class GlobalFilter implements ExceptionFilter {
     }
 }
 
-class MongoFilter {
-    static catch(err: unknown, res: Response, req: Request) {
-        const error = err as { code?: unknown };
-        if (Number(error.code) === 11000) {
-            const duplicateError = DuplicateError.createFromMongo(err);
-            res.status(duplicateError.statusCode).json(
-                duplicateError.toResponse(req.url),
-            );
-            return;
+class MongoErrorHandler {
+    static handle(err: Error, res: Response, req: Request): void {
+        const error = err as {
+            code?: number | string;
+            name?: string;
+            message?: string;
+            writeErrors?: Array<{
+                err?: {
+                    op?: Record<string, unknown>;
+                    errmsg?: string;
+                };
+            }>;
+            errorResponse?: {
+                errmsg?: string;
+                validationErrors?: Array<{
+                    path: string;
+                    message: string;
+                }>;
+            };
+        };
+
+        const code = Number(error.code);
+
+        switch (code) {
+            case 11000:
+                return this.handleDuplicateKey(error, res, req);
+            case 121:
+                return this.handleValidationFailure(error, res, req);
+            case 112:
+                return this.handleWriteConflict(error, res, req);
+            default:
+                return this.handleGenericError(error, res, req);
         }
-
-        const internalError = new AppError(
-            ErrorCode.INTERNAL_ERROR,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-            'Database error',
-            err,
-        );
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json(
-            internalError.toResponse(req.url),
-        );
-    }
-}
-
-class DuplicateError extends AppError {
-    constructor(message: string, details: unknown = null) {
-        super(
-            ErrorCode.PRODUCT_DUPLICATE,
-            HttpStatus.BAD_REQUEST,
-            message,
-            details,
-        );
     }
 
-    static createFromMongo(err: unknown): DuplicateError {
+    private static handleDuplicateKey(
+        err: Record<string, unknown>,
+        res: Response,
+        req: Request,
+    ): void {
         const error = err as {
             name?: string;
             writeErrors?: Array<{
                 err?: {
-                    op?: { q?: { _id?: unknown }; _id?: unknown };
+                    op?: Record<string, unknown>;
                     errmsg?: string;
                 };
             }>;
@@ -136,11 +139,17 @@ class DuplicateError extends AppError {
         let details: unknown;
 
         if (error.name === 'MongoBulkWriteError') {
-            details = error.writeErrors?.map(({ err: writeErr }) => ({
-                msg: baseErrMsg,
-                _id: writeErr?.op?.q?._id ?? writeErr?.op?._id,
-                property: getKey(writeErr?.errmsg ?? ''),
-            }));
+            details = error.writeErrors?.map(({ err: writeErr }) => {
+                const op = writeErr?.op;
+                const entry: Record<string, unknown> = {
+                    msg: baseErrMsg,
+                    property: getKey(writeErr?.errmsg ?? ''),
+                };
+                if (op?._id) {
+                    entry._id = op._id;
+                }
+                return entry;
+            });
         } else {
             details = [
                 {
@@ -150,6 +159,70 @@ class DuplicateError extends AppError {
             ];
         }
 
-        return new DuplicateError(baseErrMsg, details);
+        const appError = new AppError(
+            ErrorCode.DB_DUPLICATE_KEY,
+            HttpStatus.BAD_REQUEST,
+            baseErrMsg,
+            details,
+        );
+        res.status(appError.statusCode).json(appError.toResponse(req.url));
+    }
+
+    private static handleValidationFailure(
+        err: Record<string, unknown>,
+        res: Response,
+        req: Request,
+    ): void {
+        const error = err as {
+            errorResponse?: {
+                errmsg?: string;
+                validationErrors?: Array<{
+                    path: string;
+                    message: string;
+                }>;
+            };
+        };
+
+        const validationErrors =
+            error.errorResponse?.validationErrors?.map((v) => ({
+                field: v.path,
+                message: v.message,
+            })) ?? [];
+
+        const appError = new AppError(
+            ErrorCode.DB_VALIDATION_ERROR,
+            HttpStatus.BAD_REQUEST,
+            'Document validation failed',
+            validationErrors.length > 0 ? validationErrors : null,
+        );
+        res.status(appError.statusCode).json(appError.toResponse(req.url));
+    }
+
+    private static handleWriteConflict(
+        err: Record<string, unknown>,
+        res: Response,
+        req: Request,
+    ): void {
+        const appError = new AppError(
+            ErrorCode.INTERNAL_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            'Write conflict - please retry',
+            { originalError: err.message },
+        );
+        res.status(appError.statusCode).json(appError.toResponse(req.url));
+    }
+
+    private static handleGenericError(
+        err: Record<string, unknown>,
+        res: Response,
+        req: Request,
+    ): void {
+        const appError = new AppError(
+            ErrorCode.INTERNAL_ERROR,
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            'Database error',
+            { originalError: err.message },
+        );
+        res.status(appError.statusCode).json(appError.toResponse(req.url));
     }
 }
