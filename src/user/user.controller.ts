@@ -17,6 +17,7 @@ export class UserController {
     getProfile(@CurrentUser() user: AuthUser) {
         return {
             username: user.username,
+            roles: user.roles,
         };
     }
 
