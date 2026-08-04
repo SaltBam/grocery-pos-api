@@ -1,10 +1,9 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { RefreshToken } from './refresh-token.schema';
 import { ClientSession, Connection, Model, Types } from 'mongoose';
 import { TypedConfigService } from '../../common/typed-config/typed-config.service';
 import { JWTPayload, Role } from '../types';
-import { AuthService } from '../auth.service';
 import { AuthError, ErrorCode } from '../../common/errors';
 
 type FoundRefresh = Omit<RefreshToken, 'user'> & {
@@ -20,7 +19,6 @@ export class RefreshTokenService {
     constructor(
         @InjectConnection() private connection: Connection,
         @InjectModel(RefreshToken.name) private model: Model<RefreshToken>,
-        @Inject(forwardRef(() => AuthService))
         private config: TypedConfigService,
     ) {}
 
